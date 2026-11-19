@@ -7,9 +7,19 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Noto+Sans+TC:wght@400;500;700&display=swap');
+    :root {
+      --usumizuiro: #bce2e8; /* 薄水色 */
+      --mizuiro:    #94cad6; /* 水色 */
+      --sorairo:    #89c3eb; /* 空色 */
+      --misorairo:  #6894c8; /* 御空色 */
+      --misora-dark:#527db0; /* 御空深色 */
+      --bg-tint:    #f3f9fb; /* 極淺薄水底色 */
+      --ink-deep:   #2b4159; /* 藍調深墨字色 */
+    }
     body {
       font-family: 'Noto Sans TC', 'Noto Sans JP', sans-serif;
-      background-color: #f8fafc;
+      background-color: var(--bg-tint);
+      color: var(--ink-deep);
     }
     .japanese-text {
       font-family: 'Noto Sans JP', sans-serif;
@@ -23,102 +33,138 @@
       transform-origin: center;
       transform-box: fill-box;
     }
+    .btn-misora {
+      background-color: var(--misorairo);
+      color: #ffffff;
+    }
+    .btn-misora:hover {
+      background-color: var(--misora-dark);
+    }
+    .btn-sora {
+      background-color: var(--sorairo);
+      color: #1e354d;
+    }
+    .btn-sora:hover {
+      background-color: #74b5e2;
+    }
+    .btn-mizu {
+      background-color: var(--mizuiro);
+      color: #1e354d;
+    }
+    .btn-mizu:hover {
+      background-color: #81bcc9;
+    }
+    .btn-usumizu {
+      background-color: var(--usumizuiro);
+      color: #2b4159;
+    }
+    .btn-usumizu:hover {
+      background-color: #a9d7df;
+    }
   </style>
 </head>
-<body class="text-slate-800 min-h-screen flex flex-col">
+<body class="min-h-screen flex flex-col">
 
-  <!-- 頂部導覽列 -->
-  <header class="bg-indigo-700 text-white shadow-md sticky top-0 z-30">
-    <div class="max-w-6xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+  <!-- 頂部導覽列（御空色 #6894c8：純家圖示🏠、座標圖示📍+目前所在地、操作手冊📖、連線🔗） -->
+  <header style="background-color: var(--misorairo);" class="text-white shadow-md sticky top-0 z-30">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
       <div class="flex items-center gap-2 cursor-pointer" onclick="switchView('home')">
         <span class="text-2xl">🗾</span>
-        <h1 class="font-bold text-lg tracking-wide">日文閃卡・環日本 47 都道府縣</h1>
+        <h1 class="font-bold text-base sm:text-lg tracking-wide">日文閃卡・環日本 47 都道府縣</h1>
       </div>
+
       <div class="flex items-center gap-2 text-sm">
-        <button onclick="switchView('home')" id="nav-home" class="px-3 py-1.5 rounded-lg bg-indigo-800 font-medium hover:bg-indigo-600 transition">📚 主題題庫</button>
-        <button onclick="switchView('travel')" id="nav-travel" class="px-3 py-1.5 rounded-lg bg-amber-500 text-slate-900 font-bold hover:bg-amber-400 transition flex items-center gap-1">
-          <span>🚶</span> 環日本進度 (<span id="header-km">0</span> km)
+        <!-- 純家圖示按鈕（已移除「主題題庫」文字） -->
+        <button type="button" onclick="switchView('home')" id="nav-home" class="w-9 h-9 rounded-xl bg-white/20 hover:bg-white/30 transition flex items-center justify-center text-base" title="首頁">
+          🏠
         </button>
-        <button onclick="openModal('modal-manual')" class="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 transition" title="操作手冊">📖</button>
-        <button onclick="openApiModal()" class="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 transition" title="設定 GAS API 網址">⚙️</button>
+
+        <!-- 座標圖示 + 目前所在地名稱（例如：東京） -->
+        <button type="button" onclick="switchView('travel')" id="nav-travel" style="background-color: var(--usumizuiro); color: var(--ink-deep);" class="px-3 py-1.5 rounded-xl font-bold hover:opacity-90 transition flex items-center gap-1.5 shadow-sm" title="查看環日本地圖與進度">
+          <svg viewBox="0 0 24 24" class="w-4 h-4 shrink-0" fill="#e11d48" aria-hidden="true">
+            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5S13.38 11.5 12 11.5z"/>
+          </svg>
+          <span id="header-location" class="tracking-wide">東京</span>
+        </button>
+
+        <!-- 操作手冊與鎖鏈連線按鈕並排於最右側 -->
+        <div class="flex items-center gap-1.5 pl-1.5 border-l border-white/30">
+          <button type="button" onclick="openModal('modal-manual')" class="w-9 h-9 rounded-xl bg-white/20 hover:bg-white/30 transition flex items-center justify-center text-base" title="操作手冊">
+            📖
+          </button>
+          <button type="button" onclick="openApiModal()" class="w-9 h-9 rounded-xl bg-white/20 hover:bg-white/30 transition flex items-center justify-center text-base" title="連結 Google 試算表 (GAS API)">
+            🔗
+          </button>
+        </div>
       </div>
     </div>
   </header>
 
   <!-- 全域讀取提示 -->
-  <div id="loading-bar" class="hidden bg-amber-100 border-b border-amber-300 text-amber-900 px-4 py-2 text-sm text-center font-medium">
+  <div id="loading-bar" style="background-color: var(--usumizuiro); border-color: var(--mizuiro); color: var(--ink-deep);" class="hidden border-b px-4 py-2 text-sm text-center font-medium">
     ⏳ 正在與 Google 試算表同步資料...
   </div>
 
   <!-- 主內容區 -->
   <main class="flex-1 max-w-6xl w-full mx-auto px-4 py-6">
 
-    <!-- ==================== 1. 閃卡首頁（極簡純圖示工具列 + 主題卡片） ==================== -->
+    <!-- ==================== 1. 閃卡首頁（統一水色系純圖示工具列 + 主題卡片） ==================== -->
     <section id="view-home" class="space-y-5">
-      <!-- 純圖示操作列（無大標題與冗長說明） -->
-      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 px-4 py-3 flex items-center justify-between gap-3">
-        <!-- 左側：批次操作與新增純圖示按鈕 -->
-        <div class="flex items-center gap-2">
-          <button type="button" onclick="openAddTopicModal()" class="w-10 h-10 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 shadow-sm transition flex items-center justify-center text-lg" title="添加主題">
+      <div style="border-color: var(--usumizuiro);" class="bg-white rounded-2xl shadow-sm border-2 px-4 py-3 flex items-center justify-between gap-3">
+        <div class="flex items-center gap-2.5">
+          <button type="button" onclick="openAddTopicModal()" class="btn-misora w-10 h-10 rounded-xl font-bold shadow-sm transition flex items-center justify-center text-lg" title="添加主題">
             ＋
           </button>
-          <button type="button" onclick="handleClearSelectedProgress()" class="w-10 h-10 bg-amber-100 text-amber-800 rounded-xl hover:bg-amber-200 transition flex items-center justify-center text-lg" title="清除勾選紀錄">
+          <button type="button" onclick="handleClearSelectedProgress()" class="btn-mizu w-10 h-10 rounded-xl transition flex items-center justify-center text-lg" title="清除勾選紀錄">
             🧹
           </button>
-          <button type="button" onclick="handleDeleteSelectedTopics()" class="w-10 h-10 bg-rose-100 text-rose-700 rounded-xl hover:bg-rose-200 transition flex items-center justify-center text-lg" title="刪除勾選主題">
+          <button type="button" onclick="handleDeleteSelectedTopics()" class="btn-usumizu w-10 h-10 rounded-xl transition flex items-center justify-center text-lg" title="刪除勾選主題">
             🗑️
           </button>
         </div>
 
-        <!-- 右側：待修訂標註清單按鈕 + 操作手冊圖示按鈕 -->
-        <div class="flex items-center gap-2">
-          <button type="button" onclick="openRevisionsModal()" class="relative h-10 px-3.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-xl font-bold transition flex items-center gap-1.5 text-sm" title="查看標記修訂的卡片紀錄">
+        <div class="flex items-center">
+          <button type="button" onclick="openRevisionsModal()" class="btn-sora relative w-10 h-10 rounded-xl transition flex items-center justify-center text-lg shadow-sm" title="查看標註修訂卡片紀錄">
             <span>🚩</span>
-            <span>標註修訂</span>
-            <span id="revision-count-badge" class="hidden ml-0.5 px-1.5 py-0.2 bg-rose-600 text-white text-xs rounded-full">0</span>
-          </button>
-          <button type="button" onclick="openModal('modal-manual')" class="w-10 h-10 bg-slate-100 hover:bg-indigo-50 text-slate-700 hover:text-indigo-700 rounded-xl transition flex items-center justify-center text-lg" title="操作手冊">
-            📖
+            <span id="revision-count-badge" style="background-color: var(--misorairo);" class="hidden absolute -top-1.5 -right-1.5 min-w-[20px] h-5 px-1 text-white text-[11px] font-bold rounded-full flex items-center justify-center border-2 border-white">0</span>
           </button>
         </div>
       </div>
 
-      <!-- 主題清單容器（僅顯示主題名稱與獨立編輯按鈕） -->
       <div id="topics-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
     </section>
 
     <!-- ==================== 2. 練習前篩選器 ==================== -->
     <section id="view-filter" class="hidden max-w-xl mx-auto">
-      <div class="bg-white rounded-2xl shadow-md border border-slate-200 p-6 space-y-5">
-        <div class="flex items-center justify-between border-b pb-3">
+      <div style="border-color: var(--usumizuiro);" class="bg-white rounded-2xl shadow-md border-2 p-6 space-y-5">
+        <div style="border-color: var(--usumizuiro);" class="flex items-center justify-between border-b pb-3">
           <div>
-            <span class="text-xs font-bold uppercase tracking-wider text-indigo-600">準備開始複習</span>
-            <h2 id="filter-topic-title" class="text-xl font-bold text-slate-800 mt-0.5">主題名稱</h2>
+            <span style="color: var(--misorairo);" class="text-xs font-bold uppercase tracking-wider">準備開始複習</span>
+            <h2 id="filter-topic-title" class="text-xl font-bold mt-0.5">主題名稱</h2>
           </div>
           <button onclick="switchView('home')" class="text-slate-400 hover:text-slate-600 text-sm">✕ 返回</button>
         </div>
 
         <div id="format-warning-box" class="hidden bg-rose-50 border border-rose-200 text-rose-700 text-xs p-3 rounded-xl"></div>
 
-        <!-- 條件 A：練習順序與狀態篩選 -->
         <div class="space-y-2.5">
-          <label class="block text-sm font-bold text-slate-700">1. 選擇練習順序與進度模式：</label>
-          <label class="flex items-center gap-3 p-3 border rounded-xl cursor-pointer hover:bg-slate-50">
-            <input type="radio" name="filterMode" value="resume" checked onchange="updateFilterMatchCount()" class="w-4 h-4 text-indigo-600">
+          <label class="block text-sm font-bold">1. 選擇練習順序與進度模式：</label>
+          <label style="border-color: var(--usumizuiro);" class="flex items-center gap-3 p-3 border rounded-xl cursor-pointer hover:bg-[#f3f9fb]">
+            <input type="radio" name="filterMode" value="resume" checked onchange="updateFilterMatchCount()" class="w-4 h-4 accent-[#6894c8]">
             <div>
               <div class="font-medium text-sm">接續上次進度</div>
               <div class="text-xs text-slate-500">從上次最後停留的卡片繼續往後練習</div>
             </div>
           </label>
-          <label class="flex items-center gap-3 p-3 border rounded-xl cursor-pointer hover:bg-slate-50">
-            <input type="radio" name="filterMode" value="restart" onchange="updateFilterMatchCount()" class="w-4 h-4 text-indigo-600">
+          <label style="border-color: var(--usumizuiro);" class="flex items-center gap-3 p-3 border rounded-xl cursor-pointer hover:bg-[#f3f9fb]">
+            <input type="radio" name="filterMode" value="restart" onchange="updateFilterMatchCount()" class="w-4 h-4 accent-[#6894c8]">
             <div>
               <div class="font-medium text-sm">從頭開始（第 1 張）</div>
               <div class="text-xs text-slate-500">依工作表原始順序從第一題開始</div>
             </div>
           </label>
-          <label class="flex items-center gap-3 p-3 border rounded-xl cursor-pointer hover:bg-slate-50">
-            <input type="radio" name="filterMode" value="wrong" onchange="updateFilterMatchCount()" class="w-4 h-4 text-indigo-600">
+          <label style="border-color: var(--usumizuiro);" class="flex items-center gap-3 p-3 border rounded-xl cursor-pointer hover:bg-[#f3f9fb]">
+            <input type="radio" name="filterMode" value="wrong" onchange="updateFilterMatchCount()" class="w-4 h-4 accent-[#6894c8]">
             <div class="flex-1 flex items-center justify-between">
               <div>
                 <div class="font-medium text-sm">錯題集中加強</div>
@@ -131,8 +177,8 @@
               </div>
             </div>
           </label>
-          <label class="flex items-center gap-3 p-3 border rounded-xl cursor-pointer hover:bg-slate-50">
-            <input type="radio" name="filterMode" value="shuffle" onchange="updateFilterMatchCount()" class="w-4 h-4 text-indigo-600">
+          <label style="border-color: var(--usumizuiro);" class="flex items-center gap-3 p-3 border rounded-xl cursor-pointer hover:bg-[#f3f9fb]">
+            <input type="radio" name="filterMode" value="shuffle" onchange="updateFilterMatchCount()" class="w-4 h-4 accent-[#6894c8]">
             <div>
               <div class="font-medium text-sm">全部隨機打亂</div>
               <div class="text-xs text-slate-500">將篩選後的卡片隨機洗牌</div>
@@ -140,20 +186,19 @@
           </label>
         </div>
 
-        <!-- 條件 B：指定單一欄位項目複選篩選 -->
-        <div class="space-y-2.5 border-t pt-4">
+        <div style="border-color: var(--usumizuiro);" class="space-y-2.5 border-t pt-4">
           <div class="flex items-center justify-between">
-            <label class="block text-sm font-bold text-slate-700">2. 指定欄位分類篩選（選填，單選一欄）：</label>
+            <label class="block text-sm font-bold">2. 指定欄位分類篩選（選填，單選一欄）：</label>
           </div>
-          <select id="filter-custom-col" onchange="handleFilterCustomColChange()" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm bg-white">
+          <select id="filter-custom-col" onchange="handleFilterCustomColChange()" style="border-color: var(--mizuiro);" class="w-full border rounded-xl px-3 py-2 text-sm bg-white">
             <option value="">-- 不限欄位（練習全部資料） --</option>
           </select>
 
-          <div id="filter-custom-values-wrapper" class="hidden bg-slate-50 border border-slate-200 rounded-xl p-3 space-y-2">
+          <div id="filter-custom-values-wrapper" style="background-color: var(--bg-tint); border-color: var(--usumizuiro);" class="hidden border rounded-xl p-3 space-y-2">
             <div class="flex items-center justify-between text-xs text-slate-500 border-b pb-1.5">
               <span>勾選要納入練習的項目（可複選）：</span>
               <div class="space-x-2">
-                <button type="button" onclick="toggleAllFilterValues(true)" class="text-indigo-600 hover:underline font-medium">全選</button>
+                <button type="button" onclick="toggleAllFilterValues(true)" style="color: var(--misorairo);" class="hover:underline font-bold">全選</button>
                 <button type="button" onclick="toggleAllFilterValues(false)" class="text-slate-500 hover:underline">全不選</button>
               </div>
             </div>
@@ -161,7 +206,7 @@
           </div>
         </div>
 
-        <button onclick="startStudySession()" class="w-full py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 shadow transition">
+        <button onclick="startStudySession()" class="btn-misora w-full py-3 rounded-xl font-bold shadow transition">
           開始練習 (<span id="filter-total-count">0</span> 張符合卡片)
         </button>
       </div>
@@ -169,48 +214,42 @@
 
     <!-- ==================== 3. 閃卡練習介面 ==================== -->
     <section id="view-study" class="hidden max-w-2xl mx-auto space-y-4">
-      <div class="flex items-center justify-between text-sm text-slate-600 bg-white px-4 py-2.5 rounded-xl border shadow-sm">
-        <button onclick="switchView('home')" class="text-indigo-600 font-medium hover:underline">← 結束返回</button>
-        <div class="font-bold text-slate-700">進度：<span id="study-progress-text">1 / 10</span></div>
-        <div class="text-xs bg-slate-100 px-2.5 py-1 rounded-full font-medium text-slate-700" id="card-stats-badge">
+      <div style="border-color: var(--usumizuiro);" class="flex items-center justify-between text-sm bg-white px-4 py-2.5 rounded-xl border-2 shadow-sm">
+        <button onclick="switchView('home')" style="color: var(--misorairo);" class="font-bold hover:underline">← 結束返回</button>
+        <div class="font-bold">進度：<span id="study-progress-text">1 / 10</span></div>
+        <div style="background-color: var(--bg-tint);" class="text-xs px-2.5 py-1 rounded-full font-medium" id="card-stats-badge">
           第 0 次練習 ｜ 對 0 ｜ 錯 0
         </div>
       </div>
 
-      <div id="flashcard-container" onclick="handleCardBackgroundClick(event)" class="bg-white rounded-3xl shadow-lg border-2 border-slate-200 p-6 md:p-8 min-h-[340px] flex flex-col justify-between cursor-pointer transition relative">
-        <!-- 出題面（上方出題句子，下方提示欄位，按鈕為「回答」） -->
+      <div id="flashcard-container" onclick="handleCardBackgroundClick(event)" style="border-color: var(--mizuiro);" class="bg-white rounded-3xl shadow-lg border-2 p-6 md:p-8 min-h-[340px] flex flex-col justify-between cursor-pointer transition relative">
         <div id="card-front" class="space-y-6">
           <div class="flex justify-between items-center">
             <div class="flex items-center gap-2">
-              <span class="px-2.5 py-1 bg-indigo-50 text-indigo-700 text-xs font-bold rounded-lg">出題卡片</span>
-              <span id="retry-mode-badge" class="hidden px-2.5 py-1 bg-amber-100 text-amber-800 text-xs font-bold rounded-lg">🔄 重新作答中（對 +1 / 錯 -2）</span>
+              <span style="background-color: var(--usumizuiro); color: var(--ink-deep);" class="px-2.5 py-1 text-xs font-bold rounded-lg">出題卡片</span>
+              <span id="retry-mode-badge" style="background-color: var(--sorairo); color: #1e354d;" class="hidden px-2.5 py-1 text-xs font-bold rounded-lg">🔄 重新作答中（對 +1 / 錯 -2）</span>
             </div>
             <span class="text-xs text-slate-400">💡 點擊空白處可直接看答案</span>
           </div>
 
-          <!-- 上方：克漏字題目區 -->
           <div class="py-4 text-center">
-            <div id="card-question-area" class="japanese-text text-xl md:text-2xl font-bold leading-relaxed text-slate-800 flex flex-wrap items-center justify-center gap-1.5"></div>
+            <div id="card-question-area" class="japanese-text text-xl md:text-2xl font-bold leading-relaxed flex flex-wrap items-center justify-center gap-1.5"></div>
           </div>
 
-          <!-- 下方：提示欄位區 -->
-          <div id="card-hints-area" class="bg-slate-50 rounded-xl p-4 space-y-1.5 text-sm border border-slate-100"></div>
+          <div id="card-hints-area" style="background-color: var(--bg-tint); border-color: var(--usumizuiro);" class="rounded-xl p-4 space-y-1.5 text-sm border"></div>
 
-          <!-- 按鈕：回答 -->
           <div class="pt-2 flex justify-center">
-            <button id="btn-submit-answer" onclick="submitClozeAnswer(event)" class="px-10 py-3 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 shadow-md transition">
+            <button id="btn-submit-answer" onclick="submitClozeAnswer(event)" class="btn-misora px-10 py-3 font-bold rounded-xl shadow-md transition">
               回答
             </button>
           </div>
         </div>
 
-        <!-- 答案面（右上角「🚩 標記修訂」按鈕 + 下方「🔄 重新作答」按鈕） -->
         <div id="card-back" class="hidden space-y-5 cursor-default" onclick="event.stopPropagation()">
-          <!-- 答案卡頂部工具列 -->
           <div class="flex items-center justify-between">
-            <span class="px-2.5 py-1 bg-emerald-50 text-emerald-700 text-xs font-bold rounded-lg">答案卡片</span>
-            <button type="button" id="btn-flag-revision" onclick="flagCurrentCardForRevision()" class="px-3 py-1.5 rounded-xl border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold transition flex items-center gap-1.5" title="標記此卡片需要修訂">
-              <span>🚩</span> <span id="btn-flag-revision-text">標記修訂</span>
+            <span style="background-color: var(--mizuiro); color: var(--ink-deep);" class="px-2.5 py-1 text-xs font-bold rounded-lg">答案卡片</span>
+            <button type="button" id="btn-flag-revision" onclick="flagCurrentCardForRevision()" class="btn-usumizu w-9 h-9 rounded-xl transition flex items-center justify-center text-base shadow-sm" title="標註此卡片需要修訂">
+              <span>🚩</span>
             </button>
           </div>
 
@@ -219,22 +258,21 @@
               <div id="result-title" class="font-bold text-lg"></div>
               <div id="result-detail" class="text-sm mt-1"></div>
             </div>
-            <div id="result-km-badge" class="text-2xl font-black px-3 py-1 rounded-xl bg-white/80"></div>
+            <div id="result-km-badge" class="text-2xl font-black px-3 py-1 rounded-xl bg-white/85"></div>
           </div>
 
-          <div class="bg-indigo-50/60 border border-indigo-100 rounded-2xl p-4 text-center">
-            <div class="text-xs text-indigo-500 font-bold mb-1">完整句子</div>
-            <div id="back-full-sentence" class="japanese-text text-xl font-bold text-slate-800"></div>
+          <div style="background-color: var(--bg-tint); border-color: var(--usumizuiro);" class="border rounded-2xl p-4 text-center">
+            <div style="color: var(--misorairo);" class="text-xs font-bold mb-1">完整句子</div>
+            <div id="back-full-sentence" class="japanese-text text-xl font-bold"></div>
           </div>
 
-          <div id="card-answers-area" class="bg-slate-50 rounded-xl p-4 space-y-2 text-sm border border-slate-200"></div>
+          <div id="card-answers-area" style="background-color: var(--bg-tint); border-color: var(--usumizuiro);" class="rounded-xl p-4 space-y-2 text-sm border"></div>
 
-          <!-- 底部按鈕列：重新作答 + 下一張卡片 -->
           <div class="pt-2 flex flex-wrap items-center justify-between gap-3">
-            <button type="button" onclick="retryCurrentCard()" class="px-5 py-3 bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold rounded-xl transition flex items-center gap-1.5 text-sm" title="重新作答（答對 +1 km，答錯 -2 km）">
+            <button type="button" onclick="retryCurrentCard()" class="btn-sora px-5 py-3 font-bold rounded-xl transition flex items-center gap-1.5 text-sm" title="重新作答（答對 +1 km，答錯 -2 km）">
               <span>🔄</span> 重新作答
             </button>
-            <button type="button" onclick="nextCard()" class="px-8 py-3 bg-slate-800 text-white font-bold rounded-xl hover:bg-slate-900 shadow transition">
+            <button type="button" onclick="nextCard()" class="btn-misora px-8 py-3 font-bold rounded-xl shadow transition">
               下一張卡片 →
             </button>
           </div>
@@ -244,55 +282,55 @@
 
     <!-- ==================== 4. 成果展示（逆時針環日本地圖） ==================== -->
     <section id="view-travel" class="hidden space-y-6">
-      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 flex flex-wrap items-center justify-between gap-4">
+      <div style="border-color: var(--usumizuiro);" class="bg-white rounded-2xl shadow-sm border-2 p-5 flex flex-wrap items-center justify-between gap-4">
         <div class="flex items-center gap-4">
-          <div id="travel-avatar-display" class="w-14 h-14 rounded-2xl bg-indigo-100 flex items-center justify-center text-3xl border-2 border-indigo-300 shadow-inner">🧑</div>
+          <div id="travel-avatar-display" style="background-color: var(--usumizuiro); border-color: var(--mizuiro);" class="w-14 h-14 rounded-2xl flex items-center justify-center text-3xl border-2 shadow-inner">🧑</div>
           <div>
             <div class="flex items-center gap-2">
-              <span class="px-2.5 py-0.5 bg-amber-100 text-amber-800 font-bold text-xs rounded-full">第 <span id="travel-loop">1</span> 圈環島中</span>
-              <button onclick="openCharacterModal()" class="text-xs text-indigo-600 hover:underline">切換角色</button>
+              <span style="background-color: var(--sorairo); color: #1e354d;" class="px-2.5 py-0.5 font-bold text-xs rounded-full">第 <span id="travel-loop">1</span> 圈環島中</span>
+              <button onclick="openCharacterModal()" style="color: var(--misorairo);" class="text-xs font-bold hover:underline">切換角色</button>
             </div>
-            <h2 class="text-xl font-bold text-slate-800 mt-1">
-              目前位置：<span id="travel-current-location" class="text-indigo-700">東京都（東京車站）</span>
+            <h2 class="text-xl font-bold mt-1">
+              目前位置：<span id="travel-current-location" style="color: var(--misorairo);">東京都（東京車站）</span>
             </h2>
             <p class="text-xs text-slate-500 mt-0.5">
-              累積里程：<strong id="travel-km" class="text-slate-800">0</strong> / 3,000 km ｜ 距離下一站 <span id="travel-next-name">千葉縣</span> 還差 <strong id="travel-next-remain">45</strong> km
+              累積里程：<strong id="travel-km">0</strong> / 3,000 km ｜ 距離下一站 <span id="travel-next-name">千葉縣</span> 還差 <strong id="travel-next-remain">45</strong> km
             </p>
           </div>
         </div>
         <div class="text-right">
           <div class="text-xs text-slate-400">本圈已解鎖都道府縣</div>
-          <div class="text-2xl font-black text-indigo-600"><span id="travel-unlocked-count">1</span> <span class="text-sm font-normal text-slate-500">/ 50 站 (47都道府縣全制霸)</span></div>
+          <div style="color: var(--misorairo);" class="text-2xl font-black"><span id="travel-unlocked-count">1</span> <span class="text-sm font-normal text-slate-500">/ 50 站 (47都道府縣全制霸)</span></div>
         </div>
       </div>
 
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        <div class="lg:col-span-7 bg-sky-50 rounded-2xl border border-sky-200 p-4 shadow-inner flex flex-col items-center justify-center relative overflow-hidden">
-          <div class="absolute top-3 left-3 bg-white/90 backdrop-blur px-3 py-1.5 rounded-xl text-xs font-bold text-sky-900 shadow-sm">
-            🧭 逆時針環日本路線圖（首答對 +1 / 首答錯 -1）
+        <div style="background-color: #eaf5f8; border-color: var(--mizuiro);" class="lg:col-span-7 rounded-2xl border-2 p-4 shadow-inner flex flex-col items-center justify-center relative overflow-hidden">
+          <div class="absolute top-3 left-3 bg-white/90 backdrop-blur px-3 py-1.5 rounded-xl text-xs font-bold shadow-sm">
+            📍 逆時針環日本路線圖（首答對 +1 / 首答錯 -1）
           </div>
           <svg id="japan-map-svg" viewBox="0 0 600 620" class="w-full h-auto max-h-[560px] select-none">
-            <g fill="#e2e8f0" stroke="#94a3b8" stroke-width="1.5">
+            <g fill="#ffffff" stroke="#94cad6" stroke-width="1.8">
               <path d="M430,30 L510,20 L550,65 L515,115 L455,110 L425,135 L405,110 L425,70 Z" />
               <path d="M405,150 L435,160 L440,240 L425,320 L395,365 L350,375 L310,385 L265,380 L210,385 L155,395 L135,375 L180,350 L245,345 L300,335 L335,295 L370,255 L385,190 Z" />
               <path d="M205,400 L255,395 L260,425 L200,435 Z" />
               <path d="M120,405 L165,410 L170,480 L130,500 L110,455 Z" />
               <path d="M45,545 L85,535 L90,555 L50,565 Z" />
             </g>
-            <polyline id="map-route-line" fill="none" stroke="#cbd5e1" stroke-width="3" stroke-dasharray="4 4" />
-            <polyline id="map-progress-line" fill="none" stroke="#4f46e5" stroke-width="3.5" stroke-linecap="round" />
+            <polyline id="map-route-line" fill="none" stroke="#bce2e8" stroke-width="3" stroke-dasharray="4 4" />
+            <polyline id="map-progress-line" fill="none" stroke="#6894c8" stroke-width="3.5" stroke-linecap="round" />
             <g id="map-nodes-group"></g>
             <g id="map-player-marker" transform="translate(395, 345)">
-              <circle r="14" fill="#f59e0b" class="avatar-pulse" />
-              <circle r="13" fill="#ffffff" stroke="#4f46e5" stroke-width="2.5" />
+              <circle r="14" fill="#89c3eb" class="avatar-pulse" />
+              <circle r="13" fill="#ffffff" stroke="#6894c8" stroke-width="2.5" />
               <text id="map-player-emoji" y="5" text-anchor="middle" font-size="15">🧑</text>
             </g>
           </svg>
         </div>
 
-        <div class="lg:col-span-5 bg-white rounded-2xl border border-slate-200 p-4 flex flex-col max-h-[620px]">
-          <div class="flex items-center justify-between border-b pb-3 mb-3">
-            <h3 class="font-bold text-slate-800">📸 里程碑打卡相簿</h3>
+        <div style="border-color: var(--usumizuiro);" class="lg:col-span-5 bg-white rounded-2xl border-2 p-4 flex flex-col max-h-[620px]">
+          <div style="border-color: var(--usumizuiro);" class="flex items-center justify-between border-b pb-3 mb-3">
+            <h3 class="font-bold">📸 里程碑打卡相簿</h3>
             <span class="text-xs text-slate-500">抵達縣市自動解鎖，可替換照片</span>
           </div>
           <div id="milestones-album" class="flex-1 overflow-y-auto space-y-3 pr-1"></div>
@@ -302,99 +340,99 @@
 
   </main>
 
-  <!-- ==================== 彈窗 1：設定 GAS API 網址 ==================== -->
-  <div id="modal-api" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-2xl">
-      <h3 class="text-lg font-bold text-slate-800">🔗 連結 Google 試算表 (GAS API)</h3>
+  <!-- ==================== 彈窗 1：設定 GAS API 網址（鎖鏈連線） ==================== -->
+  <div id="modal-api" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div style="border-color: var(--mizuiro);" class="bg-white rounded-2xl border-2 max-w-lg w-full p-6 space-y-4 shadow-2xl">
+      <h3 class="text-lg font-bold flex items-center gap-2"><span>🔗</span> 連結 Google 試算表 (GAS API)</h3>
       <p class="text-xs text-slate-500 leading-relaxed">
-        請貼上你在 Google Apps Script 部署為「網頁應用程式」後取得的 <code class="bg-slate-100 px-1 py-0.5 rounded text-indigo-600">/exec</code> 網址。資料與複習進度將自動寫入該試算表。
+        請貼上你在 Google Apps Script 部署為「網頁應用程式」後取得的 <code style="background-color: var(--bg-tint); color: var(--misorairo);" class="px-1.5 py-0.5 rounded font-bold">/exec</code> 網址。資料與複習進度將自動寫入該試算表。
       </p>
-      <input type="url" id="input-gas-url" placeholder="https://script.google.com/macros/s/...../exec" class="w-full border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+      <input type="url" id="input-gas-url" placeholder="https://script.google.com/macros/s/...../exec" style="border-color: var(--mizuiro);" class="w-full border rounded-xl px-3.5 py-2.5 text-sm focus:outline-none">
       <div class="flex justify-end gap-2 pt-2">
-        <button onclick="closeModal('modal-api')" class="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-xl text-sm">取消</button>
-        <button onclick="saveGasUrl()" class="px-5 py-2 bg-indigo-600 text-white font-bold rounded-xl text-sm hover:bg-indigo-700">儲存並連線</button>
+        <button onclick="closeModal('modal-api')" class="px-4 py-2 text-slate-500 hover:bg-slate-100 rounded-xl text-sm">取消</button>
+        <button onclick="saveGasUrl()" class="btn-misora px-5 py-2 font-bold rounded-xl text-sm">儲存並連線</button>
       </div>
     </div>
   </div>
 
   <!-- ==================== 彈窗 2：添加 / 編輯主題 ==================== -->
-  <div id="modal-add-topic" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
-    <div class="bg-white rounded-2xl max-w-xl w-full p-6 space-y-5 shadow-2xl my-8">
-      <div class="flex items-center justify-between border-b pb-3">
-        <h3 id="topic-modal-title" class="text-lg font-bold text-slate-800">➕ 添加複習主題</h3>
+  <div id="modal-add-topic" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
+    <div style="border-color: var(--mizuiro);" class="bg-white rounded-2xl border-2 max-w-xl w-full p-6 space-y-5 shadow-2xl my-8">
+      <div style="border-color: var(--usumizuiro);" class="flex items-center justify-between border-b pb-3">
+        <h3 id="topic-modal-title" class="text-lg font-bold">➕ 添加複習主題</h3>
         <button onclick="closeModal('modal-add-topic')" class="text-slate-400 hover:text-slate-600">✕</button>
       </div>
 
       <div class="space-y-4 text-sm">
         <div>
-          <label class="block font-bold text-slate-700 mb-1">1. 主題名稱</label>
-          <input type="text" id="topic-name" placeholder="例如：綜合日語 第1課 語彙" class="w-full border rounded-xl px-3 py-2">
+          <label class="block font-bold mb-1">1. 主題名稱</label>
+          <input type="text" id="topic-name" placeholder="例如：綜合日語 第1課 語彙" style="border-color: var(--mizuiro);" class="w-full border rounded-xl px-3 py-2">
         </div>
 
         <div>
-          <label class="block font-bold text-slate-700 mb-1">2. 選擇工作表 (Sheet)</label>
-          <select id="topic-sheet-select" onchange="handleSheetSelectChange()" class="w-full border rounded-xl px-3 py-2 bg-white">
+          <label class="block font-bold mb-1">2. 選擇工作表 (Sheet)</label>
+          <select id="topic-sheet-select" onchange="handleSheetSelectChange()" style="border-color: var(--mizuiro);" class="w-full border rounded-xl px-3 py-2 bg-white">
             <option value="">-- 請先選擇工作表 --</option>
           </select>
         </div>
 
         <div id="column-config-fields" class="hidden space-y-4">
           <div>
-            <label class="block font-bold text-slate-700 mb-1">3. 出題卡片－出題欄位（單選，含 [ ]）</label>
-            <select id="topic-question-col" class="w-full border rounded-xl px-3 py-2 bg-white"></select>
+            <label class="block font-bold mb-1">3. 出題卡片－出題欄位（單選，含 [ ]）</label>
+            <select id="topic-question-col" style="border-color: var(--mizuiro);" class="w-full border rounded-xl px-3 py-2 bg-white"></select>
           </div>
 
           <div>
-            <label class="block font-bold text-slate-700 mb-1">4. 出題卡片－提示欄位（可多選）</label>
-            <div id="topic-hint-cols" class="max-h-32 overflow-y-auto border rounded-xl p-2.5 grid grid-cols-2 gap-1.5 bg-slate-50"></div>
+            <label class="block font-bold mb-1">4. 出題卡片－提示欄位（可多選）</label>
+            <div id="topic-hint-cols" style="background-color: var(--bg-tint); border-color: var(--usumizuiro);" class="max-h-32 overflow-y-auto border rounded-xl p-2.5 grid grid-cols-2 gap-1.5"></div>
           </div>
 
           <div>
-            <label class="block font-bold text-slate-700 mb-1">5. 答案卡片－展示欄位（可多選）</label>
-            <div id="topic-answer-cols" class="max-h-32 overflow-y-auto border rounded-xl p-2.5 grid grid-cols-2 gap-1.5 bg-slate-50"></div>
+            <label class="block font-bold mb-1">5. 答案卡片－展示欄位（可多選）</label>
+            <div id="topic-answer-cols" style="background-color: var(--bg-tint); border-color: var(--usumizuiro);" class="max-h-32 overflow-y-auto border rounded-xl p-2.5 grid grid-cols-2 gap-1.5"></div>
           </div>
         </div>
       </div>
 
-      <div class="flex flex-wrap items-center justify-between gap-2 border-t pt-4">
-        <button type="button" onclick="openRandomPreviewModal()" class="px-4 py-2 bg-amber-100 text-amber-800 hover:bg-amber-200 font-bold rounded-xl text-sm transition flex items-center gap-1.5">
+      <div style="border-color: var(--usumizuiro);" class="flex flex-wrap items-center justify-between gap-2 border-t pt-4">
+        <button type="button" onclick="openRandomPreviewModal()" class="btn-sora px-4 py-2 font-bold rounded-xl text-sm transition flex items-center gap-1.5">
           <span>👁️</span> 預覽卡片
         </button>
         <div class="flex gap-2">
-          <button onclick="closeModal('modal-add-topic')" class="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-xl text-sm">取消</button>
-          <button onclick="submitNewTopic()" class="px-6 py-2 bg-indigo-600 text-white font-bold rounded-xl text-sm hover:bg-indigo-700">儲存主題</button>
+          <button onclick="closeModal('modal-add-topic')" class="px-4 py-2 text-slate-500 hover:bg-slate-100 rounded-xl text-sm">取消</button>
+          <button onclick="submitNewTopic()" class="btn-misora px-6 py-2 font-bold rounded-xl text-sm">儲存主題</button>
         </div>
       </div>
     </div>
   </div>
 
   <!-- ==================== 彈窗 2-B：獨立隨機資料預覽視窗 ==================== -->
-  <div id="modal-random-preview" class="hidden fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-[60] flex items-center justify-center p-4 overflow-y-auto">
-    <div class="bg-white rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-2xl my-8">
-      <div class="flex items-center justify-between border-b pb-3">
-        <h3 class="text-lg font-bold text-slate-800">👁️ 隨機卡片資料預覽</h3>
+  <div id="modal-random-preview" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[60] flex items-center justify-center p-4 overflow-y-auto">
+    <div style="border-color: var(--mizuiro);" class="bg-white rounded-2xl border-2 max-w-lg w-full p-6 space-y-4 shadow-2xl my-8">
+      <div style="border-color: var(--usumizuiro);" class="flex items-center justify-between border-b pb-3">
+        <h3 class="text-lg font-bold">👁️ 隨機卡片資料預覽</h3>
         <button onclick="closeModal('modal-random-preview')" class="text-slate-400 hover:text-slate-600">✕</button>
       </div>
 
       <div id="random-preview-meta" class="text-xs text-slate-500"></div>
 
-      <div class="bg-slate-50 rounded-2xl p-4 border border-slate-200 space-y-3">
-        <span class="text-xs font-bold px-2.5 py-0.5 bg-indigo-100 text-indigo-700 rounded-lg">正面：出題卡片</span>
-        <div id="rand-preview-question" class="japanese-text text-center py-2 font-bold text-slate-800 text-base"></div>
-        <div id="rand-preview-hints" class="text-xs text-slate-700 space-y-1 bg-white p-2.5 rounded-xl border border-slate-100"></div>
+      <div style="background-color: var(--bg-tint); border-color: var(--usumizuiro);" class="rounded-2xl p-4 border space-y-3">
+        <span style="background-color: var(--usumizuiro);" class="text-xs font-bold px-2.5 py-0.5 rounded-lg">正面：出題卡片</span>
+        <div id="rand-preview-question" class="japanese-text text-center py-2 font-bold text-base"></div>
+        <div id="rand-preview-hints" style="border-color: var(--usumizuiro);" class="text-xs space-y-1 bg-white p-2.5 rounded-xl border"></div>
       </div>
 
-      <div class="bg-slate-50 rounded-2xl p-4 border border-slate-200 space-y-3">
-        <span class="text-xs font-bold px-2.5 py-0.5 bg-emerald-100 text-emerald-700 rounded-lg">背面：答案卡片</span>
-        <div id="rand-preview-full-sentence" class="japanese-text text-center py-1.5 font-bold text-indigo-700 text-sm bg-indigo-50/60 rounded-xl"></div>
-        <div id="rand-preview-answers" class="text-xs text-slate-700 space-y-1 bg-white p-2.5 rounded-xl border border-slate-100"></div>
+      <div style="background-color: var(--bg-tint); border-color: var(--usumizuiro);" class="rounded-2xl p-4 border space-y-3">
+        <span style="background-color: var(--mizuiro);" class="text-xs font-bold px-2.5 py-0.5 rounded-lg">背面：答案卡片</span>
+        <div id="rand-preview-full-sentence" style="background-color: #ffffff; color: var(--misorairo);" class="japanese-text text-center py-1.5 font-bold text-sm rounded-xl"></div>
+        <div id="rand-preview-answers" style="border-color: var(--usumizuiro);" class="text-xs space-y-1 bg-white p-2.5 rounded-xl border"></div>
       </div>
 
       <div class="flex items-center justify-between pt-2">
-        <button type="button" onclick="renderRandomCardSample()" class="px-4 py-2 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 font-bold rounded-xl text-sm transition">
+        <button type="button" onclick="renderRandomCardSample()" class="btn-usumizu px-4 py-2 font-bold rounded-xl text-sm transition">
           🔄 換一筆隨機資料
         </button>
-        <button type="button" onclick="closeModal('modal-random-preview')" class="px-5 py-2 bg-slate-800 text-white font-bold rounded-xl text-sm hover:bg-slate-900">
+        <button type="button" onclick="closeModal('modal-random-preview')" class="btn-misora px-5 py-2 font-bold rounded-xl text-sm">
           關閉預覽
         </button>
       </div>
@@ -402,95 +440,97 @@
   </div>
 
   <!-- ==================== 彈窗 3：選擇角色 ==================== -->
-  <div id="modal-character" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl max-w-md w-full p-6 text-center space-y-5 shadow-2xl">
-      <h3 class="text-xl font-bold text-slate-800">🎒 選擇你的環日本旅行主角</h3>
+  <div id="modal-character" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div style="border-color: var(--mizuiro);" class="bg-white rounded-2xl border-2 max-w-md w-full p-6 text-center space-y-5 shadow-2xl">
+      <h3 class="text-xl font-bold">🎒 選擇你的環日本旅行主角</h3>
       <p class="text-sm text-slate-500">從東京出發，每答對一題前進 1 km，制霸 47 都道府縣！</p>
       <div class="grid grid-cols-2 gap-4">
-        <button onclick="selectCharacter('male')" class="p-5 border-2 rounded-2xl hover:border-indigo-500 hover:bg-indigo-50 transition flex flex-col items-center gap-2">
+        <button onclick="selectCharacter('male')" style="border-color: var(--mizuiro);" class="p-5 border-2 rounded-2xl hover:bg-[#f3f9fb] transition flex flex-col items-center gap-2">
           <span class="text-5xl">👦</span>
-          <span class="font-bold text-slate-800">男主角</span>
+          <span class="font-bold">男主角</span>
         </button>
-        <button onclick="selectCharacter('female')" class="p-5 border-2 rounded-2xl hover:border-pink-500 hover:bg-pink-50 transition flex flex-col items-center gap-2">
+        <button onclick="selectCharacter('female')" style="border-color: var(--sorairo);" class="p-5 border-2 rounded-2xl hover:bg-[#f3f9fb] transition flex flex-col items-center gap-2">
           <span class="text-5xl">👧</span>
-          <span class="font-bold text-slate-800">女主角</span>
+          <span class="font-bold">女主角</span>
         </button>
       </div>
     </div>
   </div>
 
   <!-- ==================== 彈窗 4：縣市抵達打卡慶祝 ==================== -->
-  <div id="modal-milestone-unlock" class="hidden fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl max-w-md w-full p-6 text-center space-y-4 shadow-2xl border-4 border-amber-400">
-      <div class="inline-block px-3 py-1 bg-amber-100 text-amber-800 font-bold text-xs rounded-full">🎉 抵達新地標・打卡成功！</div>
-      <h3 id="unlock-city-name" class="text-2xl font-black text-slate-800"></h3>
+  <div id="modal-milestone-unlock" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div style="border-color: var(--sorairo);" class="bg-white rounded-3xl max-w-md w-full p-6 text-center space-y-4 shadow-2xl border-4">
+      <div style="background-color: var(--usumizuiro);" class="inline-block px-3 py-1 font-bold text-xs rounded-full">🎉 抵達新地標・打卡成功！</div>
+      <h3 id="unlock-city-name" class="text-2xl font-black"></h3>
       <div id="unlock-illustration" class="w-full h-44 rounded-2xl overflow-hidden shadow-inner border"></div>
       <p id="unlock-city-desc" class="text-sm text-slate-600"></p>
-      <button onclick="closeModal('modal-milestone-unlock')" class="w-full py-3 bg-amber-500 text-slate-900 font-bold rounded-xl hover:bg-amber-400 transition">
+      <button onclick="closeModal('modal-milestone-unlock')" class="btn-misora w-full py-3 font-bold rounded-xl transition">
         收進里程碑相簿！
       </button>
     </div>
   </div>
 
   <!-- ==================== 彈窗 5：操作手冊 ==================== -->
-  <div id="modal-manual" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
-    <div class="bg-white rounded-2xl max-w-2xl w-full p-6 space-y-5 shadow-2xl my-8">
-      <div class="flex items-center justify-between border-b pb-3">
-        <h3 class="text-lg font-bold text-slate-800">📖 日文閃卡 App 操作手冊</h3>
+  <div id="modal-manual" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
+    <div style="border-color: var(--mizuiro);" class="bg-white rounded-2xl border-2 max-w-2xl w-full p-6 space-y-5 shadow-2xl my-8">
+      <div style="border-color: var(--usumizuiro);" class="flex items-center justify-between border-b pb-3">
+        <h3 class="text-lg font-bold">📖 日文閃卡 App 操作手冊</h3>
         <button onclick="closeModal('modal-manual')" class="text-slate-400 hover:text-slate-600">✕</button>
       </div>
 
-      <div class="space-y-4 text-sm text-slate-700 max-h-[65vh] overflow-y-auto pr-1 leading-relaxed">
-        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-1.5">
-          <h4 class="font-bold text-indigo-700">1. 首頁圖示按鈕說明</h4>
+      <div class="space-y-4 text-sm max-h-[65vh] overflow-y-auto pr-1 leading-relaxed">
+        <div style="background-color: var(--bg-tint); border-color: var(--usumizuiro);" class="p-4 rounded-xl border space-y-1.5">
+          <h4 style="color: var(--misorairo);" class="font-bold">1. 導覽列與首頁圖示說明</h4>
           <ul class="list-disc pl-5 space-y-1 text-xs">
-            <li><strong>＋（添加主題）：</strong>連結 Google 試算表工作表，設定出題欄位（需含一組 <code>[ ]</code>）、提示欄位與答案展示欄位。</li>
+            <li><strong>🏠（首頁）：</strong>返回首頁查看所有複習主題。</li>
+            <li><strong>📍（目前所在地）：</strong>顯示當前環日本抵達的縣市名稱，點擊可開啟逆時針環日本地圖與明信片相簿。</li>
+            <li><strong>📖（操作手冊）／ 🔗（連線設定）：</strong>檢視使用說明，或設定 Google Apps Script 試算表 API 網址。</li>
+            <li><strong>＋（添加主題）：</strong>連結工作表，設定出題欄位（需含一組 <code>[ ]</code>）、提示欄位與答案展示欄位。</li>
             <li><strong>✏️（編輯主題）：</strong>直接點擊主題卡片右上角圖示，無須勾選即可重新調整欄位設定。</li>
-            <li><strong>🧹（清除勾選紀錄）：</strong>勾選主題方框後點擊，可將該主題下所有卡片的練習次數與對錯紀錄歸零。</li>
-            <li><strong>🗑️（刪除勾選主題）：</strong>勾選主題方框後點擊，可移除首頁主題卡片（不會刪除試算表原始資料）。</li>
-            <li><strong>🚩（待修訂清單）：</strong>查看複習過程中標記為「需要修訂」的卡片（顯示工作表名稱、列號與 B 欄內容），修訂完畢後可勾選刪除紀錄。</li>
+            <li><strong>🧹（清除勾選紀錄）／ 🗑️（刪除勾選主題）：</strong>勾選主題方框後點擊，可清除練習紀錄或移除主題卡片。</li>
+            <li><strong>🚩（標註修訂清單）：</strong>查看答案卡右上角標記為「需要修訂」的卡片（顯示工作表名稱、列號與 B 欄內容）。</li>
           </ul>
         </div>
 
-        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-1.5">
-          <h4 class="font-bold text-indigo-700">2. 閃卡作答與重新作答計分規則</h4>
+        <div style="background-color: var(--bg-tint); border-color: var(--usumizuiro);" class="p-4 rounded-xl border space-y-1.5">
+          <h4 style="color: var(--misorairo);" class="font-bold">2. 閃卡作答與重新作答計分規則</h4>
           <ul class="list-disc pl-5 space-y-1 text-xs">
             <li><strong>一般作答：</strong>輸入克漏字 <code>[ ]</code> 內的文字後按「回答」或 <code>Enter</code>。字元 100% 完全相符才算答對（<strong>前進 +1 km</strong>）；答錯或點擊空白處直接看答案皆算答錯（<strong>後退 -1 km</strong>）。</li>
             <li><strong>🔄 重新作答：</strong>在答案卡下方點擊「重新作答」可重新輸入本題。重新作答時若<strong>答對可加 1 分（+1 km）</strong>，若<strong>再次答錯則扣 2 分（-2 km）</strong>。</li>
-            <li><strong>🚩 標記修訂：</strong>若發現題目或翻譯有誤，可點擊答案卡右上角「🚩 標記修訂」，系統會自動記錄該筆資料所在的工作表、第幾列與 B 欄內容。</li>
+            <li><strong>🚩 標記修訂：</strong>若發現題目或翻譯有誤，可點擊答案卡右上角「🚩」圖示，系統會自動記錄工作表、第幾列與 B 欄內容。</li>
           </ul>
         </div>
 
-        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-1.5">
-          <h4 class="font-bold text-indigo-700">3. 逆時針環日本 47 都道府縣</h4>
+        <div style="background-color: var(--bg-tint); border-color: var(--usumizuiro);" class="p-4 rounded-xl border space-y-1.5">
+          <h4 style="color: var(--misorairo);" class="font-bold">3. 逆時針環日本 47 都道府縣</h4>
           <p class="text-xs">從東京出發（0 km），逆時針環繞北海道、日本海側、九州、沖繩、四國、關西、伊豆半島回到東京（總長 3,000 km），解鎖全部 47 都道府縣明信片並可替換成自己的旅行照片。</p>
         </div>
       </div>
 
-      <div class="flex justify-end border-t pt-3">
-        <button onclick="closeModal('modal-manual')" class="px-6 py-2 bg-indigo-600 text-white font-bold rounded-xl text-sm hover:bg-indigo-700">我知道了</button>
+      <div style="border-color: var(--usumizuiro);" class="flex justify-end border-t pt-3">
+        <button onclick="closeModal('modal-manual')" class="btn-misora px-6 py-2 font-bold rounded-xl text-sm">我知道了</button>
       </div>
     </div>
   </div>
 
   <!-- ==================== 彈窗 6：待修訂卡片紀錄清單 ==================== -->
-  <div id="modal-revisions" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
-    <div class="bg-white rounded-2xl max-w-2xl w-full p-6 space-y-4 shadow-2xl my-8">
-      <div class="flex items-center justify-between border-b pb-3">
+  <div id="modal-revisions" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
+    <div style="border-color: var(--mizuiro);" class="bg-white rounded-2xl border-2 max-w-2xl w-full p-6 space-y-4 shadow-2xl my-8">
+      <div style="border-color: var(--usumizuiro);" class="flex items-center justify-between border-b pb-3">
         <div class="flex items-center gap-2">
-          <h3 class="text-lg font-bold text-slate-800">🚩 待修訂卡片紀錄清單</h3>
+          <h3 class="text-lg font-bold">🚩 標註修訂卡片清單</h3>
           <span class="text-xs text-slate-500">（同步儲存於試算表 _App_Revisions）</span>
         </div>
         <button onclick="closeModal('modal-revisions')" class="text-slate-400 hover:text-slate-600">✕</button>
       </div>
 
-      <div id="revisions-list-container" class="max-h-[55vh] overflow-y-auto divide-y divide-slate-200 border rounded-xl"></div>
+      <div id="revisions-list-container" style="border-color: var(--usumizuiro);" class="max-h-[55vh] overflow-y-auto divide-y divide-[#bce2e8] border rounded-xl"></div>
 
-      <div class="flex items-center justify-between border-t pt-3">
-        <button type="button" onclick="handleDeleteSelectedRevisions()" class="px-4 py-2 bg-rose-100 text-rose-700 hover:bg-rose-200 font-bold rounded-xl text-xs transition">
-          🗑️ 刪除勾選的修訂紀錄
+      <div style="border-color: var(--usumizuiro);" class="flex items-center justify-between border-t pt-3">
+        <button type="button" onclick="handleDeleteSelectedRevisions()" class="btn-usumizu px-4 py-2 font-bold rounded-xl text-xs transition flex items-center gap-1">
+          <span>🗑️</span> 刪除勾選紀錄
         </button>
-        <button type="button" onclick="closeModal('modal-revisions')" class="px-5 py-2 bg-slate-800 text-white font-bold rounded-xl text-sm hover:bg-slate-900">
+        <button type="button" onclick="closeModal('modal-revisions')" class="btn-misora px-5 py-2 font-bold rounded-xl text-sm">
           關閉
         </button>
       </div>
@@ -499,56 +539,56 @@
 
   <script>
     const JAPAN_ROUTE = [
-      { id: 'tokyo_start', name: '東京都（東京車站）', km: 0, x: 395, y: 345, desc: '紅磚東京車站與東京鐵塔，環日本冒險起點！', scene: 'tokyo_tower', colors: ['#ef4444', '#fca5a5'] },
-      { id: 'chiba', name: '千葉縣（犬吠埼）', km: 45, x: 418, y: 348, desc: '關東最東端，太平洋海岸與白色犬吠埼燈塔。', scene: 'lighthouse', colors: ['#0284c7', '#7dd3fc'] },
-      { id: 'ibaraki', name: '茨城縣（大洗）', km: 95, x: 415, y: 315, desc: '大洗磯前神社海上鳥居迎接著太平洋日出。', scene: 'sea_torii', colors: ['#0369a1', '#bae6fd'] },
-      { id: 'tochigi', name: '栃木縣（日光）', km: 150, x: 392, y: 300, desc: '世界遺產日光東照宮與朱紅五重塔。', scene: 'pagoda', colors: ['#b45309', '#fde68a'] },
-      { id: 'fukushima', name: '福島縣（會津若松）', km: 215, x: 405, y: 270, desc: '白虎隊鶴ヶ城天守閣與雪景。', scene: 'castle', colors: ['#dc2626', '#fecaca'] },
-      { id: 'miyagi', name: '宮城縣（松島）', km: 280, x: 422, y: 240, desc: '日本三景之一・松島灣松樹小島群。', scene: 'islands', colors: ['#0d9488', '#99f6e4'] },
-      { id: 'iwate', name: '岩手縣（平泉）', km: 355, x: 430, y: 195, desc: '中尊寺金色堂與北國杉林古道。', scene: 'pagoda', colors: ['#ca8a04', '#fef08a'] },
-      { id: 'aomori', name: '青森縣（弘前・青森）', km: 440, x: 418, y: 155, desc: '弘前城天守閣與滿開蘋果花、睡魔祭。', scene: 'castle', colors: ['#e11d48', '#fecdd3'] },
-      { id: 'hokkaido', name: '北海道（函館・札幌）', km: 580, x: 465, y: 85, desc: '跨過津輕海峽！札幌時計台與雪原針葉林。', scene: 'hokkaido', colors: ['#2563eb', '#bfdbfe'] },
-      { id: 'akita', name: '秋田縣（角館・男鹿）', km: 680, x: 398, y: 185, desc: '角館武家屋敷垂櫻與男鹿半島海岸。', scene: 'sakura_temple', colors: ['#db2777', '#fbcfe8'] },
-      { id: 'yamagata', name: '山形縣（銀山溫泉）', km: 750, x: 392, y: 225, desc: '大正浪漫風情的銀山溫泉木造湯屋雪夜。', scene: 'onsen', colors: ['#4f46e5', '#c7d2fe'] },
-      { id: 'niigata', name: '新潟縣（越後・佐渡）', km: 825, x: 365, y: 265, desc: '越後魚沼金黃稻穗梯田與遠山。', scene: 'terraces', colors: ['#16a34a', '#bbf7d0'] },
-      { id: 'gunma', name: '群馬縣（草津溫泉）', km: 880, x: 372, y: 308, desc: '日本三大名泉・草津溫泉湯畑熱氣蒸騰。', scene: 'onsen', colors: ['#0891b2', '#a5f3fc'] },
-      { id: 'saitama', name: '埼玉縣（川越）', km: 925, x: 382, y: 330, desc: '小江戶川越藏造老街與木造「時之鐘」。', scene: 'pagoda', colors: ['#78350f', '#fde68a'] },
-      { id: 'yamanashi', name: '山梨縣（河口湖）', km: 970, x: 365, y: 350, desc: '河口湖畔倒映著冠雪的絕美逆富士。', scene: 'fuji', colors: ['#1d4ed8', '#dbeafe'] },
-      { id: 'nagano', name: '長野縣（松本・上高地）', km: 1035, x: 342, y: 318, desc: '國寶漆黑松本城與北阿爾卑斯連峰。', scene: 'castle', colors: ['#334155', '#cbd5e1'] },
-      { id: 'toyama', name: '富山縣（立山黑部）', km: 1100, x: 325, y: 295, desc: '震撼人心的立山連峰大雪壁與水壩。', scene: 'alps', colors: ['#0284c7', '#e0f2fe'] },
-      { id: 'ishikawa', name: '石川縣（金澤）', km: 1155, x: 305, y: 290, desc: '金澤兼六園徽軫燈籠與庭園池水。', scene: 'sakura_temple', colors: ['#d97706', '#fef3c7'] },
-      { id: 'gifu', name: '岐阜縣（白川鄉）', km: 1210, x: 312, y: 325, desc: '世界遺產白川鄉童話般的合掌造茅草屋。', scene: 'gassho', colors: ['#4d7c0f', '#d9f99d'] },
-      { id: 'fukui', name: '福井縣（東尋坊）', km: 1265, x: 285, y: 320, desc: '日本海驚濤拍岸的東尋坊懸崖與燈塔。', scene: 'lighthouse', colors: ['#0f766e', '#99f6e4'] },
-      { id: 'shiga', name: '滋賀縣（琵琶湖）', km: 1315, x: 280, y: 348, desc: '日本第一大湖琵琶湖與白鬚神社水中鳥居。', scene: 'sea_torii', colors: ['#0369a1', '#bae6fd'] },
-      { id: 'kyoto', name: '京都府（天橋立・京都）', km: 1375, x: 258, y: 345, desc: '伏見稻荷千本朱紅鳥居與古都五重塔。', scene: 'torii_gate', colors: ['#b91c1c', '#fecaca'] },
-      { id: 'hyogo_north', name: '兵庫縣北部（城崎溫泉）', km: 1430, x: 235, y: 345, desc: '柳樹垂蔭的城崎溫泉石拱橋與湯屋。', scene: 'onsen', colors: ['#059669', '#a7f3d0'] },
-      { id: 'tottori', name: '鳥取縣（鳥取砂丘）', km: 1485, x: 210, y: 348, desc: '一望無際的起伏砂丘與日本海夕陽。', scene: 'sand_dunes', colors: ['#d97706', '#fde68a'] },
-      { id: 'shimane', name: '島根縣（出雲大社）', km: 1550, x: 180, y: 352, desc: '結緣聖地出雲大社鳥居與神樂殿。', scene: 'torii_gate', colors: ['#7c3aed', '#ddd6fe'] },
-      { id: 'yamaguchi', name: '山口縣（角島大橋）', km: 1625, x: 142, y: 375, desc: '筆直延伸向翡翠色大海的海上跨海大橋。', scene: 'bridge', colors: ['#06b6d4', '#cffafe'] },
-      { id: 'fukuoka', name: '福岡縣（太宰府・博多）', km: 1680, x: 132, y: 405, desc: '踏上九州！太宰府天滿宮鳥居與紅梅。', scene: 'torii_gate', colors: ['#e11d48', '#ffe4e6'] },
-      { id: 'saga', name: '佐賀縣（唐津・有田）', km: 1725, x: 115, y: 418, desc: '虹之松原海岸與臨海唐津城。', scene: 'castle', colors: ['#2563eb', '#dbeafe'] },
-      { id: 'nagasaki', name: '長崎縣（稻佐山・眼鏡橋）', km: 1780, x: 108, y: 442, desc: '異國風情教堂尖塔與長崎港璀璨夜景。', scene: 'church_port', colors: ['#4338ca', '#e0e7ff'] },
-      { id: 'kumamoto', name: '熊本縣（阿蘇山・熊本城）', km: 1845, x: 135, y: 455, desc: '漆黑雄偉的熊本城天守閣與阿蘇火山。', scene: 'castle', colors: ['#15803d', '#dcfce7'] },
-      { id: 'kagoshima', name: '鹿兒島縣（櫻島）', km: 1920, x: 132, y: 495, desc: '九州最南端，錦江灣上冒著白煙的櫻島火山。', scene: 'volcano', colors: ['#991b1b', '#fee2e2'] },
-      { id: 'okinawa', name: '沖繩縣（首里城・美之海）', km: 1965, x: 68, y: 550, desc: '跳島南國！琉球首里城守禮門與碧藍珊瑚海。', scene: 'okinawa', colors: ['#0284c7', '#7dd3fc'] },
-      { id: 'miyazaki', name: '宮崎縣（高千穗峽）', km: 2020, x: 155, y: 472, desc: '神話之鄉高千穗峽玄武岩峭壁與真名井瀑布。', scene: 'waterfall', colors: ['#047857', '#a7f3d0'] },
-      { id: 'oita', name: '大分縣（別府・由布院）', km: 2080, x: 162, y: 425, desc: '溫泉湧出量日本第一！別府湯煙與由布岳。', scene: 'onsen', colors: ['#ea580c', '#ffedd5'] },
-      { id: 'hiroshima', name: '廣島縣（嚴島神社）', km: 2145, x: 182, y: 378, desc: '宮島潮汐中的嚴島神社海上朱紅大鳥居。', scene: 'sea_torii', colors: ['#dc2626', '#fee2e2'] },
-      { id: 'okayama', name: '岡山縣（倉敷美觀）', km: 2200, x: 208, y: 375, desc: '晴天之國岡山，烏城岡山城與倉敷白壁運河。', scene: 'castle', colors: ['#db2777', '#fce7f3'] },
-      { id: 'kagawa', name: '香川縣（高松・小豆島）', km: 2245, x: 225, y: 398, desc: '跨海進入四國！壯觀的瀨戶內海跨海大橋。', scene: 'bridge', colors: ['#0891b2', '#cffafe'] },
-      { id: 'ehime', name: '愛媛縣（道後溫泉）', km: 2305, x: 202, y: 412, desc: '三千年歷史的道後溫泉本館與振鷺閣。', scene: 'onsen', colors: ['#f59e0b', '#fef3c7'] },
-      { id: 'kochi', name: '高知縣（四萬十川）', km: 2375, x: 218, y: 432, desc: '日本最後的清流四萬十川與無欄杆沉下橋。', scene: 'bridge', colors: ['#0d9488', '#ccfbf1'] },
-      { id: 'tokushima', name: '德島縣（鳴門漩渦）', km: 2435, x: 248, y: 415, desc: '大鳴門橋下震撼的鳴門海峽大漩渦。', scene: 'bridge', colors: ['#1d4ed8', '#dbeafe'] },
-      { id: 'wakayama', name: '和歌山縣（那智瀑布）', km: 2495, x: 268, y: 412, desc: '熊野古道・那智大社朱紅三重塔與飛瀑。', scene: 'waterfall', colors: ['#059669', '#d1fae5'] },
-      { id: 'nara', name: '奈良縣（奈良公園）', km: 2545, x: 272, y: 382, desc: '古都奈良興福寺五重塔與東大寺建築群。', scene: 'pagoda', colors: ['#b45309', '#fef3c7'] },
-      { id: 'mie', name: '三重縣（伊勢神宮）', km: 2595, x: 295, y: 392, desc: '日本人心靈的故鄉・伊勢神宮宇治橋大鳥居。', scene: 'torii_gate', colors: ['#15803d', '#dcfce7'] },
-      { id: 'osaka', name: '大阪府（大阪城・道頓堀）', km: 2645, x: 258, y: 372, desc: '天下廚房大阪！金碧輝煌的大阪城天守閣。', scene: 'castle', colors: ['#ca8a04', '#fef9c3'] },
-      { id: 'hyogo_south', name: '兵庫縣南部（神戶港）', km: 2685, x: 242, y: 368, desc: '紅色鼓型神戶港塔與海港夜景。', scene: 'kobe_tower', colors: ['#e11d48', '#ffe4e6'] },
-      { id: 'izu', name: '伊豆半島（下田・熱海）', km: 2810, x: 375, y: 372, desc: '逆時針繞行伊豆半島！城崎海岸燈塔與海灣。', scene: 'lighthouse', colors: ['#0284c7', '#bae6fd'] },
-      { id: 'aichi', name: '愛知縣（名古屋城）', km: 2885, x: 318, y: 362, desc: '名古屋城閃耀的金鯱屋脊與雄偉天守。', scene: 'castle', colors: ['#d97706', '#fef3c7'] },
-      { id: 'shizuoka', name: '靜岡縣（三保松原）', km: 2945, x: 352, y: 365, desc: '駿河灣三保松原海岸遠眺壯麗富士山。', scene: 'fuji', colors: ['#16a34a', '#dcfce7'] },
-      { id: 'kanagawa', name: '神奈川縣（鎌倉・橫濱）', km: 2980, x: 386, y: 356, desc: '橫濱港未來摩天輪與湘南海岸風光。', scene: 'yokohama', colors: ['#2563eb', '#dbeafe'] },
-      { id: 'tokyo_goal', name: '東京都（環日本一圈達成！）', km: 3000, x: 395, y: 345, desc: '恭喜完成 3,000 km 環日本 47 都道府縣大制霸！', scene: 'tokyo_tower', colors: ['#f59e0b', '#fef08a'] }
+      { id: 'tokyo_start', shortName: '東京', name: '東京都（東京車站）', km: 0, x: 395, y: 345, desc: '紅磚東京車站與東京鐵塔，環日本冒險起點！', scene: 'tokyo_tower', colors: ['#6894c8', '#bce2e8'] },
+      { id: 'chiba', shortName: '千葉', name: '千葉縣（犬吠埼）', km: 45, x: 418, y: 348, desc: '關東最東端，太平洋海岸與白色犬吠埼燈塔。', scene: 'lighthouse', colors: ['#527db0', '#94cad6'] },
+      { id: 'ibaraki', shortName: '茨城', name: '茨城縣（大洗）', km: 95, x: 415, y: 315, desc: '大洗磯前神社海上鳥居迎接著太平洋日出。', scene: 'sea_torii', colors: ['#6894c8', '#89c3eb'] },
+      { id: 'tochigi', shortName: '栃木', name: '栃木縣（日光）', km: 150, x: 392, y: 300, desc: '世界遺產日光東照宮與朱紅五重塔。', scene: 'pagoda', colors: ['#5c85b8', '#bce2e8'] },
+      { id: 'fukushima', shortName: '福島', name: '福島縣（會津若松）', km: 215, x: 405, y: 270, desc: '白虎隊鶴ヶ城天守閣與雪景。', scene: 'castle', colors: ['#6894c8', '#94cad6'] },
+      { id: 'miyagi', shortName: '宮城', name: '宮城縣（松島）', km: 280, x: 422, y: 240, desc: '日本三景之一・松島灣松樹小島群。', scene: 'islands', colors: ['#4d8896', '#bce2e8'] },
+      { id: 'iwate', shortName: '岩手', name: '岩手縣（平泉）', km: 355, x: 430, y: 195, desc: '中尊寺金色堂與北國杉林古道。', scene: 'pagoda', colors: ['#6894c8', '#89c3eb'] },
+      { id: 'aomori', shortName: '青森', name: '青森縣（弘前・青森）', km: 440, x: 418, y: 155, desc: '弘前城天守閣與滿開蘋果花、睡魔祭。', scene: 'castle', colors: ['#527db0', '#bce2e8'] },
+      { id: 'hokkaido', shortName: '北海道', name: '北海道（函館・札幌）', km: 580, x: 465, y: 85, desc: '跨過津輕海峽！札幌時計台與雪原針葉林。', scene: 'hokkaido', colors: ['#6894c8', '#e2f1f5'] },
+      { id: 'akita', shortName: '秋田', name: '秋田縣（角館・男鹿）', km: 680, x: 398, y: 185, desc: '角館武家屋敷垂櫻與男鹿半島海岸。', scene: 'sakura_temple', colors: ['#729bc9', '#bce2e8'] },
+      { id: 'yamagata', shortName: '山形', name: '山形縣（銀山溫泉）', km: 750, x: 392, y: 225, desc: '大正浪漫風情的銀山溫泉木造湯屋雪夜。', scene: 'onsen', colors: ['#527db0', '#89c3eb'] },
+      { id: 'niigata', shortName: '新潟', name: '新潟縣（越後・佐渡）', km: 825, x: 365, y: 265, desc: '越後魚沼金黃稻穗梯田與遠山。', scene: 'terraces', colors: ['#5d96a6', '#bce2e8'] },
+      { id: 'gunma', shortName: '群馬', name: '群馬縣（草津溫泉）', km: 880, x: 372, y: 308, desc: '日本三大名泉・草津溫泉湯畑熱氣蒸騰。', scene: 'onsen', colors: ['#6894c8', '#94cad6'] },
+      { id: 'saitama', shortName: '埼玉', name: '埼玉縣（川越）', km: 925, x: 382, y: 330, desc: '小江戶川越藏造老街與木造「時之鐘」。', scene: 'pagoda', colors: ['#527db0', '#bce2e8'] },
+      { id: 'yamanashi', shortName: '山梨', name: '山梨縣（河口湖）', km: 970, x: 365, y: 350, desc: '河口湖畔倒映著冠雪的絕美逆富士。', scene: 'fuji', colors: ['#6894c8', '#89c3eb'] },
+      { id: 'nagano', shortName: '長野', name: '長野縣（松本・上高地）', km: 1035, x: 342, y: 318, desc: '國寶漆黑松本城與北阿爾卑斯連峰。', scene: 'castle', colors: ['#486f99', '#94cad6'] },
+      { id: 'toyama', shortName: '富山', name: '富山縣（立山黑部）', km: 1100, x: 325, y: 295, desc: '震撼人心的立山連峰大雪壁與水壩。', scene: 'alps', colors: ['#6894c8', '#bce2e8'] },
+      { id: 'ishikawa', shortName: '石川', name: '石川縣（金澤）', km: 1155, x: 305, y: 290, desc: '金澤兼六園徽軫燈籠與庭園池水。', scene: 'sakura_temple', colors: ['#5c85b8', '#94cad6'] },
+      { id: 'gifu', shortName: '岐阜', name: '岐阜縣（白川鄉）', km: 1210, x: 312, y: 325, desc: '世界遺產白川鄉童話般的合掌造茅草屋。', scene: 'gassho', colors: ['#5d96a6', '#bce2e8'] },
+      { id: 'fukui', shortName: '福井', name: '福井縣（東尋坊）', km: 1265, x: 285, y: 320, desc: '日本海驚濤拍岸的東尋坊懸崖與燈塔。', scene: 'lighthouse', colors: ['#527db0', '#89c3eb'] },
+      { id: 'shiga', shortName: '滋賀', name: '滋賀縣（琵琶湖）', km: 1315, x: 280, y: 348, desc: '日本第一大湖琵琶湖與白鬚神社水中鳥居。', scene: 'sea_torii', colors: ['#6894c8', '#94cad6'] },
+      { id: 'kyoto', shortName: '京都', name: '京都府（天橋立・京都）', km: 1375, x: 258, y: 345, desc: '伏見稻荷千本朱紅鳥居與古都五重塔。', scene: 'torii_gate', colors: ['#527db0', '#bce2e8'] },
+      { id: 'hyogo_north', shortName: '兵庫', name: '兵庫縣北部（城崎溫泉）', km: 1430, x: 235, y: 345, desc: '柳樹垂蔭的城崎溫泉石拱橋與湯屋。', scene: 'onsen', colors: ['#5d96a6', '#94cad6'] },
+      { id: 'tottori', shortName: '鳥取', name: '鳥取縣（鳥取砂丘）', km: 1485, x: 210, y: 348, desc: '一望無際的起伏砂丘與日本海夕陽。', scene: 'sand_dunes', colors: ['#6894c8', '#bce2e8'] },
+      { id: 'shimane', shortName: '島根', name: '島根縣（出雲大社）', km: 1550, x: 180, y: 352, desc: '結緣聖地出雲大社鳥居與神樂殿。', scene: 'torii_gate', colors: ['#5c85b8', '#89c3eb'] },
+      { id: 'yamaguchi', shortName: '山口', name: '山口縣（角島大橋）', km: 1625, x: 142, y: 375, desc: '筆直延伸向翡翠色大海的海上跨海大橋。', scene: 'bridge', colors: ['#4d8896', '#94cad6'] },
+      { id: 'fukuoka', shortName: '福岡', name: '福岡縣（太宰府・博多）', km: 1680, x: 132, y: 405, desc: '踏上九州！太宰府天滿宮鳥居與紅梅。', scene: 'torii_gate', colors: ['#6894c8', '#bce2e8'] },
+      { id: 'saga', shortName: '佐賀', name: '佐賀縣（唐津・有田）', km: 1725, x: 115, y: 418, desc: '虹之松原海岸與臨海唐津城。', scene: 'castle', colors: ['#527db0', '#89c3eb'] },
+      { id: 'nagasaki', shortName: '長崎', name: '長崎縣（稻佐山・眼鏡橋）', km: 1780, x: 108, y: 442, desc: '異國風情教堂尖塔與長崎港璀璨夜景。', scene: 'church_port', colors: ['#486f99', '#94cad6'] },
+      { id: 'kumamoto', shortName: '熊本', name: '熊本縣（阿蘇山・熊本城）', km: 1845, x: 135, y: 455, desc: '漆黑雄偉的熊本城天守閣與阿蘇火山。', scene: 'castle', colors: ['#6894c8', '#bce2e8'] },
+      { id: 'kagoshima', shortName: '鹿兒島', name: '鹿兒島縣（櫻島）', km: 1920, x: 132, y: 495, desc: '九州最南端，錦江灣上冒著白煙的櫻島火山。', scene: 'volcano', colors: ['#527db0', '#94cad6'] },
+      { id: 'okinawa', shortName: '沖繩', name: '沖繩縣（首里城・美之海）', km: 1965, x: 68, y: 550, desc: '跳島南國！琉球首里城守禮門與碧藍珊瑚海。', scene: 'okinawa', colors: ['#4d8896', '#89c3eb'] },
+      { id: 'miyazaki', shortName: '宮崎', name: '宮崎縣（高千穗峽）', km: 2020, x: 155, y: 472, desc: '神話之鄉高千穗峽玄武岩峭壁與真名井瀑布。', scene: 'waterfall', colors: ['#5d96a6', '#bce2e8'] },
+      { id: 'oita', shortName: '大分', name: '大分縣（別府・由布院）', km: 2080, x: 162, y: 425, desc: '溫泉湧出量日本第一！別府湯煙與由布岳。', scene: 'onsen', colors: ['#6894c8', '#94cad6'] },
+      { id: 'hiroshima', shortName: '廣島', name: '廣島縣（嚴島神社）', km: 2145, x: 182, y: 378, desc: '宮島潮汐中的嚴島神社海上朱紅大鳥居。', scene: 'sea_torii', colors: ['#527db0', '#bce2e8'] },
+      { id: 'okayama', shortName: '岡山', name: '岡山縣（倉敷美觀）', km: 2200, x: 208, y: 375, desc: '晴天之國岡山，烏城岡山城與倉敷白壁運河。', scene: 'castle', colors: ['#6894c8', '#89c3eb'] },
+      { id: 'kagawa', shortName: '香川', name: '香川縣（高松・小豆島）', km: 2245, x: 225, y: 398, desc: '跨海進入四國！壯觀的瀨戶內海跨海大橋。', scene: 'bridge', colors: ['#4d8896', '#bce2e8'] },
+      { id: 'ehime', shortName: '愛媛', name: '愛媛縣（道後溫泉）', km: 2305, x: 202, y: 412, desc: '三千年歷史的道後溫泉本館與振鷺閣。', scene: 'onsen', colors: ['#5c85b8', '#94cad6'] },
+      { id: 'kochi', shortName: '高知', name: '高知縣（四萬十川）', km: 2375, x: 218, y: 432, desc: '日本最後的清流四萬十川與無欄杆沉下橋。', scene: 'bridge', colors: ['#5d96a6', '#bce2e8'] },
+      { id: 'tokushima', shortName: '德島', name: '德島縣（鳴門漩渦）', km: 2435, x: 248, y: 415, desc: '大鳴門橋下震撼的鳴門海峽大漩渦。', scene: 'bridge', colors: ['#527db0', '#89c3eb'] },
+      { id: 'wakayama', shortName: '和歌山', name: '和歌山縣（那智瀑布）', km: 2495, x: 268, y: 412, desc: '熊野古道・那智大社朱紅三重塔與飛瀑。', scene: 'waterfall', colors: ['#4d8896', '#94cad6'] },
+      { id: 'nara', shortName: '奈良', name: '奈良縣（奈良公園）', km: 2545, x: 272, y: 382, desc: '古都奈良興福寺五重塔與東大寺建築群。', scene: 'pagoda', colors: ['#6894c8', '#bce2e8'] },
+      { id: 'mie', shortName: '三重', name: '三重縣（伊勢神宮）', km: 2595, x: 295, y: 392, desc: '日本人心靈的故鄉・伊勢神宮宇治橋大鳥居。', scene: 'torii_gate', colors: ['#5c85b8', '#94cad6'] },
+      { id: 'osaka', shortName: '大阪', name: '大阪府（大阪城・道頓堀）', km: 2645, x: 258, y: 372, desc: '天下廚房大阪！金碧輝煌的大阪城天守閣。', scene: 'castle', colors: ['#6894c8', '#89c3eb'] },
+      { id: 'hyogo_south', shortName: '兵庫', name: '兵庫縣南部（神戶港）', km: 2685, x: 242, y: 368, desc: '紅色鼓型神戶港塔與海港夜景。', scene: 'kobe_tower', colors: ['#527db0', '#bce2e8'] },
+      { id: 'izu', shortName: '伊豆', name: '伊豆半島（下田・熱海）', km: 2810, x: 375, y: 372, desc: '逆時針繞行伊豆半島！城崎海岸燈塔與海灣。', scene: 'lighthouse', colors: ['#4d8896', '#89c3eb'] },
+      { id: 'aichi', shortName: '愛知', name: '愛知縣（名古屋城）', km: 2885, x: 318, y: 362, desc: '名古屋城閃耀的金鯱屋脊與雄偉天守。', scene: 'castle', colors: ['#6894c8', '#94cad6'] },
+      { id: 'shizuoka', shortName: '靜岡', name: '靜岡縣（三保松原）', km: 2945, x: 352, y: 365, desc: '駿河灣三保松原海岸遠眺壯麗富士山。', scene: 'fuji', colors: ['#5d96a6', '#bce2e8'] },
+      { id: 'kanagawa', shortName: '神奈川', name: '神奈川縣（鎌倉・橫濱）', km: 2980, x: 386, y: 356, desc: '橫濱港未來摩天輪與湘南海岸風光。', scene: 'yokohama', colors: ['#527db0', '#89c3eb'] },
+      { id: 'tokyo_goal', shortName: '東京', name: '東京都（環日本一圈達成！）', km: 3000, x: 395, y: 345, desc: '恭喜完成 3,000 km 環日本 47 都道府縣大制霸！', scene: 'tokyo_tower', colors: ['#6894c8', '#bce2e8'] }
     ];
 
     let GAS_URL = localStorage.getItem('jp_flashcard_gas_url') || '';
@@ -668,9 +708,6 @@
       fetchInitData();
     }
 
-    // =========================================================================
-    // 5. 首頁：極簡主題管理 & 待修訂清單檢視
-    // =========================================================================
     function updateRevisionBadge() {
       const badge = document.getElementById('revision-count-badge');
       const count = appState.revisions.length;
@@ -686,27 +723,27 @@
       const grid = document.getElementById('topics-grid');
       if (appState.configs.length === 0) {
         grid.innerHTML = `
-          <div class="col-span-full bg-white rounded-2xl border-2 border-dashed border-slate-300 p-12 text-center space-y-2">
+          <div style="border-color: var(--mizuiro);" class="col-span-full bg-white rounded-2xl border-2 border-dashed p-12 text-center space-y-2">
             <div class="text-4xl">📭</div>
-            <div class="font-bold text-slate-700">尚無主題，請點擊左上角「＋」添加</div>
+            <div class="font-bold">尚無主題，請點擊左上角「＋」添加</div>
           </div>`;
         return;
       }
 
       grid.innerHTML = appState.configs.map(cfg => `
-        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition p-5 flex flex-col justify-between gap-4">
+        <div style="border-color: var(--usumizuiro);" class="bg-white rounded-2xl border-2 shadow-sm hover:shadow-md transition p-5 flex flex-col justify-between gap-4">
           <div class="flex items-center justify-between gap-3">
             <div class="flex items-center gap-3 flex-1 min-w-0">
-              <input type="checkbox" class="topic-checkbox w-5 h-5 rounded text-indigo-600 cursor-pointer shrink-0" value="${cfg.Topic_ID}" data-sheet="${cfg.Sheet_Name}">
-              <h3 onclick="prepareTopicFilter('${cfg.Topic_ID}')" class="text-lg font-bold text-slate-800 hover:text-indigo-600 cursor-pointer transition truncate" title="${escapeHtml(cfg.Topic_Name)}">
+              <input type="checkbox" class="topic-checkbox w-5 h-5 rounded accent-[#6894c8] cursor-pointer shrink-0" value="${cfg.Topic_ID}" data-sheet="${cfg.Sheet_Name}">
+              <h3 onclick="prepareTopicFilter('${cfg.Topic_ID}')" class="text-lg font-bold hover:text-[#6894c8] cursor-pointer transition truncate" title="${escapeHtml(cfg.Topic_Name)}">
                 ${escapeHtml(cfg.Topic_Name)}
               </h3>
             </div>
-            <button type="button" onclick="openEditTopicModal('${cfg.Topic_ID}')" class="shrink-0 text-xs px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-amber-100 text-slate-600 hover:text-amber-800 font-medium transition" title="編輯主題設定">
-              ✏️ 編輯
+            <button type="button" onclick="openEditTopicModal('${cfg.Topic_ID}')" class="btn-usumizu shrink-0 text-xs px-2.5 py-1.5 rounded-lg font-bold transition flex items-center gap-1" title="編輯主題設定">
+              <span>✏️</span> 編輯
             </button>
           </div>
-          <button type="button" onclick="prepareTopicFilter('${cfg.Topic_ID}')" class="w-full py-2.5 bg-indigo-50 hover:bg-indigo-600 text-indigo-700 hover:text-white font-bold rounded-xl text-sm transition">
+          <button type="button" onclick="prepareTopicFilter('${cfg.Topic_ID}')" class="btn-misora w-full py-2.5 font-bold rounded-xl text-sm transition shadow-sm">
             進入複習 →
           </button>
         </div>
@@ -719,14 +756,14 @@
         container.innerHTML = `<div class="p-8 text-center text-sm text-slate-400">目前沒有標記需要修訂的卡片 🎉</div>`;
       } else {
         container.innerHTML = appState.revisions.map(rev => `
-          <label class="flex items-start gap-3 p-3.5 hover:bg-slate-50 cursor-pointer">
-            <input type="checkbox" class="rev-checkbox w-4 h-4 mt-1 rounded text-rose-600" value="${rev.Rev_ID}">
+          <label class="flex items-start gap-3 p-3.5 hover:bg-[#f3f9fb] cursor-pointer">
+            <input type="checkbox" class="rev-checkbox w-4 h-4 mt-1 rounded accent-[#6894c8]" value="${rev.Rev_ID}">
             <div class="flex-1 min-w-0 space-y-1">
               <div class="flex flex-wrap items-center gap-2 text-xs">
-                <span class="px-2 py-0.5 bg-indigo-100 text-indigo-700 font-bold rounded">工作表：${escapeHtml(rev.Sheet_Name)}</span>
-                <span class="px-2 py-0.5 bg-amber-100 text-amber-800 font-bold rounded">第 ${escapeHtml(rev.Row_Index)} 列</span>
+                <span style="background-color: var(--usumizuiro);" class="px-2 py-0.5 font-bold rounded">工作表：${escapeHtml(rev.Sheet_Name)}</span>
+                <span style="background-color: var(--sorairo);" class="px-2 py-0.5 font-bold rounded">第 ${escapeHtml(rev.Row_Index)} 列</span>
               </div>
-              <div class="japanese-text text-sm font-medium text-slate-800 break-words">
+              <div class="japanese-text text-sm font-medium break-words">
                 <span class="text-xs text-slate-400 mr-1">[B欄]</span>${escapeHtml(rev.Col_B_Data || '（B欄為空白）')}
               </div>
             </div>
@@ -837,7 +874,7 @@
           const isChecked = selectedList && selectedList.includes(h) ? 'checked' : '';
           return `
             <label class="flex items-center gap-2 cursor-pointer">
-              <input type="checkbox" value="${h}" ${isChecked} class="${cls} rounded text-indigo-600">
+              <input type="checkbox" value="${h}" ${isChecked} class="${cls} rounded accent-[#6894c8]">
               <span class="truncate" title="${escapeHtml(h)}">${escapeHtml(h)}</span>
             </label>
           `;
@@ -889,10 +926,10 @@
       if (match) {
         qEl.innerHTML = `
           <span>${escapeHtml(match[1])}</span>
-          <span class="inline-block border-b-2 border-indigo-500 bg-indigo-50 px-3 py-0.5 mx-1 text-indigo-400 text-xs rounded">輸入框</span>
+          <span style="border-color: var(--misorairo); background-color: #ffffff; color: var(--misorairo);" class="inline-block border-b-2 px-3 py-0.5 mx-1 text-xs rounded">輸入框</span>
           <span>${escapeHtml(match[3])}</span>
         `;
-        fullEl.innerHTML = `${escapeHtml(match[1])}<span class="underline decoration-2 text-indigo-800 mx-0.5">${escapeHtml(match[2])}</span>${escapeHtml(match[3])}`;
+        fullEl.innerHTML = `${escapeHtml(match[1])}<span class="underline decoration-2 mx-0.5">${escapeHtml(match[2])}</span>${escapeHtml(match[3])}`;
       } else {
         qEl.innerHTML = `<span class="text-rose-600 text-xs">⚠️ 此列「${escapeHtml(qCol)}」缺少 [ ] 符號：${escapeHtml(rawQ || '（空白）')}</span>`;
         fullEl.textContent = rawQ || '（空白）';
@@ -976,9 +1013,6 @@
       }
     }
 
-    // =========================================================================
-    // 6. 練習前篩選器
-    // =========================================================================
     async function prepareTopicFilter(topicId) {
       const topic = appState.configs.find(c => String(c.Topic_ID) === String(topicId));
       if (!topic) return;
@@ -1054,9 +1088,9 @@
       listContainer.innerHTML = uniqueVals.map(val => {
         const labelText = val === '__EMPTY__' ? '（空白）' : val;
         return `
-          <label class="flex items-center gap-2 cursor-pointer bg-white px-2.5 py-1.5 rounded-lg border border-slate-200 hover:bg-indigo-50/50">
-            <input type="checkbox" value="${escapeHtml(val)}" checked onchange="updateFilterMatchCount()" class="filter-val-cb rounded text-indigo-600">
-            <span class="truncate text-xs font-medium text-slate-700" title="${escapeHtml(labelText)}">${escapeHtml(labelText)}</span>
+          <label style="border-color: var(--usumizuiro);" class="flex items-center gap-2 cursor-pointer bg-white px-2.5 py-1.5 rounded-lg border hover:bg-[#f3f9fb]">
+            <input type="checkbox" value="${escapeHtml(val)}" checked onchange="updateFilterMatchCount()" class="filter-val-cb rounded accent-[#6894c8]">
+            <span class="truncate text-xs font-medium" title="${escapeHtml(labelText)}">${escapeHtml(labelText)}</span>
           </label>
         `;
       }).join('');
@@ -1128,9 +1162,6 @@
       renderCurrentFlashcard();
     }
 
-    // =========================================================================
-    // 7. 閃卡核心互動（含重新作答與修訂標記）
-    // =========================================================================
     function renderCurrentFlashcard() {
       const card = currentStudy.queue[currentStudy.currentIndex];
       const topic = currentStudy.topic;
@@ -1151,10 +1182,10 @@
       qArea.innerHTML = `
         <span>${escapeHtml(card._prefix)}</span>
         <input type="text" id="cloze-input" autocomplete="off"
-          style="width: ${inputWidth}em;"
+          style="width: ${inputWidth}em; border-color: var(--misorairo); background-color: var(--bg-tint); color: var(--misorairo);"
           onclick="event.stopPropagation()"
           onkeydown="if(event.key==='Enter'){ event.stopPropagation(); submitClozeAnswer(event); }"
-          class="border-b-4 border-indigo-500 bg-indigo-50/70 px-2 py-1 text-center text-indigo-800 focus:outline-none focus:bg-indigo-100 rounded-t-lg"
+          class="border-b-4 px-2 py-1 text-center focus:outline-none rounded-t-lg"
           placeholder="請輸入...">
         <span>${escapeHtml(card._suffix)}</span>
       `;
@@ -1164,7 +1195,7 @@
       if (hintCols.length > 0) {
         hintsArea.classList.remove('hidden');
         hintsArea.innerHTML = hintCols.map(col =>
-          `<div><span class="font-bold text-slate-600">${col}：</span><span class="text-slate-800">${card[col] || '—'}</span></div>`
+          `<div><span class="font-bold text-slate-600">${col}：</span><span>${card[col] || '—'}</span></div>`
         ).join('');
       } else {
         hintsArea.classList.add('hidden');
@@ -1211,7 +1242,6 @@
       if (isCorrect) appState.progress[card._id].correctCount += 1;
       else appState.progress[card._id].wrongCount += 1;
 
-      // 計分規則：一般作答（對 +1 / 錯 -1）；重新作答（對 +1 / 錯 -2），最低皆為 0 km
       let prevKm = appState.travel.currentKm;
       let deltaKm = isCorrect ? 1 : (isRetry ? -2 : -1);
       let newKm = Math.max(0, prevKm + deltaKm);
@@ -1230,38 +1260,44 @@
       const rBadge = document.getElementById('result-km-badge');
 
       if (isCorrect) {
-        banner.className = 'p-4 rounded-2xl flex items-center justify-between bg-emerald-100 text-emerald-900 border border-emerald-300';
+        banner.style.backgroundColor = 'var(--usumizuiro)';
+        banner.style.borderColor = 'var(--mizuiro)';
+        banner.className = 'p-4 rounded-2xl flex items-center justify-between border';
         rTitle.textContent = isRetry ? '⭕ 重新作答正確！' : '⭕ 回答完全正確！';
         rDetail.textContent = `已前進 1 公里（目前累積 ${newKm} km）`;
         rBadge.textContent = '+1 km';
-        rBadge.className = 'text-xl font-black px-3 py-1 rounded-xl bg-emerald-600 text-white';
+        rBadge.style.backgroundColor = 'var(--misorairo)';
+        rBadge.className = 'text-xl font-black px-3 py-1 rounded-xl text-white';
       } else {
-        banner.className = 'p-4 rounded-2xl flex items-center justify-between bg-rose-100 text-rose-900 border border-rose-300';
+        banner.style.backgroundColor = '#ffe4e6';
+        banner.style.borderColor = '#fecdd3';
+        banner.className = 'p-4 rounded-2xl flex items-center justify-between text-rose-900 border';
         if (isRetry) {
           rTitle.textContent = isSkipped ? '👀 重新作答放棄（扣 2 分）' : '❌ 重新作答錯誤（扣 2 分）';
         } else {
           rTitle.textContent = isSkipped ? '👀 直接查看答案（計為答錯）' : '❌ 回答不正確';
         }
-        rDetail.innerHTML = `你的輸入：<span class="underline font-bold">${escapeHtml(userInput || '（空白）')}</span> ｜ 正確答案：<span class="font-bold text-emerald-700">${escapeHtml(card._answer)}</span>`;
+        rDetail.innerHTML = `你的輸入：<span class="underline font-bold">${escapeHtml(userInput || '（空白）')}</span> ｜ 正確答案：<span style="color: var(--misorairo);" class="font-bold">${escapeHtml(card._answer)}</span>`;
         rBadge.textContent = actualDelta === 0 ? '0 km' : `${actualDelta} km`;
-        rBadge.className = 'text-xl font-black px-3 py-1 rounded-xl bg-rose-600 text-white';
+        rBadge.style.backgroundColor = '#e11d48';
+        rBadge.className = 'text-xl font-black px-3 py-1 rounded-xl text-white';
       }
 
       document.getElementById('back-full-sentence').innerHTML =
-        `${escapeHtml(card._prefix)}<span class="text-indigo-600 underline decoration-2 mx-0.5">${escapeHtml(card._answer)}</span>${escapeHtml(card._suffix)}`;
+        `${escapeHtml(card._prefix)}<span style="color: var(--misorairo);" class="underline decoration-2 mx-0.5">${escapeHtml(card._answer)}</span>${escapeHtml(card._suffix)}`;
 
       const ansCols = topic.Answer_Cols_JSON || [];
       const ansArea = document.getElementById('card-answers-area');
       if (ansCols.length > 0) {
         ansArea.classList.remove('hidden');
         ansArea.innerHTML = ansCols.map(col =>
-          `<div><span class="font-bold text-slate-600">${col}：</span><span class="text-slate-800">${card[col] || '—'}</span></div>`
+          `<div><span class="font-bold text-slate-600">${col}：</span><span>${card[col] || '—'}</span></div>`
         ).join('');
       } else {
         ansArea.classList.add('hidden');
       }
 
-      updateHeaderKm();
+      updateHeaderLocation();
 
       Promise.all([
         callGasPost({ action: 'updateProgress', record: { cardId: card._id, isCorrect } }),
@@ -1271,16 +1307,15 @@
 
     function updateFlagButtonState(sheetName, rowIndex) {
       const btn = document.getElementById('btn-flag-revision');
-      const txt = document.getElementById('btn-flag-revision-text');
       const alreadyFlagged = appState.revisions.some(
         r => String(r.Sheet_Name) === String(sheetName) && String(r.Row_Index) === String(rowIndex)
       );
       if (alreadyFlagged) {
-        btn.className = 'px-3 py-1.5 rounded-xl border border-rose-500 bg-rose-600 text-white text-xs font-bold transition flex items-center gap-1.5';
-        txt.textContent = '已標記修訂';
+        btn.className = 'btn-misora w-9 h-9 rounded-xl transition flex items-center justify-center text-base shadow';
+        btn.title = '已標註需要修訂';
       } else {
-        btn.className = 'px-3 py-1.5 rounded-xl border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold transition flex items-center gap-1.5';
-        txt.textContent = '標記修訂';
+        btn.className = 'btn-usumizu w-9 h-9 rounded-xl transition flex items-center justify-center text-base shadow-sm';
+        btn.title = '標註此卡片需要修訂';
       }
     }
 
@@ -1293,9 +1328,7 @@
       const colBData = card._colB !== undefined ? card._colB : (secondHeader ? card[secondHeader] : '');
 
       const btn = document.getElementById('btn-flag-revision');
-      const txt = document.getElementById('btn-flag-revision-text');
       btn.disabled = true;
-      txt.textContent = '記錄中...';
 
       try {
         appState.revisions = await callGasPost({
@@ -1311,7 +1344,6 @@
         updateFlagButtonState(topic.Sheet_Name, card._rowIndex);
       } catch (err) {
         alert('標記修訂失敗：' + err.message);
-        txt.textContent = '標記修訂';
       } finally {
         btn.disabled = false;
       }
@@ -1328,9 +1360,6 @@
       }
     }
 
-    // =========================================================================
-    // 8. 成果展示：逆時針環日本地圖與具象化地標向量插畫引擎
-    // =========================================================================
     function selectCharacter(gender) {
       appState.travel.character = gender;
       const startKey = `loop${appState.travel.loop}_tokyo_start`;
@@ -1379,20 +1408,35 @@
       const nodesGroup = document.getElementById('map-nodes-group');
       nodesGroup.innerHTML = JAPAN_ROUTE.map(stop => `
         <g>
-          <circle id="node-${stop.id}" cx="${stop.x}" cy="${stop.y}" r="4.5" fill="#94a3b8" stroke="#ffffff" stroke-width="1.5">
+          <circle id="node-${stop.id}" cx="${stop.x}" cy="${stop.y}" r="4.5" fill="#94cad6" stroke="#ffffff" stroke-width="1.5">
             <title>${stop.name} (${stop.km} km)</title>
           </circle>
         </g>
       `).join('');
     }
 
-    function updateHeaderKm() {
-      document.getElementById('header-km').textContent = appState.travel.currentKm;
+    // 計算並更新頂部導覽列「座標圖示 + 目前所在地（例如：東京）」
+    function getCurrentStopIndex(km) {
+      let idx = 0;
+      for (let i = 0; i < JAPAN_ROUTE.length; i++) {
+        if (km >= JAPAN_ROUTE[i].km) idx = i;
+        else break;
+      }
+      return idx;
+    }
+
+    function updateHeaderLocation() {
+      const idx = getCurrentStopIndex(appState.travel.currentKm);
+      const currStop = JAPAN_ROUTE[idx];
+      const locEl = document.getElementById('header-location');
+      if (locEl && currStop) {
+        locEl.textContent = currStop.shortName;
+      }
     }
 
     function updateTravelUI() {
       const { character, loop, currentKm, unlockedMilestones } = appState.travel;
-      updateHeaderKm();
+      updateHeaderLocation();
 
       const emoji = character === 'female' ? '👧' : '👦';
       document.getElementById('travel-avatar-display').textContent = emoji;
@@ -1400,12 +1444,7 @@
       document.getElementById('travel-loop').textContent = loop;
       document.getElementById('travel-km').textContent = currentKm;
 
-      let currentStopIdx = 0;
-      for (let i = 0; i < JAPAN_ROUTE.length; i++) {
-        if (currentKm >= JAPAN_ROUTE[i].km) currentStopIdx = i;
-        else break;
-      }
-
+      const currentStopIdx = getCurrentStopIndex(currentKm);
       const currStop = JAPAN_ROUTE[currentStopIdx];
       const nextStop = JAPAN_ROUTE[Math.min(currentStopIdx + 1, JAPAN_ROUTE.length - 1)];
       document.getElementById('travel-current-location').textContent = currStop.name;
@@ -1431,7 +1470,7 @@
         if (isUnlocked) unlockedCount++;
         const circle = document.getElementById(`node-${stop.id}`);
         if (circle) {
-          circle.setAttribute('fill', isUnlocked ? '#f59e0b' : '#94a3b8');
+          circle.setAttribute('fill', isUnlocked ? '#6894c8' : '#bce2e8');
           circle.setAttribute('r', isUnlocked ? '5.5' : '4');
         }
       });
@@ -1443,30 +1482,30 @@
         const record = unlockedMilestones[key];
         if (!record) {
           return `
-            <div class="border border-slate-200 rounded-xl p-3 bg-slate-50 flex items-center justify-between opacity-60">
+            <div style="background-color: var(--bg-tint); border-color: var(--usumizuiro);" class="border rounded-xl p-3 flex items-center justify-between opacity-70">
               <div class="flex items-center gap-3">
-                <div class="w-12 h-12 rounded-lg bg-slate-200 flex items-center justify-center text-slate-400 font-bold text-xs">🔒</div>
+                <div style="background-color: var(--usumizuiro);" class="w-12 h-12 rounded-lg flex items-center justify-center font-bold text-xs">🔒</div>
                 <div>
-                  <div class="font-bold text-sm text-slate-600">${stop.name}</div>
-                  <div class="text-xs text-slate-400">解鎖門檻：${stop.km} km</div>
+                  <div class="font-bold text-sm">${stop.name}</div>
+                  <div class="text-xs text-slate-500">解鎖門檻：${stop.km} km</div>
                 </div>
               </div>
             </div>
           `;
         }
         return `
-          <div class="border border-amber-200 rounded-2xl overflow-hidden bg-amber-50/30 shadow-sm">
+          <div style="border-color: var(--mizuiro); background-color: var(--bg-tint);" class="border-2 rounded-2xl overflow-hidden shadow-sm">
             <div class="h-36 w-full relative">
               ${generatePostcardSVG(stop, record.customPhoto)}
-              <label class="absolute bottom-2 right-2 bg-white/90 hover:bg-white text-slate-700 text-xs font-bold px-2.5 py-1 rounded-lg shadow cursor-pointer transition">
+              <label class="absolute bottom-2 right-2 bg-white/90 hover:bg-white text-xs font-bold px-2.5 py-1 rounded-lg shadow cursor-pointer transition">
                 📷 替換照片
                 <input type="file" accept="image/*" class="hidden" onchange="handleCustomPhotoUpload(event, '${key}')">
               </label>
             </div>
-            <div class="p-3">
+            <div class="p-3 bg-white">
               <div class="flex items-center justify-between">
-                <span class="font-bold text-sm text-slate-800">${stop.name}</span>
-                <span class="text-[11px] text-amber-700 font-medium">✅ ${record.unlockedAt} 打卡</span>
+                <span class="font-bold text-sm">${stop.name}</span>
+                <span style="color: var(--misorairo);" class="text-[11px] font-bold">✅ ${record.unlockedAt} 打卡</span>
               </div>
               <p class="text-xs text-slate-500 mt-1">${stop.desc}</p>
             </div>
@@ -1479,13 +1518,13 @@
       if (customPhotoBase64) {
         return `<img src="${customPhotoBase64}" alt="${stop.name}" class="w-full h-full object-cover">`;
       }
-      const [c1, c2] = stop.colors || ['#4f46e5', '#c7d2fe'];
+      const [c1, c2] = stop.colors || ['#6894c8', '#bce2e8'];
       let landmarkLayer = '';
 
       switch (stop.scene) {
         case 'tokyo_tower':
           landmarkLayer = `
-            <rect x="0" y="125" width="400" height="35" fill="#1e293b" opacity="0.6" />
+            <rect x="0" y="125" width="400" height="35" fill="#1e293b" opacity="0.55" />
             <rect x="40" y="95" width="22" height="35" fill="#334155" />
             <rect x="70" y="80" width="28" height="50" fill="#1e293b" />
             <rect x="115" y="102" width="24" height="28" fill="#334155" />
@@ -1495,22 +1534,22 @@
             <rect x="215" y="98" width="32" height="6" fill="#ffffff" />
             <polygon points="315,128 322,35 326,35 333,128" fill="#e2e8f0" />
             <line x1="324" y1="12" x2="324" y2="35" stroke="#ffffff" stroke-width="2" />
-            <ellipse cx="324" cy="60" rx="10" ry="3" fill="#38bdf8" />
+            <ellipse cx="324" cy="60" rx="10" ry="3" fill="#89c3eb" />
           `;
           break;
         case 'fuji':
           landmarkLayer = `
-            <rect x="0" y="110" width="400" height="50" fill="#1e3a8a" opacity="0.45" />
-            <polygon points="115,110 215,32 245,32 345,110" fill="#1e293b" />
+            <rect x="0" y="110" width="400" height="50" fill="#2b4159" opacity="0.4" />
+            <polygon points="115,110 215,32 245,32 345,110" fill="#2b4159" />
             <polygon points="184,56 215,32 245,32 276,56 258,64 244,54 230,66 216,54 202,64" fill="#ffffff" />
-            <polygon points="150,110 218,155 242,155 310,110" fill="#ffffff" opacity="0.25" />
-            <path d="M40,122 Q80,118 120,122 M290,128 Q330,124 370,128" stroke="#ffffff" stroke-width="1.5" opacity="0.5" fill="none" />
+            <polygon points="150,110 218,155 242,155 310,110" fill="#ffffff" opacity="0.3" />
+            <path d="M40,122 Q80,118 120,122 M290,128 Q330,124 370,128" stroke="#ffffff" stroke-width="1.5" opacity="0.6" fill="none" />
           `;
           break;
         case 'sea_torii':
           landmarkLayer = `
-            <rect x="0" y="108" width="400" height="52" fill="#0369a1" opacity="0.5" />
-            <path d="M0,118 Q50,112 100,118 T200,118 T300,118 T400,118" stroke="#ffffff" stroke-width="2" opacity="0.6" fill="none" />
+            <rect x="0" y="108" width="400" height="52" fill="#527db0" opacity="0.45" />
+            <path d="M0,118 Q50,112 100,118 T200,118 T300,118 T400,118" stroke="#ffffff" stroke-width="2" opacity="0.7" fill="none" />
             <rect x="205" y="52" width="9" height="68" fill="#dc2626" />
             <rect x="266" y="52" width="9" height="68" fill="#dc2626" />
             <path d="M185,46 Q240,54 295,46 L292,55 Q240,61 188,55 Z" fill="#b91c1c" />
@@ -1520,12 +1559,12 @@
           break;
         case 'torii_gate':
           landmarkLayer = `
-            <rect x="0" y="122" width="400" height="38" fill="#334155" opacity="0.35" />
+            <rect x="0" y="122" width="400" height="38" fill="#2b4159" opacity="0.35" />
             <rect x="190" y="45" width="11" height="80" fill="#dc2626" />
             <rect x="279" y="45" width="11" height="80" fill="#dc2626" />
             <path d="M170,38 Q240,48 310,38 L306,48 Q240,56 174,48 Z" fill="#991b1b" />
             <rect x="180" y="64" width="120" height="7" fill="#dc2626" />
-            <rect x="135" y="95" width="10" height="30" fill="#cbd5e1" />
+            <rect x="135" y="95" width="10" height="30" fill="#e2e8f0" />
             <polygon points="128,95 140,84 152,95" fill="#94a3b8" />
             <rect x="136" y="88" width="8" height="7" fill="#fef08a" />
           `;
@@ -1534,29 +1573,29 @@
           landmarkLayer = `
             <polygon points="165,135 182,102 298,102 315,135" fill="#475569" />
             <rect x="192" y="82" width="96" height="20" fill="#ffffff" />
-            <polygon points="178,84 240,68 302,84" fill="#1e293b" />
+            <polygon points="178,84 240,68 302,84" fill="#2b4159" />
             <rect x="206" y="62" width="68" height="16" fill="#ffffff" />
-            <polygon points="194,64 240,50 286,64" fill="#1e293b" />
+            <polygon points="194,64 240,50 286,64" fill="#2b4159" />
             <rect x="220" y="43" width="40" height="14" fill="#ffffff" />
-            <polygon points="210,45 240,30 270,45" fill="#1e293b" />
+            <polygon points="210,45 240,30 270,45" fill="#2b4159" />
             <path d="M222,33 L225,24 L229,33 M258,33 L255,24 L251,33" stroke="#facc15" stroke-width="2.5" fill="none" />
           `;
           break;
         case 'pagoda':
           landmarkLayer = `
-            <rect x="0" y="128" width="400" height="32" fill="#1e293b" opacity="0.3" />
+            <rect x="0" y="128" width="400" height="32" fill="#2b4159" opacity="0.3" />
             <rect x="228" y="38" width="24" height="92" fill="#b91c1c" />
-            <polygon points="200,115 240,104 280,115" fill="#1e293b" />
-            <polygon points="205,98 240,87 275,98" fill="#1e293b" />
-            <polygon points="210,81 240,70 270,81" fill="#1e293b" />
-            <polygon points="215,64 240,53 265,64" fill="#1e293b" />
-            <polygon points="220,47 240,36 260,47" fill="#1e293b" />
+            <polygon points="200,115 240,104 280,115" fill="#2b4159" />
+            <polygon points="205,98 240,87 275,98" fill="#2b4159" />
+            <polygon points="210,81 240,70 270,81" fill="#2b4159" />
+            <polygon points="215,64 240,53 265,64" fill="#2b4159" />
+            <polygon points="220,47 240,36 260,47" fill="#2b4159" />
             <line x1="240" y1="15" x2="240" y2="38" stroke="#facc15" stroke-width="2.5" />
           `;
           break;
         case 'gassho':
           landmarkLayer = `
-            <rect x="0" y="124" width="400" height="36" fill="#14532d" opacity="0.4" />
+            <rect x="0" y="124" width="400" height="36" fill="#2b4159" opacity="0.35" />
             <polygon points="175,124 235,45 295,124" fill="#78350f" stroke="#fef3c7" stroke-width="2" />
             <polygon points="195,124 235,70 275,124" fill="#fef3c7" />
             <rect x="222" y="92" width="10" height="10" fill="#451a03" />
@@ -1566,28 +1605,28 @@
           break;
         case 'onsen':
           landmarkLayer = `
-            <rect x="0" y="122" width="400" height="38" fill="#1e293b" opacity="0.35" />
+            <rect x="0" y="122" width="400" height="38" fill="#2b4159" opacity="0.35" />
             <rect x="175" y="75" width="130" height="48" fill="#78350f" />
-            <polygon points="162,76 240,48 318,76" fill="#1e293b" />
+            <polygon points="162,76 240,48 318,76" fill="#2b4159" />
             <rect x="195" y="88" width="22" height="18" fill="#fef08a" />
             <rect x="230" y="88" width="22" height="18" fill="#fef08a" />
             <rect x="265" y="88" width="22" height="18" fill="#fef08a" />
             <path d="M115,105 Q108,92 115,80 M130,105 Q123,92 130,80 M145,105 Q138,92 145,80" stroke="#ffffff" stroke-width="3" stroke-linecap="round" fill="none" />
-            <ellipse cx="130" cy="114" rx="28" ry="8" fill="#38bdf8" opacity="0.8" />
+            <ellipse cx="130" cy="114" rx="28" ry="8" fill="#bce2e8" opacity="0.85" />
           `;
           break;
         case 'volcano':
           landmarkLayer = `
-            <rect x="0" y="118" width="400" height="42" fill="#0c4a6e" opacity="0.5" />
+            <rect x="0" y="118" width="400" height="42" fill="#2b4159" opacity="0.45" />
             <polygon points="120,118 225,52 255,52 360,118" fill="#334155" />
-            <circle cx="240" cy="40" r="12" fill="#f1f5f9" opacity="0.85" />
+            <circle cx="240" cy="40" r="12" fill="#ffffff" opacity="0.85" />
             <circle cx="255" cy="30" r="16" fill="#e2e8f0" opacity="0.75" />
             <circle cx="275" cy="24" r="14" fill="#cbd5e1" opacity="0.6" />
           `;
           break;
         case 'okinawa':
           landmarkLayer = `
-            <rect x="0" y="118" width="400" height="42" fill="#06b6d4" opacity="0.65" />
+            <rect x="0" y="118" width="400" height="42" fill="#89c3eb" opacity="0.7" />
             <rect x="195" y="65" width="8" height="54" fill="#dc2626" />
             <rect x="277" y="65" width="8" height="54" fill="#dc2626" />
             <polygon points="175,66 240,46 305,66" fill="#b91c1c" />
@@ -1599,16 +1638,16 @@
           break;
         case 'lighthouse':
           landmarkLayer = `
-            <rect x="0" y="118" width="400" height="42" fill="#0284c7" opacity="0.5" />
+            <rect x="0" y="118" width="400" height="42" fill="#527db0" opacity="0.45" />
             <polygon points="210,125 235,88 330,88 360,125" fill="#475569" />
             <polygon points="265,88 271,36 283,36 289,88" fill="#ffffff" />
             <rect x="271" y="28" width="12" height="8" fill="#ef4444" />
-            <polygon points="271,32 130,15 130,52" fill="#fef08a" opacity="0.35" />
+            <polygon points="271,32 130,15 130,52" fill="#fef08a" opacity="0.4" />
           `;
           break;
         case 'bridge':
           landmarkLayer = `
-            <rect x="0" y="108" width="400" height="52" fill="#0891b2" opacity="0.55" />
+            <rect x="0" y="108" width="400" height="52" fill="#527db0" opacity="0.5" />
             <rect x="155" y="45" width="7" height="75" fill="#ffffff" />
             <rect x="295" y="45" width="7" height="75" fill="#ffffff" />
             <line x1="60" y1="95" x2="380" y2="95" stroke="#ffffff" stroke-width="4" />
@@ -1617,37 +1656,37 @@
           break;
         case 'waterfall':
           landmarkLayer = `
-            <polygon points="120,160 175,35 285,35 340,160" fill="#14532d" opacity="0.7" />
+            <polygon points="120,160 175,35 285,35 340,160" fill="#2b4159" opacity="0.6" />
             <rect x="218" y="38" width="24" height="105" fill="#e0f2fe" />
             <line x1="224" y1="42" x2="224" y2="140" stroke="#ffffff" stroke-width="2" stroke-dasharray="6 4" />
             <line x1="236" y1="45" x2="236" y2="142" stroke="#ffffff" stroke-width="2" stroke-dasharray="8 4" />
-            <ellipse cx="230" cy="144" rx="34" ry="8" fill="#ffffff" opacity="0.7" />
+            <ellipse cx="230" cy="144" rx="34" ry="8" fill="#ffffff" opacity="0.75" />
           `;
           break;
         case 'hokkaido':
           landmarkLayer = `
-            <rect x="0" y="125" width="400" height="35" fill="#f8fafc" opacity="0.8" />
+            <rect x="0" y="125" width="400" height="35" fill="#ffffff" opacity="0.85" />
             <rect x="200" y="72" width="80" height="53" fill="#ffffff" />
             <polygon points="192,72 240,48 288,72" fill="#dc2626" />
             <rect x="230" y="32" width="20" height="22" fill="#ffffff" />
             <polygon points="227,32 240,18 253,32" fill="#dc2626" />
-            <circle cx="240" cy="42" r="6" fill="#1e293b" />
-            <polygon points="135,125 150,75 165,125" fill="#065f46" />
-            <polygon points="310,125 325,80 340,125" fill="#065f46" />
+            <circle cx="240" cy="42" r="6" fill="#2b4159" />
+            <polygon points="135,125 150,75 165,125" fill="#2b4159" />
+            <polygon points="310,125 325,80 340,125" fill="#2b4159" />
           `;
           break;
         case 'yokohama':
           landmarkLayer = `
-            <rect x="0" y="122" width="400" height="38" fill="#1e3a8a" opacity="0.5" />
+            <rect x="0" y="122" width="400" height="38" fill="#2b4159" opacity="0.45" />
             <circle cx="255" cy="75" r="38" fill="none" stroke="#ffffff" stroke-width="3" />
-            <circle cx="255" cy="75" r="26" fill="none" stroke="#38bdf8" stroke-width="1.5" />
+            <circle cx="255" cy="75" r="26" fill="none" stroke="#bce2e8" stroke-width="1.5" />
             <polygon points="232,122 255,75 278,122" fill="none" stroke="#ffffff" stroke-width="2.5" />
-            <path d="M170,122 L170,52 Q205,82 195,122 Z" fill="#e2e8f0" />
+            <path d="M170,122 L170,52 Q205,82 195,122 Z" fill="#ffffff" opacity="0.9" />
           `;
           break;
         case 'kobe_tower':
           landmarkLayer = `
-            <rect x="0" y="124" width="400" height="36" fill="#0f172a" opacity="0.45" />
+            <rect x="0" y="124" width="400" height="36" fill="#2b4159" opacity="0.45" />
             <path d="M225,124 Q236,75 228,32 L252,32 Q244,75 255,124 Z" fill="#ef4444" stroke="#ffffff" stroke-width="1.5" />
             <rect x="224" y="25" width="32" height="8" rx="2" fill="#ffffff" />
             <line x1="240" y1="12" x2="240" y2="25" stroke="#ffffff" stroke-width="2" />
@@ -1655,10 +1694,10 @@
           break;
         default:
           landmarkLayer = `
-            <path d="M0,160 L110,72 L210,160 Z" fill="#0f172a" opacity="0.2" />
-            <path d="M160,160 L275,55 L400,160 Z" fill="#0f172a" opacity="0.3" />
-            <circle cx="135" cy="68" r="14" fill="#fbcfe8" opacity="0.7" />
-            <circle cx="152" cy="74" r="11" fill="#f9a8d4" opacity="0.7" />
+            <path d="M0,160 L110,72 L210,160 Z" fill="#2b4159" opacity="0.2" />
+            <path d="M160,160 L275,55 L400,160 Z" fill="#2b4159" opacity="0.3" />
+            <circle cx="135" cy="68" r="14" fill="#ffffff" opacity="0.6" />
+            <circle cx="152" cy="74" r="11" fill="#bce2e8" opacity="0.7" />
           `;
       }
 
@@ -1671,13 +1710,13 @@
             </linearGradient>
           </defs>
           <rect width="400" height="160" fill="url(#grad-${stop.id})" />
-          <circle cx="345" cy="38" r="20" fill="#ffffff" opacity="0.4" />
+          <circle cx="345" cy="38" r="20" fill="#ffffff" opacity="0.45" />
           ${landmarkLayer}
-          <rect x="0" y="118" width="400" height="42" fill="#0f172a" opacity="0.35" />
-          <text x="16" y="145" fill="#ffffff" font-weight="bold" font-size="16" style="text-shadow: 0 2px 4px rgba(0,0,0,0.6);">
+          <rect x="0" y="118" width="400" height="42" fill="#2b4159" opacity="0.4" />
+          <text x="16" y="145" fill="#ffffff" font-weight="bold" font-size="16" style="text-shadow: 0 2px 4px rgba(0,0,0,0.5);">
             ${stop.name}
           </text>
-          <text x="16" y="26" fill="#ffffff" font-weight="bold" font-size="10" opacity="0.95" style="text-shadow: 0 1px 2px rgba(0,0,0,0.4);">
+          <text x="16" y="26" fill="#ffffff" font-weight="bold" font-size="10" opacity="0.95" style="text-shadow: 0 1px 2px rgba(0,0,0,0.35);">
             JAPAN MILESTONE • ${stop.km} KM
           </text>
         </svg>
