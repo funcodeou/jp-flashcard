@@ -1,679 +1,699 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
-
 <head>
-	<meta charset="UTF-8" />
-	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-	<title>日文閃卡 × 逆時針環日本 47 都道府縣</title>
-	<script src="https://cdn.tailwindcss.com"></script>
-	<style>
-		@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Noto+Sans+TC:wght@400;500;700&display=swap');
-
-		body {
-			font-family: 'Noto Sans TC', 'Noto Sans JP', sans-serif;
-			background-color: #f8fafc;
-		}
-
-		.japanese-text {
-			font-family: 'Noto Sans JP', sans-serif;
-		}
-
-		@keyframes pulse-ring {
-			0% {
-				transform: scale(0.8);
-				opacity: 0.8;
-			}
-
-			100% {
-				transform: scale(2.2);
-				opacity: 0;
-			}
-		}
-
-		.avatar-pulse {
-			animation: pulse-ring 1.8s infinite cubic-bezier(0.215, 0.61, 0.355, 1);
-			transform-origin: center;
-			transform-box: fill-box;
-		}
-	</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>日文閃卡 × 逆時針環日本 47 都道府縣</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Noto+Sans+TC:wght@400;500;700&display=swap');
+    body {
+      font-family: 'Noto Sans TC', 'Noto Sans JP', sans-serif;
+      background-color: #f8fafc;
+    }
+    .japanese-text {
+      font-family: 'Noto Sans JP', sans-serif;
+    }
+    @keyframes pulse-ring {
+      0% { transform: scale(0.8); opacity: 0.8; }
+      100% { transform: scale(2.2); opacity: 0; }
+    }
+    .avatar-pulse {
+      animation: pulse-ring 1.8s infinite cubic-bezier(0.215, 0.61, 0.355, 1);
+      transform-origin: center;
+      transform-box: fill-box;
+    }
+  </style>
 </head>
-
 <body class="text-slate-800 min-h-screen flex flex-col">
 
-	<!-- 頂部導覽列 -->
-	<header class="bg-indigo-700 text-white shadow-md sticky top-0 z-30">
-		<div class="max-w-6xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
-			<div class="flex items-center gap-2 cursor-pointer" onclick="switchView('home')">
-				<span class="text-2xl">🗾</span>
-				<h1 class="font-bold text-lg tracking-wide">日文閃卡・環日本 47 都道府縣</h1>
-			</div>
-			<div class="flex items-center gap-2 text-sm">
-				<button onclick="switchView('home')" id="nav-home"
-					class="px-3 py-1.5 rounded-lg bg-indigo-800 font-medium hover:bg-indigo-600 transition">📚
-					主題題庫</button>
-				<button onclick="switchView('travel')" id="nav-travel"
-					class="px-3 py-1.5 rounded-lg bg-amber-500 text-slate-900 font-bold hover:bg-amber-400 transition flex items-center gap-1">
-					<span>🚶</span> 環日本進度 (<span id="header-km">0</span> km)
-				</button>
-				<button onclick="openApiModal()"
-					class="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 transition"
-					title="設定 GAS API 網址">⚙️</button>
-			</div>
-		</div>
-	</header>
+  <!-- 頂部導覽列 -->
+  <header class="bg-indigo-700 text-white shadow-md sticky top-0 z-30">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-2 cursor-pointer" onclick="switchView('home')">
+        <span class="text-2xl">🗾</span>
+        <h1 class="font-bold text-lg tracking-wide">日文閃卡・環日本 47 都道府縣</h1>
+      </div>
+      <div class="flex items-center gap-2 text-sm">
+        <button onclick="switchView('home')" id="nav-home" class="px-3 py-1.5 rounded-lg bg-indigo-800 font-medium hover:bg-indigo-600 transition">📚 主題題庫</button>
+        <button onclick="switchView('travel')" id="nav-travel" class="px-3 py-1.5 rounded-lg bg-amber-500 text-slate-900 font-bold hover:bg-amber-400 transition flex items-center gap-1">
+          <span>🚶</span> 環日本進度 (<span id="header-km">0</span> km)
+        </button>
+        <button onclick="openModal('modal-manual')" class="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 transition" title="操作手冊">📖</button>
+        <button onclick="openApiModal()" class="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 transition" title="設定 GAS API 網址">⚙️</button>
+      </div>
+    </div>
+  </header>
 
-	<!-- 全域讀取提示 -->
-	<div id="loading-bar"
-		class="hidden bg-amber-100 border-b border-amber-300 text-amber-900 px-4 py-2 text-sm text-center font-medium">
-		⏳ 正在與 Google 試算表同步資料...
-	</div>
+  <!-- 全域讀取提示 -->
+  <div id="loading-bar" class="hidden bg-amber-100 border-b border-amber-300 text-amber-900 px-4 py-2 text-sm text-center font-medium">
+    ⏳ 正在與 Google 試算表同步資料...
+  </div>
 
-	<!-- 主內容區 -->
-	<main class="flex-1 max-w-6xl w-full mx-auto px-4 py-6">
+  <!-- 主內容區 -->
+  <main class="flex-1 max-w-6xl w-full mx-auto px-4 py-6">
 
-		<!-- ==================== 1. 閃卡首頁（極簡主題管理） ==================== -->
-		<section id="view-home" class="space-y-6">
-			<div
-				class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 flex flex-wrap items-center justify-between gap-4">
-				<div>
-					<h2 class="text-xl font-bold text-slate-800">我的複習主題</h2>
-					<p class="text-sm text-slate-500 mt-0.5">勾選主題可批次刪除或清除複習紀錄；直接點擊「✏️ 編輯」可調整欄位設定</p>
-				</div>
-				<div class="flex flex-wrap gap-2">
-					<button onclick="openAddTopicModal()"
-						class="px-4 py-2 bg-indigo-600 text-white rounded-xl font-medium hover:bg-indigo-700 shadow-sm transition flex items-center gap-1.5">
-						<span>＋</span> 添加主題
-					</button>
-					<button onclick="handleClearSelectedProgress()"
-						class="px-3.5 py-2 bg-amber-100 text-amber-800 rounded-xl font-medium hover:bg-amber-200 transition text-sm">
-						🧹 清除勾選紀錄
-					</button>
-					<button onclick="handleDeleteSelectedTopics()"
-						class="px-3.5 py-2 bg-rose-100 text-rose-700 rounded-xl font-medium hover:bg-rose-200 transition text-sm">
-						🗑️ 刪除勾選主題
-					</button>
-				</div>
-			</div>
+    <!-- ==================== 1. 閃卡首頁（極簡純圖示工具列 + 主題卡片） ==================== -->
+    <section id="view-home" class="space-y-5">
+      <!-- 純圖示操作列（無大標題與冗長說明） -->
+      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 px-4 py-3 flex items-center justify-between gap-3">
+        <!-- 左側：批次操作與新增純圖示按鈕 -->
+        <div class="flex items-center gap-2">
+          <button type="button" onclick="openAddTopicModal()" class="w-10 h-10 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 shadow-sm transition flex items-center justify-center text-lg" title="添加主題">
+            ＋
+          </button>
+          <button type="button" onclick="handleClearSelectedProgress()" class="w-10 h-10 bg-amber-100 text-amber-800 rounded-xl hover:bg-amber-200 transition flex items-center justify-center text-lg" title="清除勾選紀錄">
+            🧹
+          </button>
+          <button type="button" onclick="handleDeleteSelectedTopics()" class="w-10 h-10 bg-rose-100 text-rose-700 rounded-xl hover:bg-rose-200 transition flex items-center justify-center text-lg" title="刪除勾選主題">
+            🗑️
+          </button>
+        </div>
 
-			<div id="topics-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
-		</section>
+        <!-- 右側：待修訂標註清單按鈕 + 操作手冊圖示按鈕 -->
+        <div class="flex items-center gap-2">
+          <button type="button" onclick="openRevisionsModal()" class="relative h-10 px-3.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-xl font-bold transition flex items-center gap-1.5 text-sm" title="查看標記修訂的卡片紀錄">
+            <span>🚩</span>
+            <span>標註修訂</span>
+            <span id="revision-count-badge" class="hidden ml-0.5 px-1.5 py-0.2 bg-rose-600 text-white text-xs rounded-full">0</span>
+          </button>
+          <button type="button" onclick="openModal('modal-manual')" class="w-10 h-10 bg-slate-100 hover:bg-indigo-50 text-slate-700 hover:text-indigo-700 rounded-xl transition flex items-center justify-center text-lg" title="操作手冊">
+            📖
+          </button>
+        </div>
+      </div>
 
-		<!-- ==================== 2. 練習前篩選器 ==================== -->
-		<section id="view-filter" class="hidden max-w-xl mx-auto">
-			<div class="bg-white rounded-2xl shadow-md border border-slate-200 p-6 space-y-5">
-				<div class="flex items-center justify-between border-b pb-3">
-					<div>
-						<span class="text-xs font-bold uppercase tracking-wider text-indigo-600">準備開始複習</span>
-						<h2 id="filter-topic-title" class="text-xl font-bold text-slate-800 mt-0.5">主題名稱</h2>
-					</div>
-					<button onclick="switchView('home')" class="text-slate-400 hover:text-slate-600 text-sm">✕
-						返回</button>
-				</div>
+      <!-- 主題清單容器（僅顯示主題名稱與獨立編輯按鈕） -->
+      <div id="topics-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+    </section>
 
-				<div id="format-warning-box"
-					class="hidden bg-rose-50 border border-rose-200 text-rose-700 text-xs p-3 rounded-xl"></div>
+    <!-- ==================== 2. 練習前篩選器 ==================== -->
+    <section id="view-filter" class="hidden max-w-xl mx-auto">
+      <div class="bg-white rounded-2xl shadow-md border border-slate-200 p-6 space-y-5">
+        <div class="flex items-center justify-between border-b pb-3">
+          <div>
+            <span class="text-xs font-bold uppercase tracking-wider text-indigo-600">準備開始複習</span>
+            <h2 id="filter-topic-title" class="text-xl font-bold text-slate-800 mt-0.5">主題名稱</h2>
+          </div>
+          <button onclick="switchView('home')" class="text-slate-400 hover:text-slate-600 text-sm">✕ 返回</button>
+        </div>
 
-				<!-- 條件 A：練習順序與狀態篩選 -->
-				<div class="space-y-2.5">
-					<label class="block text-sm font-bold text-slate-700">1. 選擇練習順序與進度模式：</label>
-					<label class="flex items-center gap-3 p-3 border rounded-xl cursor-pointer hover:bg-slate-50">
-						<input type="radio" name="filterMode" value="resume" checked onchange="updateFilterMatchCount()"
-							class="w-4 h-4 text-indigo-600">
-						<div>
-							<div class="font-medium text-sm">接續上次進度</div>
-							<div class="text-xs text-slate-500">從上次最後停留的卡片繼續往後練習</div>
-						</div>
-					</label>
-					<label class="flex items-center gap-3 p-3 border rounded-xl cursor-pointer hover:bg-slate-50">
-						<input type="radio" name="filterMode" value="restart" onchange="updateFilterMatchCount()"
-							class="w-4 h-4 text-indigo-600">
-						<div>
-							<div class="font-medium text-sm">從頭開始（第 1 張）</div>
-							<div class="text-xs text-slate-500">依工作表原始順序從第一題開始</div>
-						</div>
-					</label>
-					<label class="flex items-center gap-3 p-3 border rounded-xl cursor-pointer hover:bg-slate-50">
-						<input type="radio" name="filterMode" value="wrong" onchange="updateFilterMatchCount()"
-							class="w-4 h-4 text-indigo-600">
-						<div class="flex-1 flex items-center justify-between">
-							<div>
-								<div class="font-medium text-sm">錯題集中加強</div>
-								<div class="text-xs text-slate-500">只篩選答錯次數達門檻的卡片</div>
-							</div>
-							<div class="flex items-center gap-1 text-xs">
-								<span>錯 ≥</span>
-								<input type="number" id="wrong-threshold" value="1" min="1"
-									onchange="updateFilterMatchCount()" onkeyup="updateFilterMatchCount()"
-									class="w-12 border rounded px-1.5 py-1 text-center font-bold">
-								<span>次</span>
-							</div>
-						</div>
-					</label>
-					<label class="flex items-center gap-3 p-3 border rounded-xl cursor-pointer hover:bg-slate-50">
-						<input type="radio" name="filterMode" value="shuffle" onchange="updateFilterMatchCount()"
-							class="w-4 h-4 text-indigo-600">
-						<div>
-							<div class="font-medium text-sm">全部隨機打亂</div>
-							<div class="text-xs text-slate-500">將篩選後的卡片隨機洗牌</div>
-						</div>
-					</label>
-				</div>
+        <div id="format-warning-box" class="hidden bg-rose-50 border border-rose-200 text-rose-700 text-xs p-3 rounded-xl"></div>
 
-				<!-- 條件 B：指定單一欄位項目複選篩選 -->
-				<div class="space-y-2.5 border-t pt-4">
-					<div class="flex items-center justify-between">
-						<label class="block text-sm font-bold text-slate-700">2. 指定欄位分類篩選（選填，單選一欄）：</label>
-					</div>
-					<select id="filter-custom-col" onchange="handleFilterCustomColChange()"
-						class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm bg-white">
-						<option value="">-- 不限欄位（練習全部資料） --</option>
-					</select>
+        <!-- 條件 A：練習順序與狀態篩選 -->
+        <div class="space-y-2.5">
+          <label class="block text-sm font-bold text-slate-700">1. 選擇練習順序與進度模式：</label>
+          <label class="flex items-center gap-3 p-3 border rounded-xl cursor-pointer hover:bg-slate-50">
+            <input type="radio" name="filterMode" value="resume" checked onchange="updateFilterMatchCount()" class="w-4 h-4 text-indigo-600">
+            <div>
+              <div class="font-medium text-sm">接續上次進度</div>
+              <div class="text-xs text-slate-500">從上次最後停留的卡片繼續往後練習</div>
+            </div>
+          </label>
+          <label class="flex items-center gap-3 p-3 border rounded-xl cursor-pointer hover:bg-slate-50">
+            <input type="radio" name="filterMode" value="restart" onchange="updateFilterMatchCount()" class="w-4 h-4 text-indigo-600">
+            <div>
+              <div class="font-medium text-sm">從頭開始（第 1 張）</div>
+              <div class="text-xs text-slate-500">依工作表原始順序從第一題開始</div>
+            </div>
+          </label>
+          <label class="flex items-center gap-3 p-3 border rounded-xl cursor-pointer hover:bg-slate-50">
+            <input type="radio" name="filterMode" value="wrong" onchange="updateFilterMatchCount()" class="w-4 h-4 text-indigo-600">
+            <div class="flex-1 flex items-center justify-between">
+              <div>
+                <div class="font-medium text-sm">錯題集中加強</div>
+                <div class="text-xs text-slate-500">只篩選答錯次數達門檻的卡片</div>
+              </div>
+              <div class="flex items-center gap-1 text-xs">
+                <span>錯 ≥</span>
+                <input type="number" id="wrong-threshold" value="1" min="1" onchange="updateFilterMatchCount()" onkeyup="updateFilterMatchCount()" class="w-12 border rounded px-1.5 py-1 text-center font-bold">
+                <span>次</span>
+              </div>
+            </div>
+          </label>
+          <label class="flex items-center gap-3 p-3 border rounded-xl cursor-pointer hover:bg-slate-50">
+            <input type="radio" name="filterMode" value="shuffle" onchange="updateFilterMatchCount()" class="w-4 h-4 text-indigo-600">
+            <div>
+              <div class="font-medium text-sm">全部隨機打亂</div>
+              <div class="text-xs text-slate-500">將篩選後的卡片隨機洗牌</div>
+            </div>
+          </label>
+        </div>
 
-					<div id="filter-custom-values-wrapper"
-						class="hidden bg-slate-50 border border-slate-200 rounded-xl p-3 space-y-2">
-						<div class="flex items-center justify-between text-xs text-slate-500 border-b pb-1.5">
-							<span>勾選要納入練習的項目（可複選）：</span>
-							<div class="space-x-2">
-								<button type="button" onclick="toggleAllFilterValues(true)"
-									class="text-indigo-600 hover:underline font-medium">全選</button>
-								<button type="button" onclick="toggleAllFilterValues(false)"
-									class="text-slate-500 hover:underline">全不選</button>
-							</div>
-						</div>
-						<div id="filter-custom-values-list"
-							class="max-h-40 overflow-y-auto grid grid-cols-2 gap-1.5 text-sm pt-1"></div>
-					</div>
-				</div>
+        <!-- 條件 B：指定單一欄位項目複選篩選 -->
+        <div class="space-y-2.5 border-t pt-4">
+          <div class="flex items-center justify-between">
+            <label class="block text-sm font-bold text-slate-700">2. 指定欄位分類篩選（選填，單選一欄）：</label>
+          </div>
+          <select id="filter-custom-col" onchange="handleFilterCustomColChange()" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm bg-white">
+            <option value="">-- 不限欄位（練習全部資料） --</option>
+          </select>
 
-				<button onclick="startStudySession()"
-					class="w-full py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 shadow transition">
-					開始練習 (<span id="filter-total-count">0</span> 張符合卡片)
-				</button>
-			</div>
-		</section>
+          <div id="filter-custom-values-wrapper" class="hidden bg-slate-50 border border-slate-200 rounded-xl p-3 space-y-2">
+            <div class="flex items-center justify-between text-xs text-slate-500 border-b pb-1.5">
+              <span>勾選要納入練習的項目（可複選）：</span>
+              <div class="space-x-2">
+                <button type="button" onclick="toggleAllFilterValues(true)" class="text-indigo-600 hover:underline font-medium">全選</button>
+                <button type="button" onclick="toggleAllFilterValues(false)" class="text-slate-500 hover:underline">全不選</button>
+              </div>
+            </div>
+            <div id="filter-custom-values-list" class="max-h-40 overflow-y-auto grid grid-cols-2 gap-1.5 text-sm pt-1"></div>
+          </div>
+        </div>
 
-		<!-- ==================== 3. 閃卡練習介面 ==================== -->
-		<section id="view-study" class="hidden max-w-2xl mx-auto space-y-4">
-			<div
-				class="flex items-center justify-between text-sm text-slate-600 bg-white px-4 py-2.5 rounded-xl border shadow-sm">
-				<button onclick="switchView('home')" class="text-indigo-600 font-medium hover:underline">← 結束返回</button>
-				<div class="font-bold text-slate-700">進度：<span id="study-progress-text">1 / 10</span></div>
-				<div class="text-xs bg-slate-100 px-2.5 py-1 rounded-full font-medium text-slate-700"
-					id="card-stats-badge">
-					第 0 次練習 ｜ 對 0 ｜ 錯 0
-				</div>
-			</div>
+        <button onclick="startStudySession()" class="w-full py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 shadow transition">
+          開始練習 (<span id="filter-total-count">0</span> 張符合卡片)
+        </button>
+      </div>
+    </section>
 
-			<div id="flashcard-container" onclick="handleCardBackgroundClick(event)"
-				class="bg-white rounded-3xl shadow-lg border-2 border-slate-200 p-6 md:p-8 min-h-[340px] flex flex-col justify-between cursor-pointer transition relative">
-				<!-- 出題面（調整：出題句子在上方，提示欄位在下方，按鈕改為「回答」） -->
-				<div id="card-front" class="space-y-6">
-					<div class="flex justify-between items-center">
-						<span class="px-2.5 py-1 bg-indigo-50 text-indigo-700 text-xs font-bold rounded-lg">出題卡片</span>
-						<span class="text-xs text-slate-400">💡 點擊空白處可直接看答案（計為答錯）</span>
-					</div>
+    <!-- ==================== 3. 閃卡練習介面 ==================== -->
+    <section id="view-study" class="hidden max-w-2xl mx-auto space-y-4">
+      <div class="flex items-center justify-between text-sm text-slate-600 bg-white px-4 py-2.5 rounded-xl border shadow-sm">
+        <button onclick="switchView('home')" class="text-indigo-600 font-medium hover:underline">← 結束返回</button>
+        <div class="font-bold text-slate-700">進度：<span id="study-progress-text">1 / 10</span></div>
+        <div class="text-xs bg-slate-100 px-2.5 py-1 rounded-full font-medium text-slate-700" id="card-stats-badge">
+          第 0 次練習 ｜ 對 0 ｜ 錯 0
+        </div>
+      </div>
 
-					<!-- 上方：克漏字題目區 -->
-					<div class="py-4 text-center">
-						<div id="card-question-area"
-							class="japanese-text text-xl md:text-2xl font-bold leading-relaxed text-slate-800 flex flex-wrap items-center justify-center gap-1.5">
-						</div>
-					</div>
+      <div id="flashcard-container" onclick="handleCardBackgroundClick(event)" class="bg-white rounded-3xl shadow-lg border-2 border-slate-200 p-6 md:p-8 min-h-[340px] flex flex-col justify-between cursor-pointer transition relative">
+        <!-- 出題面（上方出題句子，下方提示欄位，按鈕為「回答」） -->
+        <div id="card-front" class="space-y-6">
+          <div class="flex justify-between items-center">
+            <div class="flex items-center gap-2">
+              <span class="px-2.5 py-1 bg-indigo-50 text-indigo-700 text-xs font-bold rounded-lg">出題卡片</span>
+              <span id="retry-mode-badge" class="hidden px-2.5 py-1 bg-amber-100 text-amber-800 text-xs font-bold rounded-lg">🔄 重新作答中（對 +1 / 錯 -2）</span>
+            </div>
+            <span class="text-xs text-slate-400">💡 點擊空白處可直接看答案</span>
+          </div>
 
-					<!-- 下方：提示欄位區 -->
-					<div id="card-hints-area"
-						class="bg-slate-50 rounded-xl p-4 space-y-1.5 text-sm border border-slate-100"></div>
+          <!-- 上方：克漏字題目區 -->
+          <div class="py-4 text-center">
+            <div id="card-question-area" class="japanese-text text-xl md:text-2xl font-bold leading-relaxed text-slate-800 flex flex-wrap items-center justify-center gap-1.5"></div>
+          </div>
 
-					<!-- 按鈕：改為「回答」 -->
-					<div class="pt-2 flex justify-center">
-						<button id="btn-submit-answer" onclick="submitClozeAnswer(event)"
-							class="px-10 py-3 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 shadow-md transition">
-							回答
-						</button>
-					</div>
-				</div>
+          <!-- 下方：提示欄位區 -->
+          <div id="card-hints-area" class="bg-slate-50 rounded-xl p-4 space-y-1.5 text-sm border border-slate-100"></div>
 
-				<!-- 答案面 -->
-				<div id="card-back" class="hidden space-y-6 cursor-default" onclick="event.stopPropagation()">
-					<div id="result-banner" class="p-4 rounded-2xl flex items-center justify-between">
-						<div>
-							<div id="result-title" class="font-bold text-lg"></div>
-							<div id="result-detail" class="text-sm mt-1"></div>
-						</div>
-						<div id="result-km-badge" class="text-2xl font-black px-3 py-1 rounded-xl bg-white/80"></div>
-					</div>
-					<div class="bg-indigo-50/60 border border-indigo-100 rounded-2xl p-4 text-center">
-						<div class="text-xs text-indigo-500 font-bold mb-1">完整句子</div>
-						<div id="back-full-sentence" class="japanese-text text-xl font-bold text-slate-800"></div>
-					</div>
-					<div id="card-answers-area"
-						class="bg-slate-50 rounded-xl p-4 space-y-2 text-sm border border-slate-200"></div>
-					<div class="pt-2 flex justify-end">
-						<button onclick="nextCard()"
-							class="px-8 py-3 bg-slate-800 text-white font-bold rounded-xl hover:bg-slate-900 shadow transition">
-							下一張卡片 →
-						</button>
-					</div>
-				</div>
-			</div>
-		</section>
+          <!-- 按鈕：回答 -->
+          <div class="pt-2 flex justify-center">
+            <button id="btn-submit-answer" onclick="submitClozeAnswer(event)" class="px-10 py-3 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 shadow-md transition">
+              回答
+            </button>
+          </div>
+        </div>
 
-		<!-- ==================== 4. 成果展示（逆時針環日本地圖） ==================== -->
-		<section id="view-travel" class="hidden space-y-6">
-			<div
-				class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 flex flex-wrap items-center justify-between gap-4">
-				<div class="flex items-center gap-4">
-					<div id="travel-avatar-display"
-						class="w-14 h-14 rounded-2xl bg-indigo-100 flex items-center justify-center text-3xl border-2 border-indigo-300 shadow-inner">
-						🧑</div>
-					<div>
-						<div class="flex items-center gap-2">
-							<span class="px-2.5 py-0.5 bg-amber-100 text-amber-800 font-bold text-xs rounded-full">第
-								<span id="travel-loop">1</span> 圈環島中</span>
-							<button onclick="openCharacterModal()"
-								class="text-xs text-indigo-600 hover:underline">切換角色</button>
-						</div>
-						<h2 class="text-xl font-bold text-slate-800 mt-1">
-							目前位置：<span id="travel-current-location" class="text-indigo-700">東京都（東京車站）</span>
-						</h2>
-						<p class="text-xs text-slate-500 mt-0.5">
-							累積里程：<strong id="travel-km" class="text-slate-800">0</strong> / 3,000 km ｜ 距離下一站 <span
-								id="travel-next-name">千葉縣</span> 還差 <strong id="travel-next-remain">45</strong> km
-						</p>
-					</div>
-				</div>
-				<div class="text-right">
-					<div class="text-xs text-slate-400">本圈已解鎖都道府縣</div>
-					<div class="text-2xl font-black text-indigo-600"><span id="travel-unlocked-count">1</span> <span
-							class="text-sm font-normal text-slate-500">/ 50 站 (47都道府縣全制霸)</span></div>
-				</div>
-			</div>
+        <!-- 答案面（右上角「🚩 標記修訂」按鈕 + 下方「🔄 重新作答」按鈕） -->
+        <div id="card-back" class="hidden space-y-5 cursor-default" onclick="event.stopPropagation()">
+          <!-- 答案卡頂部工具列 -->
+          <div class="flex items-center justify-between">
+            <span class="px-2.5 py-1 bg-emerald-50 text-emerald-700 text-xs font-bold rounded-lg">答案卡片</span>
+            <button type="button" id="btn-flag-revision" onclick="flagCurrentCardForRevision()" class="px-3 py-1.5 rounded-xl border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold transition flex items-center gap-1.5" title="標記此卡片需要修訂">
+              <span>🚩</span> <span id="btn-flag-revision-text">標記修訂</span>
+            </button>
+          </div>
 
-			<div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-				<div
-					class="lg:col-span-7 bg-sky-50 rounded-2xl border border-sky-200 p-4 shadow-inner flex flex-col items-center justify-center relative overflow-hidden">
-					<div
-						class="absolute top-3 left-3 bg-white/90 backdrop-blur px-3 py-1.5 rounded-xl text-xs font-bold text-sky-900 shadow-sm">
-						🧭 逆時針環日本路線圖（答對 +1km / 答錯 -1km）
-					</div>
-					<svg id="japan-map-svg" viewBox="0 0 600 620" class="w-full h-auto max-h-[560px] select-none">
-						<g fill="#e2e8f0" stroke="#94a3b8" stroke-width="1.5">
-							<path d="M430,30 L510,20 L550,65 L515,115 L455,110 L425,135 L405,110 L425,70 Z" />
-							<path
-								d="M405,150 L435,160 L440,240 L425,320 L395,365 L350,375 L310,385 L265,380 L210,385 L155,395 L135,375 L180,350 L245,345 L300,335 L335,295 L370,255 L385,190 Z" />
-							<path d="M205,400 L255,395 L260,425 L200,435 Z" />
-							<path d="M120,405 L165,410 L170,480 L130,500 L110,455 Z" />
-							<path d="M45,545 L85,535 L90,555 L50,565 Z" />
-						</g>
-						<polyline id="map-route-line" fill="none" stroke="#cbd5e1" stroke-width="3"
-							stroke-dasharray="4 4" />
-						<polyline id="map-progress-line" fill="none" stroke="#4f46e5" stroke-width="3.5"
-							stroke-linecap="round" />
-						<g id="map-nodes-group"></g>
-						<g id="map-player-marker" transform="translate(395, 345)">
-							<circle r="14" fill="#f59e0b" class="avatar-pulse" />
-							<circle r="13" fill="#ffffff" stroke="#4f46e5" stroke-width="2.5" />
-							<text id="map-player-emoji" y="5" text-anchor="middle" font-size="15">🧑</text>
-						</g>
-					</svg>
-				</div>
+          <div id="result-banner" class="p-4 rounded-2xl flex items-center justify-between">
+            <div>
+              <div id="result-title" class="font-bold text-lg"></div>
+              <div id="result-detail" class="text-sm mt-1"></div>
+            </div>
+            <div id="result-km-badge" class="text-2xl font-black px-3 py-1 rounded-xl bg-white/80"></div>
+          </div>
 
-				<div class="lg:col-span-5 bg-white rounded-2xl border border-slate-200 p-4 flex flex-col max-h-[620px]">
-					<div class="flex items-center justify-between border-b pb-3 mb-3">
-						<h3 class="font-bold text-slate-800">📸 里程碑打卡相簿</h3>
-						<span class="text-xs text-slate-500">抵達縣市自動解鎖，可替換照片</span>
-					</div>
-					<div id="milestones-album" class="flex-1 overflow-y-auto space-y-3 pr-1"></div>
-				</div>
-			</div>
-		</section>
+          <div class="bg-indigo-50/60 border border-indigo-100 rounded-2xl p-4 text-center">
+            <div class="text-xs text-indigo-500 font-bold mb-1">完整句子</div>
+            <div id="back-full-sentence" class="japanese-text text-xl font-bold text-slate-800"></div>
+          </div>
 
-	</main>
+          <div id="card-answers-area" class="bg-slate-50 rounded-xl p-4 space-y-2 text-sm border border-slate-200"></div>
 
-	<!-- ==================== 彈窗 1：設定 GAS API 網址 ==================== -->
-	<div id="modal-api"
-		class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-		<div class="bg-white rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-2xl">
-			<h3 class="text-lg font-bold text-slate-800">🔗 連結 Google 試算表 (GAS API)</h3>
-			<p class="text-xs text-slate-500 leading-relaxed">
-				請貼上你在 Google Apps Script 部署為「網頁應用程式」後取得的 <code
-					class="bg-slate-100 px-1 py-0.5 rounded text-indigo-600">/exec</code> 網址。資料與複習進度將自動寫入該試算表。
-			</p>
-			<input type="url" id="input-gas-url" placeholder="https://script.google.com/macros/s/...../exec"
-				class="w-full border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
-			<div class="flex justify-end gap-2 pt-2">
-				<button onclick="closeModal('modal-api')"
-					class="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-xl text-sm">取消</button>
-				<button onclick="saveGasUrl()"
-					class="px-5 py-2 bg-indigo-600 text-white font-bold rounded-xl text-sm hover:bg-indigo-700">儲存並連線</button>
-			</div>
-		</div>
-	</div>
+          <!-- 底部按鈕列：重新作答 + 下一張卡片 -->
+          <div class="pt-2 flex flex-wrap items-center justify-between gap-3">
+            <button type="button" onclick="retryCurrentCard()" class="px-5 py-3 bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold rounded-xl transition flex items-center gap-1.5 text-sm" title="重新作答（答對 +1 km，答錯 -2 km）">
+              <span>🔄</span> 重新作答
+            </button>
+            <button type="button" onclick="nextCard()" class="px-8 py-3 bg-slate-800 text-white font-bold rounded-xl hover:bg-slate-900 shadow transition">
+              下一張卡片 →
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
 
-	<!-- ==================== 彈窗 2：添加 / 編輯主題 ==================== -->
-	<div id="modal-add-topic"
-		class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
-		<div class="bg-white rounded-2xl max-w-xl w-full p-6 space-y-5 shadow-2xl my-8">
-			<div class="flex items-center justify-between border-b pb-3">
-				<h3 id="topic-modal-title" class="text-lg font-bold text-slate-800">➕ 添加複習主題</h3>
-				<button onclick="closeModal('modal-add-topic')" class="text-slate-400 hover:text-slate-600">✕</button>
-			</div>
+    <!-- ==================== 4. 成果展示（逆時針環日本地圖） ==================== -->
+    <section id="view-travel" class="hidden space-y-6">
+      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 flex flex-wrap items-center justify-between gap-4">
+        <div class="flex items-center gap-4">
+          <div id="travel-avatar-display" class="w-14 h-14 rounded-2xl bg-indigo-100 flex items-center justify-center text-3xl border-2 border-indigo-300 shadow-inner">🧑</div>
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="px-2.5 py-0.5 bg-amber-100 text-amber-800 font-bold text-xs rounded-full">第 <span id="travel-loop">1</span> 圈環島中</span>
+              <button onclick="openCharacterModal()" class="text-xs text-indigo-600 hover:underline">切換角色</button>
+            </div>
+            <h2 class="text-xl font-bold text-slate-800 mt-1">
+              目前位置：<span id="travel-current-location" class="text-indigo-700">東京都（東京車站）</span>
+            </h2>
+            <p class="text-xs text-slate-500 mt-0.5">
+              累積里程：<strong id="travel-km" class="text-slate-800">0</strong> / 3,000 km ｜ 距離下一站 <span id="travel-next-name">千葉縣</span> 還差 <strong id="travel-next-remain">45</strong> km
+            </p>
+          </div>
+        </div>
+        <div class="text-right">
+          <div class="text-xs text-slate-400">本圈已解鎖都道府縣</div>
+          <div class="text-2xl font-black text-indigo-600"><span id="travel-unlocked-count">1</span> <span class="text-sm font-normal text-slate-500">/ 50 站 (47都道府縣全制霸)</span></div>
+        </div>
+      </div>
 
-			<div class="space-y-4 text-sm">
-				<div>
-					<label class="block font-bold text-slate-700 mb-1">1. 主題名稱</label>
-					<input type="text" id="topic-name" placeholder="例如：綜合日語 第1課 語彙"
-						class="w-full border rounded-xl px-3 py-2">
-				</div>
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div class="lg:col-span-7 bg-sky-50 rounded-2xl border border-sky-200 p-4 shadow-inner flex flex-col items-center justify-center relative overflow-hidden">
+          <div class="absolute top-3 left-3 bg-white/90 backdrop-blur px-3 py-1.5 rounded-xl text-xs font-bold text-sky-900 shadow-sm">
+            🧭 逆時針環日本路線圖（首答對 +1 / 首答錯 -1）
+          </div>
+          <svg id="japan-map-svg" viewBox="0 0 600 620" class="w-full h-auto max-h-[560px] select-none">
+            <g fill="#e2e8f0" stroke="#94a3b8" stroke-width="1.5">
+              <path d="M430,30 L510,20 L550,65 L515,115 L455,110 L425,135 L405,110 L425,70 Z" />
+              <path d="M405,150 L435,160 L440,240 L425,320 L395,365 L350,375 L310,385 L265,380 L210,385 L155,395 L135,375 L180,350 L245,345 L300,335 L335,295 L370,255 L385,190 Z" />
+              <path d="M205,400 L255,395 L260,425 L200,435 Z" />
+              <path d="M120,405 L165,410 L170,480 L130,500 L110,455 Z" />
+              <path d="M45,545 L85,535 L90,555 L50,565 Z" />
+            </g>
+            <polyline id="map-route-line" fill="none" stroke="#cbd5e1" stroke-width="3" stroke-dasharray="4 4" />
+            <polyline id="map-progress-line" fill="none" stroke="#4f46e5" stroke-width="3.5" stroke-linecap="round" />
+            <g id="map-nodes-group"></g>
+            <g id="map-player-marker" transform="translate(395, 345)">
+              <circle r="14" fill="#f59e0b" class="avatar-pulse" />
+              <circle r="13" fill="#ffffff" stroke="#4f46e5" stroke-width="2.5" />
+              <text id="map-player-emoji" y="5" text-anchor="middle" font-size="15">🧑</text>
+            </g>
+          </svg>
+        </div>
 
-				<div>
-					<label class="block font-bold text-slate-700 mb-1">2. 選擇工作表 (Sheet)</label>
-					<select id="topic-sheet-select" onchange="handleSheetSelectChange()"
-						class="w-full border rounded-xl px-3 py-2 bg-white">
-						<option value="">-- 請先選擇工作表 --</option>
-					</select>
-				</div>
+        <div class="lg:col-span-5 bg-white rounded-2xl border border-slate-200 p-4 flex flex-col max-h-[620px]">
+          <div class="flex items-center justify-between border-b pb-3 mb-3">
+            <h3 class="font-bold text-slate-800">📸 里程碑打卡相簿</h3>
+            <span class="text-xs text-slate-500">抵達縣市自動解鎖，可替換照片</span>
+          </div>
+          <div id="milestones-album" class="flex-1 overflow-y-auto space-y-3 pr-1"></div>
+        </div>
+      </div>
+    </section>
 
-				<div id="column-config-fields" class="hidden space-y-4">
-					<div>
-						<label class="block font-bold text-slate-700 mb-1">3. 出題卡片－出題欄位（單選，含 [ ]）</label>
-						<select id="topic-question-col" class="w-full border rounded-xl px-3 py-2 bg-white"></select>
-					</div>
+  </main>
 
-					<div>
-						<label class="block font-bold text-slate-700 mb-1">4. 出題卡片－提示欄位（可多選）</label>
-						<div id="topic-hint-cols"
-							class="max-h-32 overflow-y-auto border rounded-xl p-2.5 grid grid-cols-2 gap-1.5 bg-slate-50">
-						</div>
-					</div>
+  <!-- ==================== 彈窗 1：設定 GAS API 網址 ==================== -->
+  <div id="modal-api" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-2xl">
+      <h3 class="text-lg font-bold text-slate-800">🔗 連結 Google 試算表 (GAS API)</h3>
+      <p class="text-xs text-slate-500 leading-relaxed">
+        請貼上你在 Google Apps Script 部署為「網頁應用程式」後取得的 <code class="bg-slate-100 px-1 py-0.5 rounded text-indigo-600">/exec</code> 網址。資料與複習進度將自動寫入該試算表。
+      </p>
+      <input type="url" id="input-gas-url" placeholder="https://script.google.com/macros/s/...../exec" class="w-full border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+      <div class="flex justify-end gap-2 pt-2">
+        <button onclick="closeModal('modal-api')" class="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-xl text-sm">取消</button>
+        <button onclick="saveGasUrl()" class="px-5 py-2 bg-indigo-600 text-white font-bold rounded-xl text-sm hover:bg-indigo-700">儲存並連線</button>
+      </div>
+    </div>
+  </div>
 
-					<div>
-						<label class="block font-bold text-slate-700 mb-1">5. 答案卡片－展示欄位（可多選）</label>
-						<div id="topic-answer-cols"
-							class="max-h-32 overflow-y-auto border rounded-xl p-2.5 grid grid-cols-2 gap-1.5 bg-slate-50">
-						</div>
-					</div>
-				</div>
-			</div>
+  <!-- ==================== 彈窗 2：添加 / 編輯主題 ==================== -->
+  <div id="modal-add-topic" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white rounded-2xl max-w-xl w-full p-6 space-y-5 shadow-2xl my-8">
+      <div class="flex items-center justify-between border-b pb-3">
+        <h3 id="topic-modal-title" class="text-lg font-bold text-slate-800">➕ 添加複習主題</h3>
+        <button onclick="closeModal('modal-add-topic')" class="text-slate-400 hover:text-slate-600">✕</button>
+      </div>
 
-			<div class="flex flex-wrap items-center justify-between gap-2 border-t pt-4">
-				<button type="button" onclick="openRandomPreviewModal()"
-					class="px-4 py-2 bg-amber-100 text-amber-800 hover:bg-amber-200 font-bold rounded-xl text-sm transition flex items-center gap-1.5">
-					<span>👁️</span> 預覽卡片
-				</button>
-				<div class="flex gap-2">
-					<button onclick="closeModal('modal-add-topic')"
-						class="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-xl text-sm">取消</button>
-					<button onclick="submitNewTopic()"
-						class="px-6 py-2 bg-indigo-600 text-white font-bold rounded-xl text-sm hover:bg-indigo-700">儲存主題</button>
-				</div>
-			</div>
-		</div>
-	</div>
+      <div class="space-y-4 text-sm">
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">1. 主題名稱</label>
+          <input type="text" id="topic-name" placeholder="例如：綜合日語 第1課 語彙" class="w-full border rounded-xl px-3 py-2">
+        </div>
 
-	<!-- ==================== 彈窗 2-B：獨立隨機資料預覽視窗 ==================== -->
-	<div id="modal-random-preview"
-		class="hidden fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-[60] flex items-center justify-center p-4 overflow-y-auto">
-		<div class="bg-white rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-2xl my-8">
-			<div class="flex items-center justify-between border-b pb-3">
-				<h3 class="text-lg font-bold text-slate-800">👁️ 隨機卡片資料預覽</h3>
-				<button onclick="closeModal('modal-random-preview')"
-					class="text-slate-400 hover:text-slate-600">✕</button>
-			</div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">2. 選擇工作表 (Sheet)</label>
+          <select id="topic-sheet-select" onchange="handleSheetSelectChange()" class="w-full border rounded-xl px-3 py-2 bg-white">
+            <option value="">-- 請先選擇工作表 --</option>
+          </select>
+        </div>
 
-			<div id="random-preview-meta" class="text-xs text-slate-500"></div>
+        <div id="column-config-fields" class="hidden space-y-4">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">3. 出題卡片－出題欄位（單選，含 [ ]）</label>
+            <select id="topic-question-col" class="w-full border rounded-xl px-3 py-2 bg-white"></select>
+          </div>
 
-			<!-- 出題卡（上方出題句子，下方提示欄位） -->
-			<div class="bg-slate-50 rounded-2xl p-4 border border-slate-200 space-y-3">
-				<span class="text-xs font-bold px-2.5 py-0.5 bg-indigo-100 text-indigo-700 rounded-lg">正面：出題卡片</span>
-				<div id="rand-preview-question"
-					class="japanese-text text-center py-2 font-bold text-slate-800 text-base"></div>
-				<div id="rand-preview-hints"
-					class="text-xs text-slate-700 space-y-1 bg-white p-2.5 rounded-xl border border-slate-100"></div>
-			</div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">4. 出題卡片－提示欄位（可多選）</label>
+            <div id="topic-hint-cols" class="max-h-32 overflow-y-auto border rounded-xl p-2.5 grid grid-cols-2 gap-1.5 bg-slate-50"></div>
+          </div>
 
-			<!-- 答案卡 -->
-			<div class="bg-slate-50 rounded-2xl p-4 border border-slate-200 space-y-3">
-				<span class="text-xs font-bold px-2.5 py-0.5 bg-emerald-100 text-emerald-700 rounded-lg">背面：答案卡片</span>
-				<div id="rand-preview-full-sentence"
-					class="japanese-text text-center py-1.5 font-bold text-indigo-700 text-sm bg-indigo-50/60 rounded-xl">
-				</div>
-				<div id="rand-preview-answers"
-					class="text-xs text-slate-700 space-y-1 bg-white p-2.5 rounded-xl border border-slate-100"></div>
-			</div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">5. 答案卡片－展示欄位（可多選）</label>
+            <div id="topic-answer-cols" class="max-h-32 overflow-y-auto border rounded-xl p-2.5 grid grid-cols-2 gap-1.5 bg-slate-50"></div>
+          </div>
+        </div>
+      </div>
 
-			<div class="flex items-center justify-between pt-2">
-				<button type="button" onclick="renderRandomCardSample()"
-					class="px-4 py-2 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 font-bold rounded-xl text-sm transition">
-					🔄 換一筆隨機資料
-				</button>
-				<button type="button" onclick="closeModal('modal-random-preview')"
-					class="px-5 py-2 bg-slate-800 text-white font-bold rounded-xl text-sm hover:bg-slate-900">
-					關閉預覽
-				</button>
-			</div>
-		</div>
-	</div>
+      <div class="flex flex-wrap items-center justify-between gap-2 border-t pt-4">
+        <button type="button" onclick="openRandomPreviewModal()" class="px-4 py-2 bg-amber-100 text-amber-800 hover:bg-amber-200 font-bold rounded-xl text-sm transition flex items-center gap-1.5">
+          <span>👁️</span> 預覽卡片
+        </button>
+        <div class="flex gap-2">
+          <button onclick="closeModal('modal-add-topic')" class="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-xl text-sm">取消</button>
+          <button onclick="submitNewTopic()" class="px-6 py-2 bg-indigo-600 text-white font-bold rounded-xl text-sm hover:bg-indigo-700">儲存主題</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
-	<!-- ==================== 彈窗 3：選擇角色 ==================== -->
-	<div id="modal-character"
-		class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-		<div class="bg-white rounded-2xl max-w-md w-full p-6 text-center space-y-5 shadow-2xl">
-			<h3 class="text-xl font-bold text-slate-800">🎒 選擇你的環日本旅行主角</h3>
-			<p class="text-sm text-slate-500">從東京出發，每答對一題前進 1 km，制霸 47 都道府縣！</p>
-			<div class="grid grid-cols-2 gap-4">
-				<button onclick="selectCharacter('male')"
-					class="p-5 border-2 rounded-2xl hover:border-indigo-500 hover:bg-indigo-50 transition flex flex-col items-center gap-2">
-					<span class="text-5xl">👦</span>
-					<span class="font-bold text-slate-800">男主角</span>
-				</button>
-				<button onclick="selectCharacter('female')"
-					class="p-5 border-2 rounded-2xl hover:border-pink-500 hover:bg-pink-50 transition flex flex-col items-center gap-2">
-					<span class="text-5xl">👧</span>
-					<span class="font-bold text-slate-800">女主角</span>
-				</button>
-			</div>
-		</div>
-	</div>
+  <!-- ==================== 彈窗 2-B：獨立隨機資料預覽視窗 ==================== -->
+  <div id="modal-random-preview" class="hidden fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-[60] flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-2xl my-8">
+      <div class="flex items-center justify-between border-b pb-3">
+        <h3 class="text-lg font-bold text-slate-800">👁️ 隨機卡片資料預覽</h3>
+        <button onclick="closeModal('modal-random-preview')" class="text-slate-400 hover:text-slate-600">✕</button>
+      </div>
 
-	<!-- ==================== 彈窗 4：縣市抵達打卡慶祝 ==================== -->
-	<div id="modal-milestone-unlock"
-		class="hidden fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-		<div
-			class="bg-white rounded-3xl max-w-md w-full p-6 text-center space-y-4 shadow-2xl border-4 border-amber-400">
-			<div class="inline-block px-3 py-1 bg-amber-100 text-amber-800 font-bold text-xs rounded-full">🎉
-				抵達新地標・打卡成功！</div>
-			<h3 id="unlock-city-name" class="text-2xl font-black text-slate-800"></h3>
-			<div id="unlock-illustration" class="w-full h-44 rounded-2xl overflow-hidden shadow-inner border"></div>
-			<p id="unlock-city-desc" class="text-sm text-slate-600"></p>
-			<button onclick="closeModal('modal-milestone-unlock')"
-				class="w-full py-3 bg-amber-500 text-slate-900 font-bold rounded-xl hover:bg-amber-400 transition">
-				收進里程碑相簿！
-			</button>
-		</div>
-	</div>
+      <div id="random-preview-meta" class="text-xs text-slate-500"></div>
 
-	<script>
-		// 逆時針環日本 50 站（47 都道府縣全制霸 + 伊豆半島），每站搭配專屬具象地標插畫類型 (scene)
-		const JAPAN_ROUTE = [
-			{ id: 'tokyo_start', name: '東京都（東京車站）', km: 0, x: 395, y: 345, desc: '紅磚東京車站與東京鐵塔，環日本冒險起點！', scene: 'tokyo_tower', colors: ['#ef4444', '#fca5a5'] },
-			{ id: 'chiba', name: '千葉縣（犬吠埼）', km: 45, x: 418, y: 348, desc: '關東最東端，太平洋海岸與白色犬吠埼燈塔。', scene: 'lighthouse', colors: ['#0284c7', '#7dd3fc'] },
-			{ id: 'ibaraki', name: '茨城縣（大洗）', km: 95, x: 415, y: 315, desc: '大洗磯前神社海上鳥居迎接著太平洋日出。', scene: 'sea_torii', colors: ['#0369a1', '#bae6fd'] },
-			{ id: 'tochigi', name: '栃木縣（日光）', km: 150, x: 392, y: 300, desc: '世界遺產日光東照宮與朱紅五重塔。', scene: 'pagoda', colors: ['#b45309', '#fde68a'] },
-			{ id: 'fukushima', name: '福島縣（會津若松）', km: 215, x: 405, y: 270, desc: '白虎隊鶴ヶ城天守閣與雪景。', scene: 'castle', colors: ['#dc2626', '#fecaca'] },
-			{ id: 'miyagi', name: '宮城縣（松島）', km: 280, x: 422, y: 240, desc: '日本三景之一・松島灣松樹小島群。', scene: 'islands', colors: ['#0d9488', '#99f6e4'] },
-			{ id: 'iwate', name: '岩手縣（平泉）', km: 355, x: 430, y: 195, desc: '中尊寺金色堂與北國杉林古道。', scene: 'pagoda', colors: ['#ca8a04', '#fef08a'] },
-			{ id: 'aomori', name: '青森縣（弘前・青森）', km: 440, x: 418, y: 155, desc: '弘前城天守閣與滿開蘋果花、睡魔祭。', scene: 'castle', colors: ['#e11d48', '#fecdd3'] },
-			{ id: 'hokkaido', name: '北海道（函館・札幌）', km: 580, x: 465, y: 85, desc: '跨過津輕海峽！札幌時計台與雪原針葉林。', scene: 'hokkaido', colors: ['#2563eb', '#bfdbfe'] },
-			{ id: 'akita', name: '秋田縣（角館・男鹿）', km: 680, x: 398, y: 185, desc: '角館武家屋敷垂櫻與男鹿半島海岸。', scene: 'sakura_temple', colors: ['#db2777', '#fbcfe8'] },
-			{ id: 'yamagata', name: '山形縣（銀山溫泉）', km: 750, x: 392, y: 225, desc: '大正浪漫風情的銀山溫泉木造湯屋雪夜。', scene: 'onsen', colors: ['#4f46e5', '#c7d2fe'] },
-			{ id: 'niigata', name: '新潟縣（越後・佐渡）', km: 825, x: 365, y: 265, desc: '越後魚沼金黃稻穗梯田與遠山。', scene: 'terraces', colors: ['#16a34a', '#bbf7d0'] },
-			{ id: 'gunma', name: '群馬縣（草津溫泉）', km: 880, x: 372, y: 308, desc: '日本三大名泉・草津溫泉湯畑熱氣蒸騰。', scene: 'onsen', colors: ['#0891b2', '#a5f3fc'] },
-			{ id: 'saitama', name: '埼玉縣（川越）', km: 925, x: 382, y: 330, desc: '小江戶川越藏造老街與木造「時之鐘」。', scene: 'pagoda', colors: ['#78350f', '#fde68a'] },
-			{ id: 'yamanashi', name: '山梨縣（河口湖）', km: 970, x: 365, y: 350, desc: '河口湖畔倒映著冠雪的絕美逆富士。', scene: 'fuji', colors: ['#1d4ed8', '#dbeafe'] },
-			{ id: 'nagano', name: '長野縣（松本・上高地）', km: 1035, x: 342, y: 318, desc: '國寶漆黑松本城與北阿爾卑斯連峰。', scene: 'castle', colors: ['#334155', '#cbd5e1'] },
-			{ id: 'toyama', name: '富山縣（立山黑部）', km: 1100, x: 325, y: 295, desc: '震撼人心的立山連峰大雪壁與水壩。', scene: 'alps', colors: ['#0284c7', '#e0f2fe'] },
-			{ id: 'ishikawa', name: '石川縣（金澤）', km: 1155, x: 305, y: 290, desc: '金澤兼六園徽軫燈籠與庭園池水。', scene: 'sakura_temple', colors: ['#d97706', '#fef3c7'] },
-			{ id: 'gifu', name: '岐阜縣（白川鄉）', km: 1210, x: 312, y: 325, desc: '世界遺產白川鄉童話般的合掌造茅草屋。', scene: 'gassho', colors: ['#4d7c0f', '#d9f99d'] },
-			{ id: 'fukui', name: '福井縣（東尋坊）', km: 1265, x: 285, y: 320, desc: '日本海驚濤拍岸的東尋坊懸崖與燈塔。', scene: 'lighthouse', colors: ['#0f766e', '#99f6e4'] },
-			{ id: 'shiga', name: '滋賀縣（琵琶湖）', km: 1315, x: 280, y: 348, desc: '日本第一大湖琵琶湖與白鬚神社水中鳥居。', scene: 'sea_torii', colors: ['#0369a1', '#bae6fd'] },
-			{ id: 'kyoto', name: '京都府（天橋立・京都）', km: 1375, x: 258, y: 345, desc: '伏見稻荷千本朱紅鳥居與古都五重塔。', scene: 'torii_gate', colors: ['#b91c1c', '#fecaca'] },
-			{ id: 'hyogo_north', name: '兵庫縣北部（城崎溫泉）', km: 1430, x: 235, y: 345, desc: '柳樹垂蔭的城崎溫泉石拱橋與湯屋。', scene: 'onsen', colors: ['#059669', '#a7f3d0'] },
-			{ id: 'tottori', name: '鳥取縣（鳥取砂丘）', km: 1485, x: 210, y: 348, desc: '一望無際的起伏砂丘與日本海夕陽。', scene: 'sand_dunes', colors: ['#d97706', '#fde68a'] },
-			{ id: 'shimane', name: '島根縣（出雲大社）', km: 1550, x: 180, y: 352, desc: '結緣聖地出雲大社鳥居與神樂殿。', scene: 'torii_gate', colors: ['#7c3aed', '#ddd6fe'] },
-			{ id: 'yamaguchi', name: '山口縣（角島大橋）', km: 1625, x: 142, y: 375, desc: '筆直延伸向翡翠色大海的海上跨海大橋。', scene: 'bridge', colors: ['#06b6d4', '#cffafe'] },
-			{ id: 'fukuoka', name: '福岡縣（太宰府・博多）', km: 1680, x: 132, y: 405, desc: '踏上九州！太宰府天滿宮鳥居與紅梅。', scene: 'torii_gate', colors: ['#e11d48', '#ffe4e6'] },
-			{ id: 'saga', name: '佐賀縣（唐津・有田）', km: 1725, x: 115, y: 418, desc: '虹之松原海岸與臨海唐津城。', scene: 'castle', colors: ['#2563eb', '#dbeafe'] },
-			{ id: 'nagasaki', name: '長崎縣（稻佐山・眼鏡橋）', km: 1780, x: 108, y: 442, desc: '異國風情教堂尖塔與長崎港璀璨夜景。', scene: 'church_port', colors: ['#4338ca', '#e0e7ff'] },
-			{ id: 'kumamoto', name: '熊本縣（阿蘇山・熊本城）', km: 1845, x: 135, y: 455, desc: '漆黑雄偉的熊本城天守閣與阿蘇火山。', scene: 'castle', colors: ['#15803d', '#dcfce7'] },
-			{ id: 'kagoshima', name: '鹿兒島縣（櫻島）', km: 1920, x: 132, y: 495, desc: '九州最南端，錦江灣上冒著白煙的櫻島火山。', scene: 'volcano', colors: ['#991b1b', '#fee2e2'] },
-			{ id: 'okinawa', name: '沖繩縣（首里城・美之海）', km: 1965, x: 68, y: 550, desc: '跳島南國！琉球首里城守禮門與碧藍珊瑚海。', scene: 'okinawa', colors: ['#0284c7', '#7dd3fc'] },
-			{ id: 'miyazaki', name: '宮崎縣（高千穗峽）', km: 2020, x: 155, y: 472, desc: '神話之鄉高千穗峽玄武岩峭壁與真名井瀑布。', scene: 'waterfall', colors: ['#047857', '#a7f3d0'] },
-			{ id: 'oita', name: '大分縣（別府・由布院）', km: 2080, x: 162, y: 425, desc: '溫泉湧出量日本第一！別府湯煙與由布岳。', scene: 'onsen', colors: ['#ea580c', '#ffedd5'] },
-			{ id: 'hiroshima', name: '廣島縣（嚴島神社）', km: 2145, x: 182, y: 378, desc: '宮島潮汐中的嚴島神社海上朱紅大鳥居。', scene: 'sea_torii', colors: ['#dc2626', '#fee2e2'] },
-			{ id: 'okayama', name: '岡山縣（倉敷美觀）', km: 2200, x: 208, y: 375, desc: '晴天之國岡山，烏城岡山城與倉敷白壁運河。', scene: 'castle', colors: ['#db2777', '#fce7f3'] },
-			{ id: 'kagawa', name: '香川縣（高松・小豆島）', km: 2245, x: 225, y: 398, desc: '跨海進入四國！壯觀的瀨戶內海跨海大橋。', scene: 'bridge', colors: ['#0891b2', '#cffafe'] },
-			{ id: 'ehime', name: '愛媛縣（道後溫泉）', km: 2305, x: 202, y: 412, desc: '三千年歷史的道後溫泉本館與振鷺閣。', scene: 'onsen', colors: ['#f59e0b', '#fef3c7'] },
-			{ id: 'kochi', name: '高知縣（四萬十川）', km: 2375, x: 218, y: 432, desc: '日本最後的清流四萬十川與無欄杆沉下橋。', scene: 'bridge', colors: ['#0d9488', '#ccfbf1'] },
-			{ id: 'tokushima', name: '德島縣（鳴門漩渦）', km: 2435, x: 248, y: 415, desc: '大鳴門橋下震撼的鳴門海峽大漩渦。', scene: 'bridge', colors: ['#1d4ed8', '#dbeafe'] },
-			{ id: 'wakayama', name: '和歌山縣（那智瀑布）', km: 2495, x: 268, y: 412, desc: '熊野古道・那智大社朱紅三重塔與飛瀑。', scene: 'waterfall', colors: ['#059669', '#d1fae5'] },
-			{ id: 'nara', name: '奈良縣（奈良公園）', km: 2545, x: 272, y: 382, desc: '古都奈良興福寺五重塔與東大寺建築群。', scene: 'pagoda', colors: ['#b45309', '#fef3c7'] },
-			{ id: 'mie', name: '三重縣（伊勢神宮）', km: 2595, x: 295, y: 392, desc: '日本人心靈的故鄉・伊勢神宮宇治橋大鳥居。', scene: 'torii_gate', colors: ['#15803d', '#dcfce7'] },
-			{ id: 'osaka', name: '大阪府（大阪城・道頓堀）', km: 2645, x: 258, y: 372, desc: '天下廚房大阪！金碧輝煌的大阪城天守閣。', scene: 'castle', colors: ['#ca8a04', '#fef9c3'] },
-			{ id: 'hyogo_south', name: '兵庫縣南部（神戶港）', km: 2685, x: 242, y: 368, desc: '紅色鼓型神戶港塔與海港夜景。', scene: 'kobe_tower', colors: ['#e11d48', '#ffe4e6'] },
-			{ id: 'izu', name: '伊豆半島（下田・熱海）', km: 2810, x: 375, y: 372, desc: '逆時針繞行伊豆半島！城崎海岸燈塔與海灣。', scene: 'lighthouse', colors: ['#0284c7', '#bae6fd'] },
-			{ id: 'aichi', name: '愛知縣（名古屋城）', km: 2885, x: 318, y: 362, desc: '名古屋城閃耀的金鯱屋脊與雄偉天守。', scene: 'castle', colors: ['#d97706', '#fef3c7'] },
-			{ id: 'shizuoka', name: '靜岡縣（三保松原）', km: 2945, x: 352, y: 365, desc: '駿河灣三保松原海岸遠眺壯麗富士山。', scene: 'fuji', colors: ['#16a34a', '#dcfce7'] },
-			{ id: 'kanagawa', name: '神奈川縣（鎌倉・橫濱）', km: 2980, x: 386, y: 356, desc: '橫濱港未來摩天輪與湘南海岸風光。', scene: 'yokohama', colors: ['#2563eb', '#dbeafe'] },
-			{ id: 'tokyo_goal', name: '東京都（環日本一圈達成！）', km: 3000, x: 395, y: 345, desc: '恭喜完成 3,000 km 環日本 47 都道府縣大制霸！', scene: 'tokyo_tower', colors: ['#f59e0b', '#fef08a'] }
-		];
+      <div class="bg-slate-50 rounded-2xl p-4 border border-slate-200 space-y-3">
+        <span class="text-xs font-bold px-2.5 py-0.5 bg-indigo-100 text-indigo-700 rounded-lg">正面：出題卡片</span>
+        <div id="rand-preview-question" class="japanese-text text-center py-2 font-bold text-slate-800 text-base"></div>
+        <div id="rand-preview-hints" class="text-xs text-slate-700 space-y-1 bg-white p-2.5 rounded-xl border border-slate-100"></div>
+      </div>
 
-		let GAS_URL = localStorage.getItem('jp_flashcard_gas_url') || '';
-		let appState = {
-			configs: [],
-			progress: {},
-			travel: {
-				character: null,
-				loop: 1,
-				currentKm: 0,
-				unlockedMilestones: {},
-				lastTopicId: null,
-				lastCardId: null
-			}
-		};
+      <div class="bg-slate-50 rounded-2xl p-4 border border-slate-200 space-y-3">
+        <span class="text-xs font-bold px-2.5 py-0.5 bg-emerald-100 text-emerald-700 rounded-lg">背面：答案卡片</span>
+        <div id="rand-preview-full-sentence" class="japanese-text text-center py-1.5 font-bold text-indigo-700 text-sm bg-indigo-50/60 rounded-xl"></div>
+        <div id="rand-preview-answers" class="text-xs text-slate-700 space-y-1 bg-white p-2.5 rounded-xl border border-slate-100"></div>
+      </div>
 
-		let tempSheetHeaders = [];
-		let tempSheetCards = [];
-		let editingTopicId = null;
+      <div class="flex items-center justify-between pt-2">
+        <button type="button" onclick="renderRandomCardSample()" class="px-4 py-2 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 font-bold rounded-xl text-sm transition">
+          🔄 換一筆隨機資料
+        </button>
+        <button type="button" onclick="closeModal('modal-random-preview')" class="px-5 py-2 bg-slate-800 text-white font-bold rounded-xl text-sm hover:bg-slate-900">
+          關閉預覽
+        </button>
+      </div>
+    </div>
+  </div>
 
-		let currentStudy = {
-			topic: null,
-			headers: [],
-			allValidCards: [],
-			queue: [],
-			currentIndex: 0,
-			isAnswered: false
-		};
+  <!-- ==================== 彈窗 3：選擇角色 ==================== -->
+  <div id="modal-character" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 text-center space-y-5 shadow-2xl">
+      <h3 class="text-xl font-bold text-slate-800">🎒 選擇你的環日本旅行主角</h3>
+      <p class="text-sm text-slate-500">從東京出發，每答對一題前進 1 km，制霸 47 都道府縣！</p>
+      <div class="grid grid-cols-2 gap-4">
+        <button onclick="selectCharacter('male')" class="p-5 border-2 rounded-2xl hover:border-indigo-500 hover:bg-indigo-50 transition flex flex-col items-center gap-2">
+          <span class="text-5xl">👦</span>
+          <span class="font-bold text-slate-800">男主角</span>
+        </button>
+        <button onclick="selectCharacter('female')" class="p-5 border-2 rounded-2xl hover:border-pink-500 hover:bg-pink-50 transition flex flex-col items-center gap-2">
+          <span class="text-5xl">👧</span>
+          <span class="font-bold text-slate-800">女主角</span>
+        </button>
+      </div>
+    </div>
+  </div>
 
-		window.addEventListener('DOMContentLoaded', () => {
-			initMapNodes();
-			if (!GAS_URL) {
-				openApiModal();
-			} else {
-				fetchInitData();
-			}
-		});
+  <!-- ==================== 彈窗 4：縣市抵達打卡慶祝 ==================== -->
+  <div id="modal-milestone-unlock" class="hidden fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 text-center space-y-4 shadow-2xl border-4 border-amber-400">
+      <div class="inline-block px-3 py-1 bg-amber-100 text-amber-800 font-bold text-xs rounded-full">🎉 抵達新地標・打卡成功！</div>
+      <h3 id="unlock-city-name" class="text-2xl font-black text-slate-800"></h3>
+      <div id="unlock-illustration" class="w-full h-44 rounded-2xl overflow-hidden shadow-inner border"></div>
+      <p id="unlock-city-desc" class="text-sm text-slate-600"></p>
+      <button onclick="closeModal('modal-milestone-unlock')" class="w-full py-3 bg-amber-500 text-slate-900 font-bold rounded-xl hover:bg-amber-400 transition">
+        收進里程碑相簿！
+      </button>
+    </div>
+  </div>
 
-		function setLoading(show) {
-			document.getElementById('loading-bar').classList.toggle('hidden', !show);
-		}
+  <!-- ==================== 彈窗 5：操作手冊 ==================== -->
+  <div id="modal-manual" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white rounded-2xl max-w-2xl w-full p-6 space-y-5 shadow-2xl my-8">
+      <div class="flex items-center justify-between border-b pb-3">
+        <h3 class="text-lg font-bold text-slate-800">📖 日文閃卡 App 操作手冊</h3>
+        <button onclick="closeModal('modal-manual')" class="text-slate-400 hover:text-slate-600">✕</button>
+      </div>
 
-		async function callGasGet(params) {
-			if (!GAS_URL) throw new Error('尚未設定 GAS 網址');
-			const query = new URLSearchParams(params).toString();
-			const res = await fetch(`${GAS_URL}?${query}`);
-			const json = await res.json();
-			if (json.status !== 'success') throw new Error(json.message || 'API 錯誤');
-			return json.data;
-		}
+      <div class="space-y-4 text-sm text-slate-700 max-h-[65vh] overflow-y-auto pr-1 leading-relaxed">
+        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-1.5">
+          <h4 class="font-bold text-indigo-700">1. 首頁圖示按鈕說明</h4>
+          <ul class="list-disc pl-5 space-y-1 text-xs">
+            <li><strong>＋（添加主題）：</strong>連結 Google 試算表工作表，設定出題欄位（需含一組 <code>[ ]</code>）、提示欄位與答案展示欄位。</li>
+            <li><strong>✏️（編輯主題）：</strong>直接點擊主題卡片右上角圖示，無須勾選即可重新調整欄位設定。</li>
+            <li><strong>🧹（清除勾選紀錄）：</strong>勾選主題方框後點擊，可將該主題下所有卡片的練習次數與對錯紀錄歸零。</li>
+            <li><strong>🗑️（刪除勾選主題）：</strong>勾選主題方框後點擊，可移除首頁主題卡片（不會刪除試算表原始資料）。</li>
+            <li><strong>🚩（待修訂清單）：</strong>查看複習過程中標記為「需要修訂」的卡片（顯示工作表名稱、列號與 B 欄內容），修訂完畢後可勾選刪除紀錄。</li>
+          </ul>
+        </div>
 
-		async function callGasPost(payload) {
-			if (!GAS_URL) throw new Error('尚未設定 GAS 網址');
-			const res = await fetch(GAS_URL, {
-				method: 'POST',
-				headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-				body: JSON.stringify(payload)
-			});
-			const json = await res.json();
-			if (json.status !== 'success') throw new Error(json.message || 'API 寫入錯誤');
-			return json.data;
-		}
+        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-1.5">
+          <h4 class="font-bold text-indigo-700">2. 閃卡作答與重新作答計分規則</h4>
+          <ul class="list-disc pl-5 space-y-1 text-xs">
+            <li><strong>一般作答：</strong>輸入克漏字 <code>[ ]</code> 內的文字後按「回答」或 <code>Enter</code>。字元 100% 完全相符才算答對（<strong>前進 +1 km</strong>）；答錯或點擊空白處直接看答案皆算答錯（<strong>後退 -1 km</strong>）。</li>
+            <li><strong>🔄 重新作答：</strong>在答案卡下方點擊「重新作答」可重新輸入本題。重新作答時若<strong>答對可加 1 分（+1 km）</strong>，若<strong>再次答錯則扣 2 分（-2 km）</strong>。</li>
+            <li><strong>🚩 標記修訂：</strong>若發現題目或翻譯有誤，可點擊答案卡右上角「🚩 標記修訂」，系統會自動記錄該筆資料所在的工作表、第幾列與 B 欄內容。</li>
+          </ul>
+        </div>
 
-		async function fetchInitData() {
-			setLoading(true);
-			try {
-				const data = await callGasGet({ action: 'getInitData' });
-				appState.configs = data.configs || [];
-				appState.progress = data.progress || {};
-				if (data.travel) appState.travel = { ...appState.travel, ...data.travel };
-				renderHomeTopics();
-				updateTravelUI();
-				if (!appState.travel.character) {
-					document.getElementById('modal-character').classList.remove('hidden');
-				}
-			} catch (err) {
-				alert('讀取試算表失敗，請確認 GAS 部署網址與權限：\n' + err.message);
-				openApiModal();
-			} finally {
-				setLoading(false);
-			}
-		}
+        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-1.5">
+          <h4 class="font-bold text-indigo-700">3. 逆時針環日本 47 都道府縣</h4>
+          <p class="text-xs">從東京出發（0 km），逆時針環繞北海道、日本海側、九州、沖繩、四國、關西、伊豆半島回到東京（總長 3,000 km），解鎖全部 47 都道府縣明信片並可替換成自己的旅行照片。</p>
+        </div>
+      </div>
 
-		function switchView(viewName) {
-			['home', 'filter', 'study', 'travel'].forEach(v => {
-				document.getElementById(`view-${v}`).classList.add('hidden');
-			});
-			document.getElementById(`view-${viewName}`).classList.remove('hidden');
-			if (viewName === 'home') renderHomeTopics();
-			if (viewName === 'travel') updateTravelUI();
-		}
+      <div class="flex justify-end border-t pt-3">
+        <button onclick="closeModal('modal-manual')" class="px-6 py-2 bg-indigo-600 text-white font-bold rounded-xl text-sm hover:bg-indigo-700">我知道了</button>
+      </div>
+    </div>
+  </div>
 
-		function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
-		function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+  <!-- ==================== 彈窗 6：待修訂卡片紀錄清單 ==================== -->
+  <div id="modal-revisions" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white rounded-2xl max-w-2xl w-full p-6 space-y-4 shadow-2xl my-8">
+      <div class="flex items-center justify-between border-b pb-3">
+        <div class="flex items-center gap-2">
+          <h3 class="text-lg font-bold text-slate-800">🚩 待修訂卡片紀錄清單</h3>
+          <span class="text-xs text-slate-500">（同步儲存於試算表 _App_Revisions）</span>
+        </div>
+        <button onclick="closeModal('modal-revisions')" class="text-slate-400 hover:text-slate-600">✕</button>
+      </div>
 
-		function openApiModal() {
-			document.getElementById('input-gas-url').value = GAS_URL;
-			openModal('modal-api');
-		}
+      <div id="revisions-list-container" class="max-h-[55vh] overflow-y-auto divide-y divide-slate-200 border rounded-xl"></div>
 
-		function saveGasUrl() {
-			const url = document.getElementById('input-gas-url').value.trim();
-			if (!url.startsWith('https://script.google.com/')) {
-				alert('請輸入正確的 Google Apps Script 網頁應用程式網址！');
-				return;
-			}
-			GAS_URL = url;
-			localStorage.setItem('jp_flashcard_gas_url', GAS_URL);
-			closeModal('modal-api');
-			fetchInitData();
-		}
+      <div class="flex items-center justify-between border-t pt-3">
+        <button type="button" onclick="handleDeleteSelectedRevisions()" class="px-4 py-2 bg-rose-100 text-rose-700 hover:bg-rose-200 font-bold rounded-xl text-xs transition">
+          🗑️ 刪除勾選的修訂紀錄
+        </button>
+        <button type="button" onclick="closeModal('modal-revisions')" class="px-5 py-2 bg-slate-800 text-white font-bold rounded-xl text-sm hover:bg-slate-900">
+          關閉
+        </button>
+      </div>
+    </div>
+  </div>
 
-		// =========================================================================
-		// 5. 首頁：極簡主題管理
-		// =========================================================================
-		function renderHomeTopics() {
-			const grid = document.getElementById('topics-grid');
-			if (appState.configs.length === 0) {
-				grid.innerHTML = `
-          <div class="col-span-full bg-white rounded-2xl border-2 border-dashed border-slate-300 p-12 text-center space-y-3">
+  <script>
+    const JAPAN_ROUTE = [
+      { id: 'tokyo_start', name: '東京都（東京車站）', km: 0, x: 395, y: 345, desc: '紅磚東京車站與東京鐵塔，環日本冒險起點！', scene: 'tokyo_tower', colors: ['#ef4444', '#fca5a5'] },
+      { id: 'chiba', name: '千葉縣（犬吠埼）', km: 45, x: 418, y: 348, desc: '關東最東端，太平洋海岸與白色犬吠埼燈塔。', scene: 'lighthouse', colors: ['#0284c7', '#7dd3fc'] },
+      { id: 'ibaraki', name: '茨城縣（大洗）', km: 95, x: 415, y: 315, desc: '大洗磯前神社海上鳥居迎接著太平洋日出。', scene: 'sea_torii', colors: ['#0369a1', '#bae6fd'] },
+      { id: 'tochigi', name: '栃木縣（日光）', km: 150, x: 392, y: 300, desc: '世界遺產日光東照宮與朱紅五重塔。', scene: 'pagoda', colors: ['#b45309', '#fde68a'] },
+      { id: 'fukushima', name: '福島縣（會津若松）', km: 215, x: 405, y: 270, desc: '白虎隊鶴ヶ城天守閣與雪景。', scene: 'castle', colors: ['#dc2626', '#fecaca'] },
+      { id: 'miyagi', name: '宮城縣（松島）', km: 280, x: 422, y: 240, desc: '日本三景之一・松島灣松樹小島群。', scene: 'islands', colors: ['#0d9488', '#99f6e4'] },
+      { id: 'iwate', name: '岩手縣（平泉）', km: 355, x: 430, y: 195, desc: '中尊寺金色堂與北國杉林古道。', scene: 'pagoda', colors: ['#ca8a04', '#fef08a'] },
+      { id: 'aomori', name: '青森縣（弘前・青森）', km: 440, x: 418, y: 155, desc: '弘前城天守閣與滿開蘋果花、睡魔祭。', scene: 'castle', colors: ['#e11d48', '#fecdd3'] },
+      { id: 'hokkaido', name: '北海道（函館・札幌）', km: 580, x: 465, y: 85, desc: '跨過津輕海峽！札幌時計台與雪原針葉林。', scene: 'hokkaido', colors: ['#2563eb', '#bfdbfe'] },
+      { id: 'akita', name: '秋田縣（角館・男鹿）', km: 680, x: 398, y: 185, desc: '角館武家屋敷垂櫻與男鹿半島海岸。', scene: 'sakura_temple', colors: ['#db2777', '#fbcfe8'] },
+      { id: 'yamagata', name: '山形縣（銀山溫泉）', km: 750, x: 392, y: 225, desc: '大正浪漫風情的銀山溫泉木造湯屋雪夜。', scene: 'onsen', colors: ['#4f46e5', '#c7d2fe'] },
+      { id: 'niigata', name: '新潟縣（越後・佐渡）', km: 825, x: 365, y: 265, desc: '越後魚沼金黃稻穗梯田與遠山。', scene: 'terraces', colors: ['#16a34a', '#bbf7d0'] },
+      { id: 'gunma', name: '群馬縣（草津溫泉）', km: 880, x: 372, y: 308, desc: '日本三大名泉・草津溫泉湯畑熱氣蒸騰。', scene: 'onsen', colors: ['#0891b2', '#a5f3fc'] },
+      { id: 'saitama', name: '埼玉縣（川越）', km: 925, x: 382, y: 330, desc: '小江戶川越藏造老街與木造「時之鐘」。', scene: 'pagoda', colors: ['#78350f', '#fde68a'] },
+      { id: 'yamanashi', name: '山梨縣（河口湖）', km: 970, x: 365, y: 350, desc: '河口湖畔倒映著冠雪的絕美逆富士。', scene: 'fuji', colors: ['#1d4ed8', '#dbeafe'] },
+      { id: 'nagano', name: '長野縣（松本・上高地）', km: 1035, x: 342, y: 318, desc: '國寶漆黑松本城與北阿爾卑斯連峰。', scene: 'castle', colors: ['#334155', '#cbd5e1'] },
+      { id: 'toyama', name: '富山縣（立山黑部）', km: 1100, x: 325, y: 295, desc: '震撼人心的立山連峰大雪壁與水壩。', scene: 'alps', colors: ['#0284c7', '#e0f2fe'] },
+      { id: 'ishikawa', name: '石川縣（金澤）', km: 1155, x: 305, y: 290, desc: '金澤兼六園徽軫燈籠與庭園池水。', scene: 'sakura_temple', colors: ['#d97706', '#fef3c7'] },
+      { id: 'gifu', name: '岐阜縣（白川鄉）', km: 1210, x: 312, y: 325, desc: '世界遺產白川鄉童話般的合掌造茅草屋。', scene: 'gassho', colors: ['#4d7c0f', '#d9f99d'] },
+      { id: 'fukui', name: '福井縣（東尋坊）', km: 1265, x: 285, y: 320, desc: '日本海驚濤拍岸的東尋坊懸崖與燈塔。', scene: 'lighthouse', colors: ['#0f766e', '#99f6e4'] },
+      { id: 'shiga', name: '滋賀縣（琵琶湖）', km: 1315, x: 280, y: 348, desc: '日本第一大湖琵琶湖與白鬚神社水中鳥居。', scene: 'sea_torii', colors: ['#0369a1', '#bae6fd'] },
+      { id: 'kyoto', name: '京都府（天橋立・京都）', km: 1375, x: 258, y: 345, desc: '伏見稻荷千本朱紅鳥居與古都五重塔。', scene: 'torii_gate', colors: ['#b91c1c', '#fecaca'] },
+      { id: 'hyogo_north', name: '兵庫縣北部（城崎溫泉）', km: 1430, x: 235, y: 345, desc: '柳樹垂蔭的城崎溫泉石拱橋與湯屋。', scene: 'onsen', colors: ['#059669', '#a7f3d0'] },
+      { id: 'tottori', name: '鳥取縣（鳥取砂丘）', km: 1485, x: 210, y: 348, desc: '一望無際的起伏砂丘與日本海夕陽。', scene: 'sand_dunes', colors: ['#d97706', '#fde68a'] },
+      { id: 'shimane', name: '島根縣（出雲大社）', km: 1550, x: 180, y: 352, desc: '結緣聖地出雲大社鳥居與神樂殿。', scene: 'torii_gate', colors: ['#7c3aed', '#ddd6fe'] },
+      { id: 'yamaguchi', name: '山口縣（角島大橋）', km: 1625, x: 142, y: 375, desc: '筆直延伸向翡翠色大海的海上跨海大橋。', scene: 'bridge', colors: ['#06b6d4', '#cffafe'] },
+      { id: 'fukuoka', name: '福岡縣（太宰府・博多）', km: 1680, x: 132, y: 405, desc: '踏上九州！太宰府天滿宮鳥居與紅梅。', scene: 'torii_gate', colors: ['#e11d48', '#ffe4e6'] },
+      { id: 'saga', name: '佐賀縣（唐津・有田）', km: 1725, x: 115, y: 418, desc: '虹之松原海岸與臨海唐津城。', scene: 'castle', colors: ['#2563eb', '#dbeafe'] },
+      { id: 'nagasaki', name: '長崎縣（稻佐山・眼鏡橋）', km: 1780, x: 108, y: 442, desc: '異國風情教堂尖塔與長崎港璀璨夜景。', scene: 'church_port', colors: ['#4338ca', '#e0e7ff'] },
+      { id: 'kumamoto', name: '熊本縣（阿蘇山・熊本城）', km: 1845, x: 135, y: 455, desc: '漆黑雄偉的熊本城天守閣與阿蘇火山。', scene: 'castle', colors: ['#15803d', '#dcfce7'] },
+      { id: 'kagoshima', name: '鹿兒島縣（櫻島）', km: 1920, x: 132, y: 495, desc: '九州最南端，錦江灣上冒著白煙的櫻島火山。', scene: 'volcano', colors: ['#991b1b', '#fee2e2'] },
+      { id: 'okinawa', name: '沖繩縣（首里城・美之海）', km: 1965, x: 68, y: 550, desc: '跳島南國！琉球首里城守禮門與碧藍珊瑚海。', scene: 'okinawa', colors: ['#0284c7', '#7dd3fc'] },
+      { id: 'miyazaki', name: '宮崎縣（高千穗峽）', km: 2020, x: 155, y: 472, desc: '神話之鄉高千穗峽玄武岩峭壁與真名井瀑布。', scene: 'waterfall', colors: ['#047857', '#a7f3d0'] },
+      { id: 'oita', name: '大分縣（別府・由布院）', km: 2080, x: 162, y: 425, desc: '溫泉湧出量日本第一！別府湯煙與由布岳。', scene: 'onsen', colors: ['#ea580c', '#ffedd5'] },
+      { id: 'hiroshima', name: '廣島縣（嚴島神社）', km: 2145, x: 182, y: 378, desc: '宮島潮汐中的嚴島神社海上朱紅大鳥居。', scene: 'sea_torii', colors: ['#dc2626', '#fee2e2'] },
+      { id: 'okayama', name: '岡山縣（倉敷美觀）', km: 2200, x: 208, y: 375, desc: '晴天之國岡山，烏城岡山城與倉敷白壁運河。', scene: 'castle', colors: ['#db2777', '#fce7f3'] },
+      { id: 'kagawa', name: '香川縣（高松・小豆島）', km: 2245, x: 225, y: 398, desc: '跨海進入四國！壯觀的瀨戶內海跨海大橋。', scene: 'bridge', colors: ['#0891b2', '#cffafe'] },
+      { id: 'ehime', name: '愛媛縣（道後溫泉）', km: 2305, x: 202, y: 412, desc: '三千年歷史的道後溫泉本館與振鷺閣。', scene: 'onsen', colors: ['#f59e0b', '#fef3c7'] },
+      { id: 'kochi', name: '高知縣（四萬十川）', km: 2375, x: 218, y: 432, desc: '日本最後的清流四萬十川與無欄杆沉下橋。', scene: 'bridge', colors: ['#0d9488', '#ccfbf1'] },
+      { id: 'tokushima', name: '德島縣（鳴門漩渦）', km: 2435, x: 248, y: 415, desc: '大鳴門橋下震撼的鳴門海峽大漩渦。', scene: 'bridge', colors: ['#1d4ed8', '#dbeafe'] },
+      { id: 'wakayama', name: '和歌山縣（那智瀑布）', km: 2495, x: 268, y: 412, desc: '熊野古道・那智大社朱紅三重塔與飛瀑。', scene: 'waterfall', colors: ['#059669', '#d1fae5'] },
+      { id: 'nara', name: '奈良縣（奈良公園）', km: 2545, x: 272, y: 382, desc: '古都奈良興福寺五重塔與東大寺建築群。', scene: 'pagoda', colors: ['#b45309', '#fef3c7'] },
+      { id: 'mie', name: '三重縣（伊勢神宮）', km: 2595, x: 295, y: 392, desc: '日本人心靈的故鄉・伊勢神宮宇治橋大鳥居。', scene: 'torii_gate', colors: ['#15803d', '#dcfce7'] },
+      { id: 'osaka', name: '大阪府（大阪城・道頓堀）', km: 2645, x: 258, y: 372, desc: '天下廚房大阪！金碧輝煌的大阪城天守閣。', scene: 'castle', colors: ['#ca8a04', '#fef9c3'] },
+      { id: 'hyogo_south', name: '兵庫縣南部（神戶港）', km: 2685, x: 242, y: 368, desc: '紅色鼓型神戶港塔與海港夜景。', scene: 'kobe_tower', colors: ['#e11d48', '#ffe4e6'] },
+      { id: 'izu', name: '伊豆半島（下田・熱海）', km: 2810, x: 375, y: 372, desc: '逆時針繞行伊豆半島！城崎海岸燈塔與海灣。', scene: 'lighthouse', colors: ['#0284c7', '#bae6fd'] },
+      { id: 'aichi', name: '愛知縣（名古屋城）', km: 2885, x: 318, y: 362, desc: '名古屋城閃耀的金鯱屋脊與雄偉天守。', scene: 'castle', colors: ['#d97706', '#fef3c7'] },
+      { id: 'shizuoka', name: '靜岡縣（三保松原）', km: 2945, x: 352, y: 365, desc: '駿河灣三保松原海岸遠眺壯麗富士山。', scene: 'fuji', colors: ['#16a34a', '#dcfce7'] },
+      { id: 'kanagawa', name: '神奈川縣（鎌倉・橫濱）', km: 2980, x: 386, y: 356, desc: '橫濱港未來摩天輪與湘南海岸風光。', scene: 'yokohama', colors: ['#2563eb', '#dbeafe'] },
+      { id: 'tokyo_goal', name: '東京都（環日本一圈達成！）', km: 3000, x: 395, y: 345, desc: '恭喜完成 3,000 km 環日本 47 都道府縣大制霸！', scene: 'tokyo_tower', colors: ['#f59e0b', '#fef08a'] }
+    ];
+
+    let GAS_URL = localStorage.getItem('jp_flashcard_gas_url') || '';
+    let appState = {
+      configs: [],
+      progress: {},
+      revisions: [],
+      travel: {
+        character: null,
+        loop: 1,
+        currentKm: 0,
+        unlockedMilestones: {},
+        lastTopicId: null,
+        lastCardId: null
+      }
+    };
+
+    let tempSheetHeaders = [];
+    let tempSheetCards = [];
+    let editingTopicId = null;
+
+    let currentStudy = {
+      topic: null,
+      headers: [],
+      allValidCards: [],
+      queue: [],
+      currentIndex: 0,
+      isAnswered: false,
+      isRetryMode: false
+    };
+
+    window.addEventListener('DOMContentLoaded', () => {
+      initMapNodes();
+      if (!GAS_URL) {
+        openApiModal();
+      } else {
+        fetchInitData();
+      }
+    });
+
+    function setLoading(show) {
+      document.getElementById('loading-bar').classList.toggle('hidden', !show);
+    }
+
+    async function callGasGet(params) {
+      if (!GAS_URL) throw new Error('尚未設定 GAS 網址');
+      const query = new URLSearchParams(params).toString();
+      const res = await fetch(`${GAS_URL}?${query}`);
+      const json = await res.json();
+      if (json.status !== 'success') throw new Error(json.message || 'API 錯誤');
+      return json.data;
+    }
+
+    async function callGasPost(payload) {
+      if (!GAS_URL) throw new Error('尚未設定 GAS 網址');
+      const res = await fetch(GAS_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload)
+      });
+      const json = await res.json();
+      if (json.status !== 'success') throw new Error(json.message || 'API 寫入錯誤');
+      return json.data;
+    }
+
+    async function fetchInitData() {
+      setLoading(true);
+      try {
+        const data = await callGasGet({ action: 'getInitData' });
+        appState.configs = data.configs || [];
+        appState.progress = data.progress || {};
+        appState.revisions = data.revisions || [];
+        if (data.travel) appState.travel = { ...appState.travel, ...data.travel };
+        renderHomeTopics();
+        updateRevisionBadge();
+        updateTravelUI();
+        if (!appState.travel.character) {
+          document.getElementById('modal-character').classList.remove('hidden');
+        }
+      } catch (err) {
+        alert('讀取試算表失敗，請確認 GAS 部署網址與權限：\n' + err.message);
+        openApiModal();
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    function switchView(viewName) {
+      ['home', 'filter', 'study', 'travel'].forEach(v => {
+        document.getElementById(`view-${v}`).classList.add('hidden');
+      });
+      document.getElementById(`view-${viewName}`).classList.remove('hidden');
+      if (viewName === 'home') {
+        renderHomeTopics();
+        updateRevisionBadge();
+      }
+      if (viewName === 'travel') updateTravelUI();
+    }
+
+    function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+    function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+    function openApiModal() {
+      document.getElementById('input-gas-url').value = GAS_URL;
+      openModal('modal-api');
+    }
+
+    function saveGasUrl() {
+      const url = document.getElementById('input-gas-url').value.trim();
+      if (!url.startsWith('https://script.google.com/')) {
+        alert('請輸入正確的 Google Apps Script 網頁應用程式網址！');
+        return;
+      }
+      GAS_URL = url;
+      localStorage.setItem('jp_flashcard_gas_url', GAS_URL);
+      closeModal('modal-api');
+      fetchInitData();
+    }
+
+    // =========================================================================
+    // 5. 首頁：極簡主題管理 & 待修訂清單檢視
+    // =========================================================================
+    function updateRevisionBadge() {
+      const badge = document.getElementById('revision-count-badge');
+      const count = appState.revisions.length;
+      if (count > 0) {
+        badge.textContent = count;
+        badge.classList.remove('hidden');
+      } else {
+        badge.classList.add('hidden');
+      }
+    }
+
+    function renderHomeTopics() {
+      const grid = document.getElementById('topics-grid');
+      if (appState.configs.length === 0) {
+        grid.innerHTML = `
+          <div class="col-span-full bg-white rounded-2xl border-2 border-dashed border-slate-300 p-12 text-center space-y-2">
             <div class="text-4xl">📭</div>
-            <div class="font-bold text-slate-700">目前還沒有任何複習主題</div>
-            <p class="text-sm text-slate-500">點擊右上角「＋ 添加主題」，選擇你的 Google 試算表工作表即可開始！</p>
+            <div class="font-bold text-slate-700">尚無主題，請點擊左上角「＋」添加</div>
           </div>`;
-				return;
-			}
+        return;
+      }
 
-			grid.innerHTML = appState.configs.map(cfg => `
+      grid.innerHTML = appState.configs.map(cfg => `
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition p-5 flex flex-col justify-between gap-4">
           <div class="flex items-center justify-between gap-3">
             <div class="flex items-center gap-3 flex-1 min-w-0">
@@ -691,402 +711,444 @@
           </button>
         </div>
       `).join('');
-		}
+    }
 
-		async function openAddTopicModal() {
-			if (!GAS_URL) return openApiModal();
-			editingTopicId = null;
-			tempSheetCards = [];
-			document.getElementById('topic-modal-title').textContent = '➕ 添加複習主題';
-			setLoading(true);
-			try {
-				const sheets = await callGasGet({ action: 'getSheets' });
-				const select = document.getElementById('topic-sheet-select');
-				select.innerHTML = '<option value="">-- 請先選擇工作表 --</option>' +
-					sheets.map(s => `<option value="${s}">${s}</option>`).join('');
-				document.getElementById('topic-name').value = '';
-				document.getElementById('column-config-fields').classList.add('hidden');
-				openModal('modal-add-topic');
-			} catch (err) {
-				alert('載入工作表清單失敗：' + err.message);
-			} finally {
-				setLoading(false);
-			}
-		}
+    function openRevisionsModal() {
+      const container = document.getElementById('revisions-list-container');
+      if (!appState.revisions || appState.revisions.length === 0) {
+        container.innerHTML = `<div class="p-8 text-center text-sm text-slate-400">目前沒有標記需要修訂的卡片 🎉</div>`;
+      } else {
+        container.innerHTML = appState.revisions.map(rev => `
+          <label class="flex items-start gap-3 p-3.5 hover:bg-slate-50 cursor-pointer">
+            <input type="checkbox" class="rev-checkbox w-4 h-4 mt-1 rounded text-rose-600" value="${rev.Rev_ID}">
+            <div class="flex-1 min-w-0 space-y-1">
+              <div class="flex flex-wrap items-center gap-2 text-xs">
+                <span class="px-2 py-0.5 bg-indigo-100 text-indigo-700 font-bold rounded">工作表：${escapeHtml(rev.Sheet_Name)}</span>
+                <span class="px-2 py-0.5 bg-amber-100 text-amber-800 font-bold rounded">第 ${escapeHtml(rev.Row_Index)} 列</span>
+              </div>
+              <div class="japanese-text text-sm font-medium text-slate-800 break-words">
+                <span class="text-xs text-slate-400 mr-1">[B欄]</span>${escapeHtml(rev.Col_B_Data || '（B欄為空白）')}
+              </div>
+            </div>
+          </label>
+        `).join('');
+      }
+      openModal('modal-revisions');
+    }
 
-		async function openEditTopicModal(topicId) {
-			if (!GAS_URL) return openApiModal();
-			const cfg = appState.configs.find(c => String(c.Topic_ID) === String(topicId));
-			if (!cfg) return;
-			editingTopicId = cfg.Topic_ID;
-			document.getElementById('topic-modal-title').textContent = '✏️ 編輯複習主題';
-			setLoading(true);
-			try {
-				const sheets = await callGasGet({ action: 'getSheets' });
-				const select = document.getElementById('topic-sheet-select');
-				select.innerHTML = '<option value="">-- 請先選擇工作表 --</option>' +
-					sheets.map(s => `<option value="${s}">${s}</option>`).join('');
-				document.getElementById('topic-name').value = cfg.Topic_Name;
-				select.value = cfg.Sheet_Name;
-				await loadSheetColumnsForConfig(cfg.Sheet_Name, {
-					questionCol: cfg.Question_Col,
-					hintCols: Array.isArray(cfg.Hint_Cols_JSON) ? cfg.Hint_Cols_JSON : [],
-					answerCols: Array.isArray(cfg.Answer_Cols_JSON) ? cfg.Answer_Cols_JSON : []
-				});
-				openModal('modal-add-topic');
-			} catch (err) {
-				alert('載入主題設定失敗：' + err.message);
-			} finally {
-				setLoading(false);
-			}
-		}
+    async function handleDeleteSelectedRevisions() {
+      const checked = Array.from(document.querySelectorAll('.rev-checkbox:checked'));
+      if (checked.length === 0) return alert('請先勾選已修訂完成的紀錄！');
 
-		async function handleSheetSelectChange() {
-			const sheetName = document.getElementById('topic-sheet-select').value;
-			if (!sheetName) {
-				tempSheetCards = [];
-				document.getElementById('column-config-fields').classList.add('hidden');
-				return;
-			}
-			setLoading(true);
-			try {
-				await loadSheetColumnsForConfig(sheetName, null);
-				if (!document.getElementById('topic-name').value) {
-					document.getElementById('topic-name').value = sheetName;
-				}
-			} catch (err) {
-				alert('讀取標題列失敗：' + err.message);
-			} finally {
-				setLoading(false);
-			}
-		}
+      const revisionIds = checked.map(cb => cb.value);
+      setLoading(true);
+      try {
+        appState.revisions = await callGasPost({ action: 'deleteRevisions', revisionIds });
+        updateRevisionBadge();
+        openRevisionsModal();
+      } catch (err) {
+        alert('刪除修訂紀錄失敗：' + err.message);
+      } finally {
+        setLoading(false);
+      }
+    }
 
-		async function loadSheetColumnsForConfig(sheetName, preset) {
-			const res = await callGasGet({ action: 'getCards', sheetName });
-			tempSheetHeaders = res.headers.filter((h, idx) => idx > 0 && h);
-			tempSheetCards = res.cards || [];
+    async function openAddTopicModal() {
+      if (!GAS_URL) return openApiModal();
+      editingTopicId = null;
+      tempSheetCards = [];
+      document.getElementById('topic-modal-title').textContent = '➕ 添加複習主題';
+      setLoading(true);
+      try {
+        const sheets = await callGasGet({ action: 'getSheets' });
+        const select = document.getElementById('topic-sheet-select');
+        select.innerHTML = '<option value="">-- 請先選擇工作表 --</option>' +
+          sheets.map(s => `<option value="${s}">${s}</option>`).join('');
+        document.getElementById('topic-name').value = '';
+        document.getElementById('column-config-fields').classList.add('hidden');
+        openModal('modal-add-topic');
+      } catch (err) {
+        alert('載入工作表清單失敗：' + err.message);
+      } finally {
+        setLoading(false);
+      }
+    }
 
-			const qSelect = document.getElementById('topic-question-col');
-			qSelect.innerHTML = tempSheetHeaders.map(h => `<option value="${h}">${h}</option>`).join('');
-			if (preset && preset.questionCol && tempSheetHeaders.includes(preset.questionCol)) {
-				qSelect.value = preset.questionCol;
-			}
+    async function openEditTopicModal(topicId) {
+      if (!GAS_URL) return openApiModal();
+      const cfg = appState.configs.find(c => String(c.Topic_ID) === String(topicId));
+      if (!cfg) return;
+      editingTopicId = cfg.Topic_ID;
+      document.getElementById('topic-modal-title').textContent = '✏️ 編輯複習主題';
+      setLoading(true);
+      try {
+        const sheets = await callGasGet({ action: 'getSheets' });
+        const select = document.getElementById('topic-sheet-select');
+        select.innerHTML = '<option value="">-- 請先選擇工作表 --</option>' +
+          sheets.map(s => `<option value="${s}">${s}</option>`).join('');
+        document.getElementById('topic-name').value = cfg.Topic_Name;
+        select.value = cfg.Sheet_Name;
+        await loadSheetColumnsForConfig(cfg.Sheet_Name, {
+          questionCol: cfg.Question_Col,
+          hintCols: Array.isArray(cfg.Hint_Cols_JSON) ? cfg.Hint_Cols_JSON : [],
+          answerCols: Array.isArray(cfg.Answer_Cols_JSON) ? cfg.Answer_Cols_JSON : []
+        });
+        openModal('modal-add-topic');
+      } catch (err) {
+        alert('載入主題設定失敗：' + err.message);
+      } finally {
+        setLoading(false);
+      }
+    }
 
-			const renderCheckboxes = (containerId, cls, selectedList) => {
-				document.getElementById(containerId).innerHTML = tempSheetHeaders.map(h => {
-					const isChecked = selectedList && selectedList.includes(h) ? 'checked' : '';
-					return `
+    async function handleSheetSelectChange() {
+      const sheetName = document.getElementById('topic-sheet-select').value;
+      if (!sheetName) {
+        tempSheetCards = [];
+        document.getElementById('column-config-fields').classList.add('hidden');
+        return;
+      }
+      setLoading(true);
+      try {
+        await loadSheetColumnsForConfig(sheetName, null);
+        if (!document.getElementById('topic-name').value) {
+          document.getElementById('topic-name').value = sheetName;
+        }
+      } catch (err) {
+        alert('讀取標題列失敗：' + err.message);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    async function loadSheetColumnsForConfig(sheetName, preset) {
+      const res = await callGasGet({ action: 'getCards', sheetName });
+      tempSheetHeaders = res.headers.filter((h, idx) => idx > 0 && h);
+      tempSheetCards = res.cards || [];
+
+      const qSelect = document.getElementById('topic-question-col');
+      qSelect.innerHTML = tempSheetHeaders.map(h => `<option value="${h}">${h}</option>`).join('');
+      if (preset && preset.questionCol && tempSheetHeaders.includes(preset.questionCol)) {
+        qSelect.value = preset.questionCol;
+      }
+
+      const renderCheckboxes = (containerId, cls, selectedList) => {
+        document.getElementById(containerId).innerHTML = tempSheetHeaders.map(h => {
+          const isChecked = selectedList && selectedList.includes(h) ? 'checked' : '';
+          return `
             <label class="flex items-center gap-2 cursor-pointer">
               <input type="checkbox" value="${h}" ${isChecked} class="${cls} rounded text-indigo-600">
               <span class="truncate" title="${escapeHtml(h)}">${escapeHtml(h)}</span>
             </label>
           `;
-				}).join('');
-			};
+        }).join('');
+      };
 
-			renderCheckboxes('topic-hint-cols', 'hint-col-cb', preset ? preset.hintCols : []);
-			renderCheckboxes('topic-answer-cols', 'answer-col-cb', preset ? preset.answerCols : []);
-			document.getElementById('column-config-fields').classList.remove('hidden');
-		}
+      renderCheckboxes('topic-hint-cols', 'hint-col-cb', preset ? preset.hintCols : []);
+      renderCheckboxes('topic-answer-cols', 'answer-col-cb', preset ? preset.answerCols : []);
+      document.getElementById('column-config-fields').classList.remove('hidden');
+    }
 
-		function openRandomPreviewModal() {
-			const sheetName = document.getElementById('topic-sheet-select').value;
-			if (!sheetName) {
-				alert('請先選擇工作表 (Sheet) 再進行預覽！');
-				return;
-			}
-			if (!tempSheetCards || tempSheetCards.length === 0) {
-				alert('該工作表目前沒有資料列可供預覽！');
-				return;
-			}
-			renderRandomCardSample();
-			openModal('modal-random-preview');
-		}
+    function openRandomPreviewModal() {
+      const sheetName = document.getElementById('topic-sheet-select').value;
+      if (!sheetName) {
+        alert('請先選擇工作表 (Sheet) 再進行預覽！');
+        return;
+      }
+      if (!tempSheetCards || tempSheetCards.length === 0) {
+        alert('該工作表目前沒有資料列可供預覽！');
+        return;
+      }
+      renderRandomCardSample();
+      openModal('modal-random-preview');
+    }
 
-		function renderRandomCardSample() {
-			const qCol = document.getElementById('topic-question-col').value;
-			const hintCols = Array.from(document.querySelectorAll('.hint-col-cb:checked')).map(el => el.value);
-			const ansCols = Array.from(document.querySelectorAll('.answer-col-cb:checked')).map(el => el.value);
+    function renderRandomCardSample() {
+      const qCol = document.getElementById('topic-question-col').value;
+      const hintCols = Array.from(document.querySelectorAll('.hint-col-cb:checked')).map(el => el.value);
+      const ansCols = Array.from(document.querySelectorAll('.answer-col-cb:checked')).map(el => el.value);
 
-			const randomIdx = Math.floor(Math.random() * tempSheetCards.length);
-			const sampleCard = tempSheetCards[randomIdx];
+      const randomIdx = Math.floor(Math.random() * tempSheetCards.length);
+      const sampleCard = tempSheetCards[randomIdx];
 
-			document.getElementById('random-preview-meta').textContent =
-				`資料來源：第 ${sampleCard._rowIndex} 列（共 ${tempSheetCards.length} 筆資料隨機抽選）`;
+      document.getElementById('random-preview-meta').textContent =
+        `資料來源：第 ${sampleCard._rowIndex} 列（共 ${tempSheetCards.length} 筆資料隨機抽選）`;
 
-			const hintsEl = document.getElementById('rand-preview-hints');
-			hintsEl.innerHTML = hintCols.length
-				? hintCols.map(h => `<div><strong>${escapeHtml(h)}：</strong>${escapeHtml(sampleCard[h] || '（空白）')}</div>`).join('')
-				: '<span class="text-slate-400">（未設定提示欄位）</span>';
+      const hintsEl = document.getElementById('rand-preview-hints');
+      hintsEl.innerHTML = hintCols.length
+        ? hintCols.map(h => `<div><strong>${escapeHtml(h)}：</strong>${escapeHtml(sampleCard[h] || '（空白）')}</div>`).join('')
+        : '<span class="text-slate-400">（未設定提示欄位）</span>';
 
-			const rawQ = String(sampleCard[qCol] || '').trim();
-			const clozeRegex = /^(.*?)\[(.+?)\](.*)$/;
-			const match = rawQ.match(clozeRegex);
+      const rawQ = String(sampleCard[qCol] || '').trim();
+      const clozeRegex = /^(.*?)\[(.+?)\](.*)$/;
+      const match = rawQ.match(clozeRegex);
 
-			const qEl = document.getElementById('rand-preview-question');
-			const fullEl = document.getElementById('rand-preview-full-sentence');
+      const qEl = document.getElementById('rand-preview-question');
+      const fullEl = document.getElementById('rand-preview-full-sentence');
 
-			if (match) {
-				qEl.innerHTML = `
+      if (match) {
+        qEl.innerHTML = `
           <span>${escapeHtml(match[1])}</span>
           <span class="inline-block border-b-2 border-indigo-500 bg-indigo-50 px-3 py-0.5 mx-1 text-indigo-400 text-xs rounded">輸入框</span>
           <span>${escapeHtml(match[3])}</span>
         `;
-				fullEl.innerHTML = `${escapeHtml(match[1])}<span class="underline decoration-2 text-indigo-800 mx-0.5">${escapeHtml(match[2])}</span>${escapeHtml(match[3])}`;
-			} else {
-				qEl.innerHTML = `<span class="text-rose-600 text-xs">⚠️ 此列「${escapeHtml(qCol)}」缺少 [ ] 符號：${escapeHtml(rawQ || '（空白）')}</span>`;
-				fullEl.textContent = rawQ || '（空白）';
-			}
+        fullEl.innerHTML = `${escapeHtml(match[1])}<span class="underline decoration-2 text-indigo-800 mx-0.5">${escapeHtml(match[2])}</span>${escapeHtml(match[3])}`;
+      } else {
+        qEl.innerHTML = `<span class="text-rose-600 text-xs">⚠️ 此列「${escapeHtml(qCol)}」缺少 [ ] 符號：${escapeHtml(rawQ || '（空白）')}</span>`;
+        fullEl.textContent = rawQ || '（空白）';
+      }
 
-			const ansEl = document.getElementById('rand-preview-answers');
-			ansEl.innerHTML = ansCols.length
-				? ansCols.map(h => `<div><strong>${escapeHtml(h)}：</strong>${escapeHtml(sampleCard[h] || '（空白）')}</div>`).join('')
-				: '<span class="text-slate-400">（未設定答案展示欄位）</span>';
-		}
+      const ansEl = document.getElementById('rand-preview-answers');
+      ansEl.innerHTML = ansCols.length
+        ? ansCols.map(h => `<div><strong>${escapeHtml(h)}：</strong>${escapeHtml(sampleCard[h] || '（空白）')}</div>`).join('')
+        : '<span class="text-slate-400">（未設定答案展示欄位）</span>';
+    }
 
-		async function submitNewTopic() {
-			const topicName = document.getElementById('topic-name').value.trim();
-			const sheetName = document.getElementById('topic-sheet-select').value;
-			const questionCol = document.getElementById('topic-question-col').value;
-			const hintCols = Array.from(document.querySelectorAll('.hint-col-cb:checked')).map(el => el.value);
-			const answerCols = Array.from(document.querySelectorAll('.answer-col-cb:checked')).map(el => el.value);
+    async function submitNewTopic() {
+      const topicName = document.getElementById('topic-name').value.trim();
+      const sheetName = document.getElementById('topic-sheet-select').value;
+      const questionCol = document.getElementById('topic-question-col').value;
+      const hintCols = Array.from(document.querySelectorAll('.hint-col-cb:checked')).map(el => el.value);
+      const answerCols = Array.from(document.querySelectorAll('.answer-col-cb:checked')).map(el => el.value);
 
-			if (!topicName || !sheetName || !questionCol) {
-				alert('請填寫主題名稱並選擇工作表與出題欄位！');
-				return;
-			}
+      if (!topicName || !sheetName || !questionCol) {
+        alert('請填寫主題名稱並選擇工作表與出題欄位！');
+        return;
+      }
 
-			setLoading(true);
-			try {
-				const actionName = editingTopicId ? 'updateConfig' : 'saveConfig';
-				const configPayload = { topicName, sheetName, questionCol, hintCols, answerCols };
-				if (editingTopicId) configPayload.topicId = editingTopicId;
+      setLoading(true);
+      try {
+        const actionName = editingTopicId ? 'updateConfig' : 'saveConfig';
+        const configPayload = { topicName, sheetName, questionCol, hintCols, answerCols };
+        if (editingTopicId) configPayload.topicId = editingTopicId;
 
-				appState.configs = await callGasPost({
-					action: actionName,
-					config: configPayload
-				});
-				editingTopicId = null;
-				closeModal('modal-add-topic');
-				renderHomeTopics();
-			} catch (err) {
-				alert('儲存主題失敗：' + err.message);
-			} finally {
-				setLoading(false);
-			}
-		}
+        appState.configs = await callGasPost({
+          action: actionName,
+          config: configPayload
+        });
+        editingTopicId = null;
+        closeModal('modal-add-topic');
+        renderHomeTopics();
+      } catch (err) {
+        alert('儲存主題失敗：' + err.message);
+      } finally {
+        setLoading(false);
+      }
+    }
 
-		async function handleDeleteSelectedTopics() {
-			const checked = Array.from(document.querySelectorAll('.topic-checkbox:checked'));
-			if (checked.length === 0) return alert('請先勾選要刪除的主題！');
-			if (!confirm(`確定要刪除勾選的 ${checked.length} 個主題嗎？（不會刪除試算表內的原始資料）`)) return;
+    async function handleDeleteSelectedTopics() {
+      const checked = Array.from(document.querySelectorAll('.topic-checkbox:checked'));
+      if (checked.length === 0) return alert('請先勾選要刪除的主題！');
+      if (!confirm(`確定要刪除勾選的 ${checked.length} 個主題嗎？（不會刪除試算表內的原始資料）`)) return;
 
-			const topicIds = checked.map(cb => cb.value);
-			setLoading(true);
-			try {
-				appState.configs = await callGasPost({ action: 'deleteConfigs', topicIds });
-				renderHomeTopics();
-			} catch (err) {
-				alert('刪除失敗：' + err.message);
-			} finally {
-				setLoading(false);
-			}
-		}
+      const topicIds = checked.map(cb => cb.value);
+      setLoading(true);
+      try {
+        appState.configs = await callGasPost({ action: 'deleteConfigs', topicIds });
+        renderHomeTopics();
+      } catch (err) {
+        alert('刪除失敗：' + err.message);
+      } finally {
+        setLoading(false);
+      }
+    }
 
-		async function handleClearSelectedProgress() {
-			const checked = Array.from(document.querySelectorAll('.topic-checkbox:checked'));
-			if (checked.length === 0) return alert('請先勾選要清除複習紀錄的主題！');
-			if (!confirm(`確定要清除勾選主題的所有練習次數與對錯紀錄嗎？`)) return;
+    async function handleClearSelectedProgress() {
+      const checked = Array.from(document.querySelectorAll('.topic-checkbox:checked'));
+      if (checked.length === 0) return alert('請先勾選要清除複習紀錄的主題！');
+      if (!confirm(`確定要清除勾選主題的所有練習次數與對錯紀錄嗎？`)) return;
 
-			setLoading(true);
-			try {
-				let allCardIds = [];
-				for (const cb of checked) {
-					const sheetName = cb.dataset.sheet;
-					const res = await callGasGet({ action: 'getCards', sheetName });
-					allCardIds.push(...res.cards.map(c => c._id));
-				}
-				await callGasPost({ action: 'clearProgress', cardIds: allCardIds });
-				allCardIds.forEach(id => delete appState.progress[id]);
-				alert('已成功清除勾選主題的複習紀錄！');
-			} catch (err) {
-				alert('清除紀錄失敗：' + err.message);
-			} finally {
-				setLoading(false);
-			}
-		}
+      setLoading(true);
+      try {
+        let allCardIds = [];
+        for (const cb of checked) {
+          const sheetName = cb.dataset.sheet;
+          const res = await callGasGet({ action: 'getCards', sheetName });
+          allCardIds.push(...res.cards.map(c => c._id));
+        }
+        await callGasPost({ action: 'clearProgress', cardIds: allCardIds });
+        allCardIds.forEach(id => delete appState.progress[id]);
+        alert('已成功清除勾選主題的複習紀錄！');
+      } catch (err) {
+        alert('清除紀錄失敗：' + err.message);
+      } finally {
+        setLoading(false);
+      }
+    }
 
-		// =========================================================================
-		// 6. 練習前篩選器
-		// =========================================================================
-		async function prepareTopicFilter(topicId) {
-			const topic = appState.configs.find(c => String(c.Topic_ID) === String(topicId));
-			if (!topic) return;
+    // =========================================================================
+    // 6. 練習前篩選器
+    // =========================================================================
+    async function prepareTopicFilter(topicId) {
+      const topic = appState.configs.find(c => String(c.Topic_ID) === String(topicId));
+      if (!topic) return;
 
-			setLoading(true);
-			try {
-				const res = await callGasGet({ action: 'getCards', sheetName: topic.Sheet_Name });
-				const validCards = [];
-				const invalidRows = [];
-				const clozeRegex = /^(.*?)\[(.+?)\](.*)$/;
+      setLoading(true);
+      try {
+        const res = await callGasGet({ action: 'getCards', sheetName: topic.Sheet_Name });
+        const validCards = [];
+        const invalidRows = [];
+        const clozeRegex = /^(.*?)\[(.+?)\](.*)$/;
 
-				res.cards.forEach(card => {
-					const rawQ = String(card[topic.Question_Col] || '').trim();
-					const match = rawQ.match(clozeRegex);
-					if (!match) {
-						invalidRows.push(`第 ${card._rowIndex} 列`);
-					} else {
-						validCards.push({
-							...card,
-							_prefix: match[1],
-							_answer: match[2],
-							_suffix: match[3]
-						});
-					}
-				});
+        res.cards.forEach(card => {
+          const rawQ = String(card[topic.Question_Col] || '').trim();
+          const match = rawQ.match(clozeRegex);
+          if (!match) {
+            invalidRows.push(`第 ${card._rowIndex} 列`);
+          } else {
+            validCards.push({
+              ...card,
+              _prefix: match[1],
+              _answer: match[2],
+              _suffix: match[3]
+            });
+          }
+        });
 
-				currentStudy.topic = topic;
-				currentStudy.headers = res.headers.filter((h, idx) => idx > 0 && h);
-				currentStudy.allValidCards = validCards;
+        currentStudy.topic = topic;
+        currentStudy.headers = res.headers.filter((h, idx) => idx > 0 && h);
+        currentStudy.allValidCards = validCards;
 
-				document.getElementById('filter-topic-title').textContent = topic.Topic_Name;
+        document.getElementById('filter-topic-title').textContent = topic.Topic_Name;
 
-				const customColSelect = document.getElementById('filter-custom-col');
-				customColSelect.innerHTML = '<option value="">-- 不限欄位（練習全部資料） --</option>' +
-					currentStudy.headers.map(h => `<option value="${escapeHtml(h)}">${escapeHtml(h)}</option>`).join('');
-				document.getElementById('filter-custom-values-wrapper').classList.add('hidden');
+        const customColSelect = document.getElementById('filter-custom-col');
+        customColSelect.innerHTML = '<option value="">-- 不限欄位（練習全部資料） --</option>' +
+          currentStudy.headers.map(h => `<option value="${escapeHtml(h)}">${escapeHtml(h)}</option>`).join('');
+        document.getElementById('filter-custom-values-wrapper').classList.add('hidden');
 
-				const warnBox = document.getElementById('format-warning-box');
-				if (invalidRows.length > 0) {
-					warnBox.classList.remove('hidden');
-					warnBox.innerHTML = `⚠️ 格式異常自動跳過（出題欄缺少 <code>[ ]</code> 標記）：<strong>${invalidRows.join('、')}</strong>`;
-				} else {
-					warnBox.classList.add('hidden');
-				}
+        const warnBox = document.getElementById('format-warning-box');
+        if (invalidRows.length > 0) {
+          warnBox.classList.remove('hidden');
+          warnBox.innerHTML = `⚠️ 格式異常自動跳過（出題欄缺少 <code>[ ]</code> 標記）：<strong>${invalidRows.join('、')}</strong>`;
+        } else {
+          warnBox.classList.add('hidden');
+        }
 
-				updateFilterMatchCount();
-				switchView('filter');
-			} catch (err) {
-				alert('載入卡片資料失敗：' + err.message);
-			} finally {
-				setLoading(false);
-			}
-		}
+        updateFilterMatchCount();
+        switchView('filter');
+      } catch (err) {
+        alert('載入卡片資料失敗：' + err.message);
+      } finally {
+        setLoading(false);
+      }
+    }
 
-		function handleFilterCustomColChange() {
-			const colName = document.getElementById('filter-custom-col').value;
-			const wrapper = document.getElementById('filter-custom-values-wrapper');
-			const listContainer = document.getElementById('filter-custom-values-list');
+    function handleFilterCustomColChange() {
+      const colName = document.getElementById('filter-custom-col').value;
+      const wrapper = document.getElementById('filter-custom-values-wrapper');
+      const listContainer = document.getElementById('filter-custom-values-list');
 
-			if (!colName) {
-				wrapper.classList.add('hidden');
-				updateFilterMatchCount();
-				return;
-			}
+      if (!colName) {
+        wrapper.classList.add('hidden');
+        updateFilterMatchCount();
+        return;
+      }
 
-			const uniqueValsSet = new Set();
-			currentStudy.allValidCards.forEach(card => {
-				const val = String(card[colName] || '').trim();
-				uniqueValsSet.add(val === '' ? '__EMPTY__' : val);
-			});
+      const uniqueValsSet = new Set();
+      currentStudy.allValidCards.forEach(card => {
+        const val = String(card[colName] || '').trim();
+        uniqueValsSet.add(val === '' ? '__EMPTY__' : val);
+      });
 
-			const uniqueVals = Array.from(uniqueValsSet);
-			listContainer.innerHTML = uniqueVals.map(val => {
-				const labelText = val === '__EMPTY__' ? '（空白）' : val;
-				return `
+      const uniqueVals = Array.from(uniqueValsSet);
+      listContainer.innerHTML = uniqueVals.map(val => {
+        const labelText = val === '__EMPTY__' ? '（空白）' : val;
+        return `
           <label class="flex items-center gap-2 cursor-pointer bg-white px-2.5 py-1.5 rounded-lg border border-slate-200 hover:bg-indigo-50/50">
             <input type="checkbox" value="${escapeHtml(val)}" checked onchange="updateFilterMatchCount()" class="filter-val-cb rounded text-indigo-600">
             <span class="truncate text-xs font-medium text-slate-700" title="${escapeHtml(labelText)}">${escapeHtml(labelText)}</span>
           </label>
         `;
-			}).join('');
+      }).join('');
 
-			wrapper.classList.remove('hidden');
-			updateFilterMatchCount();
-		}
+      wrapper.classList.remove('hidden');
+      updateFilterMatchCount();
+    }
 
-		function toggleAllFilterValues(checked) {
-			document.querySelectorAll('.filter-val-cb').forEach(cb => cb.checked = checked);
-			updateFilterMatchCount();
-		}
+    function toggleAllFilterValues(checked) {
+      document.querySelectorAll('.filter-val-cb').forEach(cb => cb.checked = checked);
+      updateFilterMatchCount();
+    }
 
-		function getFilteredCardList() {
-			const mode = document.querySelector('input[name="filterMode"]:checked').value;
-			const customCol = document.getElementById('filter-custom-col').value;
-			let list = [...currentStudy.allValidCards];
+    function getFilteredCardList() {
+      const mode = document.querySelector('input[name="filterMode"]:checked').value;
+      const customCol = document.getElementById('filter-custom-col').value;
+      let list = [...currentStudy.allValidCards];
 
-			if (customCol) {
-				const selectedVals = new Set(
-					Array.from(document.querySelectorAll('.filter-val-cb:checked')).map(cb => cb.value)
-				);
-				list = list.filter(card => {
-					const rawVal = String(card[customCol] || '').trim();
-					const key = rawVal === '' ? '__EMPTY__' : rawVal;
-					return selectedVals.has(key);
-				});
-			}
+      if (customCol) {
+        const selectedVals = new Set(
+          Array.from(document.querySelectorAll('.filter-val-cb:checked')).map(cb => cb.value)
+        );
+        list = list.filter(card => {
+          const rawVal = String(card[customCol] || '').trim();
+          const key = rawVal === '' ? '__EMPTY__' : rawVal;
+          return selectedVals.has(key);
+        });
+      }
 
-			if (mode === 'wrong') {
-				const minWrong = parseInt(document.getElementById('wrong-threshold').value) || 1;
-				list = list.filter(c => (appState.progress[c._id]?.wrongCount || 0) >= minWrong);
-			}
+      if (mode === 'wrong') {
+        const minWrong = parseInt(document.getElementById('wrong-threshold').value) || 1;
+        list = list.filter(c => (appState.progress[c._id]?.wrongCount || 0) >= minWrong);
+      }
 
-			return list;
-		}
+      return list;
+    }
 
-		function updateFilterMatchCount() {
-			const matched = getFilteredCardList();
-			document.getElementById('filter-total-count').textContent = matched.length;
-		}
+    function updateFilterMatchCount() {
+      const matched = getFilteredCardList();
+      document.getElementById('filter-total-count').textContent = matched.length;
+    }
 
-		function startStudySession() {
-			const mode = document.querySelector('input[name="filterMode"]:checked').value;
-			let list = getFilteredCardList();
+    function startStudySession() {
+      const mode = document.querySelector('input[name="filterMode"]:checked').value;
+      let list = getFilteredCardList();
 
-			if (list.length === 0) {
-				alert('沒有符合篩選條件的卡片！請調整勾選項目或篩選條件。');
-				return;
-			}
+      if (list.length === 0) {
+        alert('沒有符合篩選條件的卡片！請調整勾選項目或篩選條件。');
+        return;
+      }
 
-			if (mode === 'shuffle') {
-				for (let i = list.length - 1; i > 0; i--) {
-					const j = Math.floor(Math.random() * (i + 1));
-					[list[i], list[j]] = [list[j], list[i]];
-				}
-			}
+      if (mode === 'shuffle') {
+        for (let i = list.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [list[i], list[j]] = [list[j], list[i]];
+        }
+      }
 
-			let startIndex = 0;
-			if (mode === 'resume' && appState.travel.lastTopicId === currentStudy.topic.Topic_ID && appState.travel.lastCardId) {
-				const foundIdx = list.findIndex(c => c._id === appState.travel.lastCardId);
-				if (foundIdx !== -1) startIndex = foundIdx;
-			}
+      let startIndex = 0;
+      if (mode === 'resume' && appState.travel.lastTopicId === currentStudy.topic.Topic_ID && appState.travel.lastCardId) {
+        const foundIdx = list.findIndex(c => c._id === appState.travel.lastCardId);
+        if (foundIdx !== -1) startIndex = foundIdx;
+      }
 
-			currentStudy.queue = list;
-			currentStudy.currentIndex = startIndex;
-			switchView('study');
-			renderCurrentFlashcard();
-		}
+      currentStudy.queue = list;
+      currentStudy.currentIndex = startIndex;
+      currentStudy.isRetryMode = false;
+      switchView('study');
+      renderCurrentFlashcard();
+    }
 
-		// =========================================================================
-		// 7. 閃卡核心互動（上方出題句子，下方提示欄位，按鈕為「回答」）
-		// =========================================================================
-		function renderCurrentFlashcard() {
-			const card = currentStudy.queue[currentStudy.currentIndex];
-			const topic = currentStudy.topic;
-			currentStudy.isAnswered = false;
+    // =========================================================================
+    // 7. 閃卡核心互動（含重新作答與修訂標記）
+    // =========================================================================
+    function renderCurrentFlashcard() {
+      const card = currentStudy.queue[currentStudy.currentIndex];
+      const topic = currentStudy.topic;
+      currentStudy.isAnswered = false;
 
-			document.getElementById('study-progress-text').textContent = `${currentStudy.currentIndex + 1} / ${currentStudy.queue.length}`;
-			const stat = appState.progress[card._id] || { practiceCount: 0, correctCount: 0, wrongCount: 0 };
-			document.getElementById('card-stats-badge').textContent =
-				`第 ${stat.practiceCount + 1} 次練習 ｜ 答對 ${stat.correctCount} ｜ 答錯 ${stat.wrongCount}`;
+      document.getElementById('study-progress-text').textContent = `${currentStudy.currentIndex + 1} / ${currentStudy.queue.length}`;
+      const stat = appState.progress[card._id] || { practiceCount: 0, correctCount: 0, wrongCount: 0 };
+      document.getElementById('card-stats-badge').textContent =
+        `第 ${stat.practiceCount + 1} 次練習 ｜ 答對 ${stat.correctCount} ｜ 答錯 ${stat.wrongCount}`;
 
-			document.getElementById('card-front').classList.remove('hidden');
-			document.getElementById('card-back').classList.add('hidden');
+      document.getElementById('retry-mode-badge').classList.toggle('hidden', !currentStudy.isRetryMode);
 
-			// 上方：克漏字句子與輸入框
-			const qArea = document.getElementById('card-question-area');
-			const inputWidth = Math.max(card._answer.length * 1.4, 5);
-			qArea.innerHTML = `
+      document.getElementById('card-front').classList.remove('hidden');
+      document.getElementById('card-back').classList.add('hidden');
+
+      const qArea = document.getElementById('card-question-area');
+      const inputWidth = Math.max(card._answer.length * 1.4, 5);
+      qArea.innerHTML = `
         <span>${escapeHtml(card._prefix)}</span>
         <input type="text" id="cloze-input" autocomplete="off"
           style="width: ${inputWidth}em;"
@@ -1097,227 +1159,290 @@
         <span>${escapeHtml(card._suffix)}</span>
       `;
 
-			// 下方：提示欄位（標題：內容 一欄一列）
-			const hintCols = topic.Hint_Cols_JSON || [];
-			const hintsArea = document.getElementById('card-hints-area');
-			if (hintCols.length > 0) {
-				hintsArea.classList.remove('hidden');
-				hintsArea.innerHTML = hintCols.map(col =>
-					`<div><span class="font-bold text-slate-600">${col}：</span><span class="text-slate-800">${card[col] || '—'}</span></div>`
-				).join('');
-			} else {
-				hintsArea.classList.add('hidden');
-			}
+      const hintCols = topic.Hint_Cols_JSON || [];
+      const hintsArea = document.getElementById('card-hints-area');
+      if (hintCols.length > 0) {
+        hintsArea.classList.remove('hidden');
+        hintsArea.innerHTML = hintCols.map(col =>
+          `<div><span class="font-bold text-slate-600">${col}：</span><span class="text-slate-800">${card[col] || '—'}</span></div>`
+        ).join('');
+      } else {
+        hintsArea.classList.add('hidden');
+      }
 
-			setTimeout(() => {
-				const inputEl = document.getElementById('cloze-input');
-				if (inputEl) inputEl.focus();
-			}, 50);
+      setTimeout(() => {
+        const inputEl = document.getElementById('cloze-input');
+        if (inputEl) inputEl.focus();
+      }, 50);
 
-			appState.travel.lastTopicId = topic.Topic_ID;
-			appState.travel.lastCardId = card._id;
-		}
+      appState.travel.lastTopicId = topic.Topic_ID;
+      appState.travel.lastCardId = card._id;
+    }
 
-		function handleCardBackgroundClick(event) {
-			if (currentStudy.isAnswered) return;
-			if (event.target.tagName === 'INPUT' || event.target.tagName === 'BUTTON') return;
-			evaluateAnswer('', true);
-		}
+    function retryCurrentCard() {
+      currentStudy.isRetryMode = true;
+      renderCurrentFlashcard();
+    }
 
-		function submitClozeAnswer(event) {
-			if (event) event.stopPropagation();
-			if (currentStudy.isAnswered) return;
-			const userInput = document.getElementById('cloze-input').value;
-			evaluateAnswer(userInput, false);
-		}
+    function handleCardBackgroundClick(event) {
+      if (currentStudy.isAnswered) return;
+      if (event.target.tagName === 'INPUT' || event.target.tagName === 'BUTTON') return;
+      evaluateAnswer('', true);
+    }
 
-		async function evaluateAnswer(userInput, isSkipped) {
-			currentStudy.isAnswered = true;
-			const card = currentStudy.queue[currentStudy.currentIndex];
-			const topic = currentStudy.topic;
-			const isCorrect = !isSkipped && userInput !== '' && userInput === card._answer;
+    function submitClozeAnswer(event) {
+      if (event) event.stopPropagation();
+      if (currentStudy.isAnswered) return;
+      const userInput = document.getElementById('cloze-input').value;
+      evaluateAnswer(userInput, false);
+    }
 
-			if (!appState.progress[card._id]) {
-				appState.progress[card._id] = { practiceCount: 0, correctCount: 0, wrongCount: 0 };
-			}
-			appState.progress[card._id].practiceCount += 1;
-			if (isCorrect) appState.progress[card._id].correctCount += 1;
-			else appState.progress[card._id].wrongCount += 1;
+    async function evaluateAnswer(userInput, isSkipped) {
+      currentStudy.isAnswered = true;
+      const card = currentStudy.queue[currentStudy.currentIndex];
+      const topic = currentStudy.topic;
+      const isCorrect = !isSkipped && userInput !== '' && userInput === card._answer;
+      const isRetry = currentStudy.isRetryMode;
 
-			let prevKm = appState.travel.currentKm;
-			let newKm = isCorrect ? prevKm + 1 : Math.max(0, prevKm - 1);
-			appState.travel.currentKm = newKm;
-			checkTravelMilestones(newKm);
+      if (!appState.progress[card._id]) {
+        appState.progress[card._id] = { practiceCount: 0, correctCount: 0, wrongCount: 0 };
+      }
+      appState.progress[card._id].practiceCount += 1;
+      if (isCorrect) appState.progress[card._id].correctCount += 1;
+      else appState.progress[card._id].wrongCount += 1;
 
-			document.getElementById('card-front').classList.add('hidden');
-			document.getElementById('card-back').classList.remove('hidden');
+      // 計分規則：一般作答（對 +1 / 錯 -1）；重新作答（對 +1 / 錯 -2），最低皆為 0 km
+      let prevKm = appState.travel.currentKm;
+      let deltaKm = isCorrect ? 1 : (isRetry ? -2 : -1);
+      let newKm = Math.max(0, prevKm + deltaKm);
+      let actualDelta = newKm - prevKm;
+      appState.travel.currentKm = newKm;
+      checkTravelMilestones(newKm);
 
-			const banner = document.getElementById('result-banner');
-			const rTitle = document.getElementById('result-title');
-			const rDetail = document.getElementById('result-detail');
-			const rBadge = document.getElementById('result-km-badge');
+      document.getElementById('card-front').classList.add('hidden');
+      document.getElementById('card-back').classList.remove('hidden');
 
-			if (isCorrect) {
-				banner.className = 'p-4 rounded-2xl flex items-center justify-between bg-emerald-100 text-emerald-900 border border-emerald-300';
-				rTitle.textContent = '⭕ 回答完全正確！';
-				rDetail.textContent = `已前進 1 公里（目前累積 ${newKm} km）`;
-				rBadge.textContent = '+1 km';
-				rBadge.className = 'text-xl font-black px-3 py-1 rounded-xl bg-emerald-600 text-white';
-			} else {
-				banner.className = 'p-4 rounded-2xl flex items-center justify-between bg-rose-100 text-rose-900 border border-rose-300';
-				rTitle.textContent = isSkipped ? '👀 直接查看答案（計為答錯）' : '❌ 回答不正確';
-				rDetail.innerHTML = `你的輸入：<span class="underline font-bold">${escapeHtml(userInput || '（空白）')}</span> ｜ 正確答案：<span class="font-bold text-emerald-700">${escapeHtml(card._answer)}</span>`;
-				rBadge.textContent = prevKm === 0 ? '0 km' : '-1 km';
-				rBadge.className = 'text-xl font-black px-3 py-1 rounded-xl bg-rose-600 text-white';
-			}
+      updateFlagButtonState(topic.Sheet_Name, card._rowIndex);
 
-			document.getElementById('back-full-sentence').innerHTML =
-				`${escapeHtml(card._prefix)}<span class="text-indigo-600 underline decoration-2 mx-0.5">${escapeHtml(card._answer)}</span>${escapeHtml(card._suffix)}`;
+      const banner = document.getElementById('result-banner');
+      const rTitle = document.getElementById('result-title');
+      const rDetail = document.getElementById('result-detail');
+      const rBadge = document.getElementById('result-km-badge');
 
-			const ansCols = topic.Answer_Cols_JSON || [];
-			const ansArea = document.getElementById('card-answers-area');
-			if (ansCols.length > 0) {
-				ansArea.classList.remove('hidden');
-				ansArea.innerHTML = ansCols.map(col =>
-					`<div><span class="font-bold text-slate-600">${col}：</span><span class="text-slate-800">${card[col] || '—'}</span></div>`
-				).join('');
-			} else {
-				ansArea.classList.add('hidden');
-			}
+      if (isCorrect) {
+        banner.className = 'p-4 rounded-2xl flex items-center justify-between bg-emerald-100 text-emerald-900 border border-emerald-300';
+        rTitle.textContent = isRetry ? '⭕ 重新作答正確！' : '⭕ 回答完全正確！';
+        rDetail.textContent = `已前進 1 公里（目前累積 ${newKm} km）`;
+        rBadge.textContent = '+1 km';
+        rBadge.className = 'text-xl font-black px-3 py-1 rounded-xl bg-emerald-600 text-white';
+      } else {
+        banner.className = 'p-4 rounded-2xl flex items-center justify-between bg-rose-100 text-rose-900 border border-rose-300';
+        if (isRetry) {
+          rTitle.textContent = isSkipped ? '👀 重新作答放棄（扣 2 分）' : '❌ 重新作答錯誤（扣 2 分）';
+        } else {
+          rTitle.textContent = isSkipped ? '👀 直接查看答案（計為答錯）' : '❌ 回答不正確';
+        }
+        rDetail.innerHTML = `你的輸入：<span class="underline font-bold">${escapeHtml(userInput || '（空白）')}</span> ｜ 正確答案：<span class="font-bold text-emerald-700">${escapeHtml(card._answer)}</span>`;
+        rBadge.textContent = actualDelta === 0 ? '0 km' : `${actualDelta} km`;
+        rBadge.className = 'text-xl font-black px-3 py-1 rounded-xl bg-rose-600 text-white';
+      }
 
-			updateHeaderKm();
+      document.getElementById('back-full-sentence').innerHTML =
+        `${escapeHtml(card._prefix)}<span class="text-indigo-600 underline decoration-2 mx-0.5">${escapeHtml(card._answer)}</span>${escapeHtml(card._suffix)}`;
 
-			Promise.all([
-				callGasPost({ action: 'updateProgress', record: { cardId: card._id, isCorrect } }),
-				callGasPost({ action: 'saveTravel', travel: appState.travel })
-			]).catch(err => console.error('背景同步失敗:', err));
-		}
+      const ansCols = topic.Answer_Cols_JSON || [];
+      const ansArea = document.getElementById('card-answers-area');
+      if (ansCols.length > 0) {
+        ansArea.classList.remove('hidden');
+        ansArea.innerHTML = ansCols.map(col =>
+          `<div><span class="font-bold text-slate-600">${col}：</span><span class="text-slate-800">${card[col] || '—'}</span></div>`
+        ).join('');
+      } else {
+        ansArea.classList.add('hidden');
+      }
 
-		function nextCard() {
-			if (currentStudy.currentIndex + 1 < currentStudy.queue.length) {
-				currentStudy.currentIndex += 1;
-				renderCurrentFlashcard();
-			} else {
-				alert('🎉 恭喜完成本輪所有卡片練習！');
-				switchView('home');
-			}
-		}
+      updateHeaderKm();
 
-		// =========================================================================
-		// 8. 成果展示：逆時針環日本地圖與具象化地標向量插畫引擎
-		// =========================================================================
-		function selectCharacter(gender) {
-			appState.travel.character = gender;
-			const startKey = `loop${appState.travel.loop}_tokyo_start`;
-			if (!appState.travel.unlockedMilestones[startKey]) {
-				appState.travel.unlockedMilestones[startKey] = {
-					unlockedAt: new Date().toLocaleDateString(),
-					customPhoto: ''
-				};
-			}
-			closeModal('modal-character');
-			updateTravelUI();
-			callGasPost({ action: 'saveTravel', travel: appState.travel });
-		}
+      Promise.all([
+        callGasPost({ action: 'updateProgress', record: { cardId: card._id, isCorrect } }),
+        callGasPost({ action: 'saveTravel', travel: appState.travel })
+      ]).catch(err => console.error('背景同步失敗:', err));
+    }
 
-		function openCharacterModal() { openModal('modal-character'); }
+    function updateFlagButtonState(sheetName, rowIndex) {
+      const btn = document.getElementById('btn-flag-revision');
+      const txt = document.getElementById('btn-flag-revision-text');
+      const alreadyFlagged = appState.revisions.some(
+        r => String(r.Sheet_Name) === String(sheetName) && String(r.Row_Index) === String(rowIndex)
+      );
+      if (alreadyFlagged) {
+        btn.className = 'px-3 py-1.5 rounded-xl border border-rose-500 bg-rose-600 text-white text-xs font-bold transition flex items-center gap-1.5';
+        txt.textContent = '已標記修訂';
+      } else {
+        btn.className = 'px-3 py-1.5 rounded-xl border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold transition flex items-center gap-1.5';
+        txt.textContent = '標記修訂';
+      }
+    }
 
-		function checkTravelMilestones(km) {
-			const loop = appState.travel.loop;
-			for (const stop of JAPAN_ROUTE) {
-				const key = `loop${loop}_${stop.id}`;
-				if (km >= stop.km && !appState.travel.unlockedMilestones[key]) {
-					appState.travel.unlockedMilestones[key] = {
-						unlockedAt: new Date().toLocaleDateString(),
-						customPhoto: ''
-					};
-					document.getElementById('unlock-city-name').textContent = stop.name;
-					document.getElementById('unlock-city-desc').textContent = stop.desc;
-					document.getElementById('unlock-illustration').innerHTML = generatePostcardSVG(stop, '');
-					openModal('modal-milestone-unlock');
-				}
-			}
-			if (km >= 3000) {
-				appState.travel.loop += 1;
-				appState.travel.currentKm = 0;
-				const nextStartKey = `loop${appState.travel.loop}_tokyo_start`;
-				appState.travel.unlockedMilestones[nextStartKey] = {
-					unlockedAt: new Date().toLocaleDateString(),
-					customPhoto: ''
-				};
-			}
-		}
+    async function flagCurrentCardForRevision() {
+      const card = currentStudy.queue[currentStudy.currentIndex];
+      const topic = currentStudy.topic;
+      if (!card || !topic) return;
 
-		function initMapNodes() {
-			const routePoints = JAPAN_ROUTE.map(s => `${s.x},${s.y}`).join(' ');
-			document.getElementById('map-route-line').setAttribute('points', routePoints);
-			const nodesGroup = document.getElementById('map-nodes-group');
-			nodesGroup.innerHTML = JAPAN_ROUTE.map(stop => `
+      const secondHeader = currentStudy.headers[0];
+      const colBData = card._colB !== undefined ? card._colB : (secondHeader ? card[secondHeader] : '');
+
+      const btn = document.getElementById('btn-flag-revision');
+      const txt = document.getElementById('btn-flag-revision-text');
+      btn.disabled = true;
+      txt.textContent = '記錄中...';
+
+      try {
+        appState.revisions = await callGasPost({
+          action: 'addRevision',
+          revision: {
+            cardId: card._id,
+            sheetName: topic.Sheet_Name,
+            rowIndex: card._rowIndex,
+            colBData: colBData
+          }
+        });
+        updateRevisionBadge();
+        updateFlagButtonState(topic.Sheet_Name, card._rowIndex);
+      } catch (err) {
+        alert('標記修訂失敗：' + err.message);
+        txt.textContent = '標記修訂';
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    function nextCard() {
+      currentStudy.isRetryMode = false;
+      if (currentStudy.currentIndex + 1 < currentStudy.queue.length) {
+        currentStudy.currentIndex += 1;
+        renderCurrentFlashcard();
+      } else {
+        alert('🎉 恭喜完成本輪所有卡片練習！');
+        switchView('home');
+      }
+    }
+
+    // =========================================================================
+    // 8. 成果展示：逆時針環日本地圖與具象化地標向量插畫引擎
+    // =========================================================================
+    function selectCharacter(gender) {
+      appState.travel.character = gender;
+      const startKey = `loop${appState.travel.loop}_tokyo_start`;
+      if (!appState.travel.unlockedMilestones[startKey]) {
+        appState.travel.unlockedMilestones[startKey] = {
+          unlockedAt: new Date().toLocaleDateString(),
+          customPhoto: ''
+        };
+      }
+      closeModal('modal-character');
+      updateTravelUI();
+      callGasPost({ action: 'saveTravel', travel: appState.travel });
+    }
+
+    function openCharacterModal() { openModal('modal-character'); }
+
+    function checkTravelMilestones(km) {
+      const loop = appState.travel.loop;
+      for (const stop of JAPAN_ROUTE) {
+        const key = `loop${loop}_${stop.id}`;
+        if (km >= stop.km && !appState.travel.unlockedMilestones[key]) {
+          appState.travel.unlockedMilestones[key] = {
+            unlockedAt: new Date().toLocaleDateString(),
+            customPhoto: ''
+          };
+          document.getElementById('unlock-city-name').textContent = stop.name;
+          document.getElementById('unlock-city-desc').textContent = stop.desc;
+          document.getElementById('unlock-illustration').innerHTML = generatePostcardSVG(stop, '');
+          openModal('modal-milestone-unlock');
+        }
+      }
+      if (km >= 3000) {
+        appState.travel.loop += 1;
+        appState.travel.currentKm = 0;
+        const nextStartKey = `loop${appState.travel.loop}_tokyo_start`;
+        appState.travel.unlockedMilestones[nextStartKey] = {
+          unlockedAt: new Date().toLocaleDateString(),
+          customPhoto: ''
+        };
+      }
+    }
+
+    function initMapNodes() {
+      const routePoints = JAPAN_ROUTE.map(s => `${s.x},${s.y}`).join(' ');
+      document.getElementById('map-route-line').setAttribute('points', routePoints);
+      const nodesGroup = document.getElementById('map-nodes-group');
+      nodesGroup.innerHTML = JAPAN_ROUTE.map(stop => `
         <g>
           <circle id="node-${stop.id}" cx="${stop.x}" cy="${stop.y}" r="4.5" fill="#94a3b8" stroke="#ffffff" stroke-width="1.5">
             <title>${stop.name} (${stop.km} km)</title>
           </circle>
         </g>
       `).join('');
-		}
+    }
 
-		function updateHeaderKm() {
-			document.getElementById('header-km').textContent = appState.travel.currentKm;
-		}
+    function updateHeaderKm() {
+      document.getElementById('header-km').textContent = appState.travel.currentKm;
+    }
 
-		function updateTravelUI() {
-			const { character, loop, currentKm, unlockedMilestones } = appState.travel;
-			updateHeaderKm();
+    function updateTravelUI() {
+      const { character, loop, currentKm, unlockedMilestones } = appState.travel;
+      updateHeaderKm();
 
-			const emoji = character === 'female' ? '👧' : '👦';
-			document.getElementById('travel-avatar-display').textContent = emoji;
-			document.getElementById('map-player-emoji').textContent = emoji;
-			document.getElementById('travel-loop').textContent = loop;
-			document.getElementById('travel-km').textContent = currentKm;
+      const emoji = character === 'female' ? '👧' : '👦';
+      document.getElementById('travel-avatar-display').textContent = emoji;
+      document.getElementById('map-player-emoji').textContent = emoji;
+      document.getElementById('travel-loop').textContent = loop;
+      document.getElementById('travel-km').textContent = currentKm;
 
-			let currentStopIdx = 0;
-			for (let i = 0; i < JAPAN_ROUTE.length; i++) {
-				if (currentKm >= JAPAN_ROUTE[i].km) currentStopIdx = i;
-				else break;
-			}
+      let currentStopIdx = 0;
+      for (let i = 0; i < JAPAN_ROUTE.length; i++) {
+        if (currentKm >= JAPAN_ROUTE[i].km) currentStopIdx = i;
+        else break;
+      }
 
-			const currStop = JAPAN_ROUTE[currentStopIdx];
-			const nextStop = JAPAN_ROUTE[Math.min(currentStopIdx + 1, JAPAN_ROUTE.length - 1)];
-			document.getElementById('travel-current-location').textContent = currStop.name;
-			document.getElementById('travel-next-name').textContent = nextStop.name;
-			document.getElementById('travel-next-remain').textContent = Math.max(0, nextStop.km - currentKm);
+      const currStop = JAPAN_ROUTE[currentStopIdx];
+      const nextStop = JAPAN_ROUTE[Math.min(currentStopIdx + 1, JAPAN_ROUTE.length - 1)];
+      document.getElementById('travel-current-location').textContent = currStop.name;
+      document.getElementById('travel-next-name').textContent = nextStop.name;
+      document.getElementById('travel-next-remain').textContent = Math.max(0, nextStop.km - currentKm);
 
-			let px = currStop.x;
-			let py = currStop.y;
-			if (nextStop.km > currStop.km) {
-				const ratio = (currentKm - currStop.km) / (nextStop.km - currStop.km);
-				px = currStop.x + (nextStop.x - currStop.x) * ratio;
-				py = currStop.y + (nextStop.y - currStop.y) * ratio;
-			}
-			document.getElementById('map-player-marker').setAttribute('transform', `translate(${px}, ${py})`);
+      let px = currStop.x;
+      let py = currStop.y;
+      if (nextStop.km > currStop.km) {
+        const ratio = (currentKm - currStop.km) / (nextStop.km - currStop.km);
+        px = currStop.x + (nextStop.x - currStop.x) * ratio;
+        py = currStop.y + (nextStop.y - currStop.y) * ratio;
+      }
+      document.getElementById('map-player-marker').setAttribute('transform', `translate(${px}, ${py})`);
 
-			const passedPoints = JAPAN_ROUTE.slice(0, currentStopIdx + 1).map(s => `${s.x},${s.y}`);
-			passedPoints.push(`${px},${py}`);
-			document.getElementById('map-progress-line').setAttribute('points', passedPoints.join(' '));
+      const passedPoints = JAPAN_ROUTE.slice(0, currentStopIdx + 1).map(s => `${s.x},${s.y}`);
+      passedPoints.push(`${px},${py}`);
+      document.getElementById('map-progress-line').setAttribute('points', passedPoints.join(' '));
 
-			let unlockedCount = 0;
-			JAPAN_ROUTE.forEach(stop => {
-				const isUnlocked = Boolean(unlockedMilestones[`loop${loop}_${stop.id}`]);
-				if (isUnlocked) unlockedCount++;
-				const circle = document.getElementById(`node-${stop.id}`);
-				if (circle) {
-					circle.setAttribute('fill', isUnlocked ? '#f59e0b' : '#94a3b8');
-					circle.setAttribute('r', isUnlocked ? '5.5' : '4');
-				}
-			});
-			document.getElementById('travel-unlocked-count').textContent = unlockedCount;
+      let unlockedCount = 0;
+      JAPAN_ROUTE.forEach(stop => {
+        const isUnlocked = Boolean(unlockedMilestones[`loop${loop}_${stop.id}`]);
+        if (isUnlocked) unlockedCount++;
+        const circle = document.getElementById(`node-${stop.id}`);
+        if (circle) {
+          circle.setAttribute('fill', isUnlocked ? '#f59e0b' : '#94a3b8');
+          circle.setAttribute('r', isUnlocked ? '5.5' : '4');
+        }
+      });
+      document.getElementById('travel-unlocked-count').textContent = unlockedCount;
 
-			const album = document.getElementById('milestones-album');
-			album.innerHTML = JAPAN_ROUTE.map(stop => {
-				const key = `loop${loop}_${stop.id}`;
-				const record = unlockedMilestones[key];
-				if (!record) {
-					return `
+      const album = document.getElementById('milestones-album');
+      album.innerHTML = JAPAN_ROUTE.map(stop => {
+        const key = `loop${loop}_${stop.id}`;
+        const record = unlockedMilestones[key];
+        if (!record) {
+          return `
             <div class="border border-slate-200 rounded-xl p-3 bg-slate-50 flex items-center justify-between opacity-60">
               <div class="flex items-center gap-3">
                 <div class="w-12 h-12 rounded-lg bg-slate-200 flex items-center justify-center text-slate-400 font-bold text-xs">🔒</div>
@@ -1328,8 +1453,8 @@
               </div>
             </div>
           `;
-				}
-				return `
+        }
+        return `
           <div class="border border-amber-200 rounded-2xl overflow-hidden bg-amber-50/30 shadow-sm">
             <div class="h-36 w-full relative">
               ${generatePostcardSVG(stop, record.customPhoto)}
@@ -1347,96 +1472,78 @@
             </div>
           </div>
         `;
-			}).join('');
-		}
+      }).join('');
+    }
 
-		// 具象化各地區代表性向量插畫生成器 (SVG)
-		function generatePostcardSVG(stop, customPhotoBase64) {
-			if (customPhotoBase64) {
-				return `<img src="${customPhotoBase64}" alt="${stop.name}" class="w-full h-full object-cover">`;
-			}
-			const [c1, c2] = stop.colors || ['#4f46e5', '#c7d2fe'];
-			let landmarkLayer = '';
+    function generatePostcardSVG(stop, customPhotoBase64) {
+      if (customPhotoBase64) {
+        return `<img src="${customPhotoBase64}" alt="${stop.name}" class="w-full h-full object-cover">`;
+      }
+      const [c1, c2] = stop.colors || ['#4f46e5', '#c7d2fe'];
+      let landmarkLayer = '';
 
-			switch (stop.scene) {
-				case 'tokyo_tower': // 東京鐵塔 + 晴空塔 + 城市剪影
-					landmarkLayer = `
+      switch (stop.scene) {
+        case 'tokyo_tower':
+          landmarkLayer = `
             <rect x="0" y="125" width="400" height="35" fill="#1e293b" opacity="0.6" />
             <rect x="40" y="95" width="22" height="35" fill="#334155" />
             <rect x="70" y="80" width="28" height="50" fill="#1e293b" />
             <rect x="115" y="102" width="24" height="28" fill="#334155" />
-            <!-- 東京鐵塔 -->
             <polygon points="210,128 228,45 234,45 252,128" fill="#ef4444" stroke="#ffffff" stroke-width="1.5" />
             <line x1="231" y1="22" x2="231" y2="45" stroke="#ffffff" stroke-width="2.5" />
             <rect x="220" y="72" width="22" height="5" fill="#ffffff" />
             <rect x="215" y="98" width="32" height="6" fill="#ffffff" />
-            <!-- 晴空塔 -->
             <polygon points="315,128 322,35 326,35 333,128" fill="#e2e8f0" />
             <line x1="324" y1="12" x2="324" y2="35" stroke="#ffffff" stroke-width="2" />
             <ellipse cx="324" cy="60" rx="10" ry="3" fill="#38bdf8" />
           `;
-					break;
-
-				case 'fuji': // 富士山 + 冠雪 + 湖面倒影（逆富士）
-					landmarkLayer = `
+          break;
+        case 'fuji':
+          landmarkLayer = `
             <rect x="0" y="110" width="400" height="50" fill="#1e3a8a" opacity="0.45" />
-            <!-- 富士山主體 -->
             <polygon points="115,110 215,32 245,32 345,110" fill="#1e293b" />
-            <!-- 山頂白雪 -->
             <polygon points="184,56 215,32 245,32 276,56 258,64 244,54 230,66 216,54 202,64" fill="#ffffff" />
-            <!-- 湖面逆富士倒影 -->
             <polygon points="150,110 218,155 242,155 310,110" fill="#ffffff" opacity="0.25" />
             <path d="M40,122 Q80,118 120,122 M290,128 Q330,124 370,128" stroke="#ffffff" stroke-width="1.5" opacity="0.5" fill="none" />
           `;
-					break;
-
-				case 'sea_torii': // 海上朱紅大鳥居 + 波浪
-					landmarkLayer = `
+          break;
+        case 'sea_torii':
+          landmarkLayer = `
             <rect x="0" y="108" width="400" height="52" fill="#0369a1" opacity="0.5" />
             <path d="M0,118 Q50,112 100,118 T200,118 T300,118 T400,118" stroke="#ffffff" stroke-width="2" opacity="0.6" fill="none" />
-            <!-- 朱紅鳥居 -->
             <rect x="205" y="52" width="9" height="68" fill="#dc2626" />
             <rect x="266" y="52" width="9" height="68" fill="#dc2626" />
             <path d="M185,46 Q240,54 295,46 L292,55 Q240,61 188,55 Z" fill="#b91c1c" />
             <rect x="195" y="68" width="90" height="6" fill="#dc2626" />
             <rect x="236" y="54" width="8" height="14" fill="#1e293b" />
           `;
-					break;
-
-				case 'torii_gate': // 參道鳥居 + 神社石燈籠
-					landmarkLayer = `
+          break;
+        case 'torii_gate':
+          landmarkLayer = `
             <rect x="0" y="122" width="400" height="38" fill="#334155" opacity="0.35" />
-            <!-- 大鳥居 -->
             <rect x="190" y="45" width="11" height="80" fill="#dc2626" />
             <rect x="279" y="45" width="11" height="80" fill="#dc2626" />
             <path d="M170,38 Q240,48 310,38 L306,48 Q240,56 174,48 Z" fill="#991b1b" />
             <rect x="180" y="64" width="120" height="7" fill="#dc2626" />
-            <!-- 石燈籠 -->
             <rect x="135" y="95" width="10" height="30" fill="#cbd5e1" />
             <polygon points="128,95 140,84 152,95" fill="#94a3b8" />
             <rect x="136" y="88" width="8" height="7" fill="#fef08a" />
           `;
-					break;
-
-				case 'castle': // 日本名城天守閣（多層飛簷 + 石垣）
-					landmarkLayer = `
-            <!-- 石垣底座 -->
+          break;
+        case 'castle':
+          landmarkLayer = `
             <polygon points="165,135 182,102 298,102 315,135" fill="#475569" />
-            <!-- 第一層 -->
             <rect x="192" y="82" width="96" height="20" fill="#ffffff" />
             <polygon points="178,84 240,68 302,84" fill="#1e293b" />
-            <!-- 第二層 -->
             <rect x="206" y="62" width="68" height="16" fill="#ffffff" />
             <polygon points="194,64 240,50 286,64" fill="#1e293b" />
-            <!-- 天守頂層 + 金鯱 -->
             <rect x="220" y="43" width="40" height="14" fill="#ffffff" />
             <polygon points="210,45 240,30 270,45" fill="#1e293b" />
             <path d="M222,33 L225,24 L229,33 M258,33 L255,24 L251,33" stroke="#facc15" stroke-width="2.5" fill="none" />
           `;
-					break;
-
-				case 'pagoda': // 五重塔 / 佛塔
-					landmarkLayer = `
+          break;
+        case 'pagoda':
+          landmarkLayer = `
             <rect x="0" y="128" width="400" height="32" fill="#1e293b" opacity="0.3" />
             <rect x="228" y="38" width="24" height="92" fill="#b91c1c" />
             <polygon points="200,115 240,104 280,115" fill="#1e293b" />
@@ -1446,143 +1553,116 @@
             <polygon points="220,47 240,36 260,47" fill="#1e293b" />
             <line x1="240" y1="15" x2="240" y2="38" stroke="#facc15" stroke-width="2.5" />
           `;
-					break;
-
-				case 'gassho': // 白川鄉合掌造茅草屋
-					landmarkLayer = `
+          break;
+        case 'gassho':
+          landmarkLayer = `
             <rect x="0" y="124" width="400" height="36" fill="#14532d" opacity="0.4" />
-            <!-- 主合掌造 -->
             <polygon points="175,124 235,45 295,124" fill="#78350f" stroke="#fef3c7" stroke-width="2" />
             <polygon points="195,124 235,70 275,124" fill="#fef3c7" />
             <rect x="222" y="92" width="10" height="10" fill="#451a03" />
             <rect x="238" y="92" width="10" height="10" fill="#451a03" />
-            <!-- 遠處小合掌造 -->
             <polygon points="95,124 130,78 165,124" fill="#92400e" />
           `;
-					break;
-
-				case 'onsen': // 溫泉湯屋 + 溫泉符號 ♨ + 湯煙
-					landmarkLayer = `
+          break;
+        case 'onsen':
+          landmarkLayer = `
             <rect x="0" y="122" width="400" height="38" fill="#1e293b" opacity="0.35" />
-            <!-- 木造溫泉旅館 -->
             <rect x="175" y="75" width="130" height="48" fill="#78350f" />
             <polygon points="162,76 240,48 318,76" fill="#1e293b" />
             <rect x="195" y="88" width="22" height="18" fill="#fef08a" />
             <rect x="230" y="88" width="22" height="18" fill="#fef08a" />
             <rect x="265" y="88" width="22" height="18" fill="#fef08a" />
-            <!-- 溫泉熱氣 ♨ -->
             <path d="M115,105 Q108,92 115,80 M130,105 Q123,92 130,80 M145,105 Q138,92 145,80" stroke="#ffffff" stroke-width="3" stroke-linecap="round" fill="none" />
             <ellipse cx="130" cy="114" rx="28" ry="8" fill="#38bdf8" opacity="0.8" />
           `;
-					break;
-
-				case 'volcano': // 櫻島火山 + 噴煙 + 錦江灣
-					landmarkLayer = `
+          break;
+        case 'volcano':
+          landmarkLayer = `
             <rect x="0" y="118" width="400" height="42" fill="#0c4a6e" opacity="0.5" />
             <polygon points="120,118 225,52 255,52 360,118" fill="#334155" />
-            <!-- 火山噴煙 -->
             <circle cx="240" cy="40" r="12" fill="#f1f5f9" opacity="0.85" />
             <circle cx="255" cy="30" r="16" fill="#e2e8f0" opacity="0.75" />
             <circle cx="275" cy="24" r="14" fill="#cbd5e1" opacity="0.6" />
           `;
-					break;
-
-				case 'okinawa': // 沖繩首里城守禮門 + 珊瑚海 + 棕櫚樹
-					landmarkLayer = `
+          break;
+        case 'okinawa':
+          landmarkLayer = `
             <rect x="0" y="118" width="400" height="42" fill="#06b6d4" opacity="0.65" />
-            <!-- 守禮門 -->
             <rect x="195" y="65" width="8" height="54" fill="#dc2626" />
             <rect x="277" y="65" width="8" height="54" fill="#dc2626" />
             <polygon points="175,66 240,46 305,66" fill="#b91c1c" />
             <polygon points="185,53 240,38 295,53" fill="#991b1b" />
             <rect x="224" y="64" width="32" height="10" fill="#fef08a" />
-            <!-- 棕櫚樹 -->
             <path d="M125,118 Q130,85 120,62" stroke="#78350f" stroke-width="5" fill="none" />
             <path d="M120,62 Q95,55 88,72 M120,62 Q105,42 125,38 M120,62 Q145,50 152,68" stroke="#16a34a" stroke-width="4" fill="none" />
           `;
-					break;
-
-				case 'lighthouse': // 海岸懸崖 + 白色燈塔 + 燈光束
-					landmarkLayer = `
+          break;
+        case 'lighthouse':
+          landmarkLayer = `
             <rect x="0" y="118" width="400" height="42" fill="#0284c7" opacity="0.5" />
             <polygon points="210,125 235,88 330,88 360,125" fill="#475569" />
-            <!-- 燈塔 -->
             <polygon points="265,88 271,36 283,36 289,88" fill="#ffffff" />
             <rect x="271" y="28" width="12" height="8" fill="#ef4444" />
-            <!-- 燈光束 -->
             <polygon points="271,32 130,15 130,52" fill="#fef08a" opacity="0.35" />
           `;
-					break;
-
-				case 'bridge': // 跨海大橋（角島大橋 / 瀨戶大橋 / 鳴門大橋）
-					landmarkLayer = `
+          break;
+        case 'bridge':
+          landmarkLayer = `
             <rect x="0" y="108" width="400" height="52" fill="#0891b2" opacity="0.55" />
-            <!-- 橋塔 -->
             <rect x="155" y="45" width="7" height="75" fill="#ffffff" />
             <rect x="295" y="45" width="7" height="75" fill="#ffffff" />
-            <!-- 橋面與懸索 -->
             <line x1="60" y1="95" x2="380" y2="95" stroke="#ffffff" stroke-width="4" />
             <path d="M90,95 Q158,48 228,92 Q298,48 365,95" stroke="#ffffff" stroke-width="1.8" fill="none" />
           `;
-					break;
-
-				case 'waterfall': // 山谷飛瀑（高千穗峽 / 那智瀑布）
-					landmarkLayer = `
+          break;
+        case 'waterfall':
+          landmarkLayer = `
             <polygon points="120,160 175,35 285,35 340,160" fill="#14532d" opacity="0.7" />
-            <!-- 白色瀑布水流 -->
             <rect x="218" y="38" width="24" height="105" fill="#e0f2fe" />
             <line x1="224" y1="42" x2="224" y2="140" stroke="#ffffff" stroke-width="2" stroke-dasharray="6 4" />
             <line x1="236" y1="45" x2="236" y2="142" stroke="#ffffff" stroke-width="2" stroke-dasharray="8 4" />
             <ellipse cx="230" cy="144" rx="34" ry="8" fill="#ffffff" opacity="0.7" />
           `;
-					break;
-
-				case 'hokkaido': // 北海道時計台 + 針葉林
-					landmarkLayer = `
+          break;
+        case 'hokkaido':
+          landmarkLayer = `
             <rect x="0" y="125" width="400" height="35" fill="#f8fafc" opacity="0.8" />
-            <!-- 時計台 -->
             <rect x="200" y="72" width="80" height="53" fill="#ffffff" />
             <polygon points="192,72 240,48 288,72" fill="#dc2626" />
             <rect x="230" y="32" width="20" height="22" fill="#ffffff" />
             <polygon points="227,32 240,18 253,32" fill="#dc2626" />
             <circle cx="240" cy="42" r="6" fill="#1e293b" />
-            <!-- 針葉樹 -->
             <polygon points="135,125 150,75 165,125" fill="#065f46" />
             <polygon points="310,125 325,80 340,125" fill="#065f46" />
           `;
-					break;
-
-				case 'yokohama': // 橫濱港未來摩天輪 + 海港帆船
-					landmarkLayer = `
+          break;
+        case 'yokohama':
+          landmarkLayer = `
             <rect x="0" y="122" width="400" height="38" fill="#1e3a8a" opacity="0.5" />
-            <!-- 摩天輪 -->
             <circle cx="255" cy="75" r="38" fill="none" stroke="#ffffff" stroke-width="3" />
             <circle cx="255" cy="75" r="26" fill="none" stroke="#38bdf8" stroke-width="1.5" />
             <polygon points="232,122 255,75 278,122" fill="none" stroke="#ffffff" stroke-width="2.5" />
-            <!-- 帆船建築 -->
             <path d="M170,122 L170,52 Q205,82 195,122 Z" fill="#e2e8f0" />
           `;
-					break;
-
-				case 'kobe_tower': // 神戶港塔（雙曲面紅色塔身）
-					landmarkLayer = `
+          break;
+        case 'kobe_tower':
+          landmarkLayer = `
             <rect x="0" y="124" width="400" height="36" fill="#0f172a" opacity="0.45" />
             <path d="M225,124 Q236,75 228,32 L252,32 Q244,75 255,124 Z" fill="#ef4444" stroke="#ffffff" stroke-width="1.5" />
             <rect x="224" y="25" width="32" height="8" rx="2" fill="#ffffff" />
             <line x1="240" y1="12" x2="240" y2="25" stroke="#ffffff" stroke-width="2" />
           `;
-					break;
-
-				default: // 經典日本山巒、五重剪影與櫻花雲彩
-					landmarkLayer = `
+          break;
+        default:
+          landmarkLayer = `
             <path d="M0,160 L110,72 L210,160 Z" fill="#0f172a" opacity="0.2" />
             <path d="M160,160 L275,55 L400,160 Z" fill="#0f172a" opacity="0.3" />
             <circle cx="135" cy="68" r="14" fill="#fbcfe8" opacity="0.7" />
             <circle cx="152" cy="74" r="11" fill="#f9a8d4" opacity="0.7" />
           `;
-			}
+      }
 
-			return `
+      return `
         <svg viewBox="0 0 400 160" class="w-full h-full preserve-3d">
           <defs>
             <linearGradient id="grad-${stop.id}" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -1591,11 +1671,8 @@
             </linearGradient>
           </defs>
           <rect width="400" height="160" fill="url(#grad-${stop.id})" />
-          <!-- 太陽 / 明月 -->
           <circle cx="345" cy="38" r="20" fill="#ffffff" opacity="0.4" />
-          <!-- 具象地標插畫層 -->
           ${landmarkLayer}
-          <!-- 文字標題壓底漸層保護 -->
           <rect x="0" y="118" width="400" height="42" fill="#0f172a" opacity="0.35" />
           <text x="16" y="145" fill="#ffffff" font-weight="bold" font-size="16" style="text-shadow: 0 2px 4px rgba(0,0,0,0.6);">
             ${stop.name}
@@ -1605,41 +1682,40 @@
           </text>
         </svg>
       `;
-		}
+    }
 
-		function handleCustomPhotoUpload(event, milestoneKey) {
-			const file = event.target.files[0];
-			if (!file) return;
-			const reader = new FileReader();
-			reader.onload = function (e) {
-				const img = new Image();
-				img.onload = function () {
-					const canvas = document.createElement('canvas');
-					const maxW = 480;
-					const scale = Math.min(1, maxW / img.width);
-					canvas.width = img.width * scale;
-					canvas.height = img.height * scale;
-					const ctx = canvas.getContext('2d');
-					ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    function handleCustomPhotoUpload(event, milestoneKey) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        const img = new Image();
+        img.onload = function () {
+          const canvas = document.createElement('canvas');
+          const maxW = 480;
+          const scale = Math.min(1, maxW / img.width);
+          canvas.width = img.width * scale;
+          canvas.height = img.height * scale;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
-					const compressedBase64 = canvas.toDataURL('image/jpeg', 0.65);
-					appState.travel.unlockedMilestones[milestoneKey].customPhoto = compressedBase64;
-					updateTravelUI();
-					callGasPost({ action: 'saveTravel', travel: appState.travel });
-				};
-				img.src = e.target.result;
-			};
-			reader.readAsDataURL(file);
-		}
+          const compressedBase64 = canvas.toDataURL('image/jpeg', 0.65);
+          appState.travel.unlockedMilestones[milestoneKey].customPhoto = compressedBase64;
+          updateTravelUI();
+          callGasPost({ action: 'saveTravel', travel: appState.travel });
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
 
-		function escapeHtml(str) {
-			return String(str)
-				.replace(/&/g, '&amp;')
-				.replace(/</g, '&lt;')
-				.replace(/>/g, '&gt;')
-				.replace(/"/g, '&quot;');
-		}
-	</script>
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+  </script>
 </body>
-
 </html>
