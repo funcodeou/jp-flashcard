@@ -61,6 +61,12 @@
     .btn-usumizu:hover {
       background-color: #a9d7df;
     }
+    /* 灰底提示文字浮水印樣式 */
+    #cloze-input::placeholder {
+      color: #94a3b8;
+      opacity: 0.65;
+      font-weight: 500;
+    }
   </style>
 </head>
 <body class="min-h-screen flex flex-col">
@@ -74,12 +80,10 @@
       </div>
 
       <div class="flex items-center gap-2 text-sm">
-        <!-- 純家圖示按鈕 -->
         <button type="button" onclick="switchView('home')" id="nav-home" class="w-9 h-9 rounded-xl bg-white/20 hover:bg-white/30 transition flex items-center justify-center text-base" title="首頁">
           🏠
         </button>
 
-        <!-- 座標圖示 + 目前所在地名稱（例如：東京） -->
         <button type="button" onclick="switchView('travel')" id="nav-travel" style="background-color: var(--usumizuiro); color: var(--ink-deep);" class="px-3 py-1.5 rounded-xl font-bold hover:opacity-90 transition flex items-center gap-1.5 shadow-sm" title="查看環日本地圖與進度">
           <svg viewBox="0 0 24 24" class="w-4 h-4 shrink-0" fill="#e11d48" aria-hidden="true">
             <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5S13.38 11.5 12 11.5z"/>
@@ -87,7 +91,6 @@
           <span id="header-location" class="tracking-wide">東京</span>
         </button>
 
-        <!-- 操作手冊與鎖鏈連線按鈕並排於最右側 -->
         <div class="flex items-center gap-1.5 pl-1.5 border-l border-white/30">
           <button type="button" onclick="openModal('modal-manual')" class="w-9 h-9 rounded-xl bg-white/20 hover:bg-white/30 transition flex items-center justify-center text-base" title="操作手冊">
             📖
@@ -147,7 +150,27 @@
 
         <div id="format-warning-box" class="hidden bg-rose-50 border border-rose-200 text-rose-700 text-xs p-3 rounded-xl"></div>
 
-        <div class="space-y-2.5">
+        <!-- 最上方：純圖示三段模式切換器（🚗 盲測 ／ 🏃 暖身練習 ／ 🚴 輔助推進） -->
+        <div class="grid grid-cols-3 gap-3" id="assist-mode-selector">
+          <button type="button" data-mode="blind" onclick="selectAssistMode('blind')"
+            class="assist-mode-btn h-14 rounded-2xl border-2 transition flex items-center justify-center text-2xl shadow-sm"
+            title="盲測挑戰（無提示｜答對 +1 km ／ 答錯 -1 km）">
+            🚗
+          </button>
+          <button type="button" data-mode="warmup" onclick="selectAssistMode('warmup')"
+            class="assist-mode-btn h-14 rounded-2xl border-2 transition flex items-center justify-center text-2xl"
+            title="暖身練習（灰底答案提示｜不計里程 0 km）">
+            🏃
+          </button>
+          <button type="button" data-mode="assist" onclick="selectAssistMode('assist')"
+            class="assist-mode-btn h-14 rounded-2xl border-2 transition flex items-center justify-center text-2xl"
+            title="輔助推進（灰底答案提示｜答對 +0.5 km ／ 答錯 -1 km）">
+            🚴
+          </button>
+        </div>
+
+        <!-- 練習順序與進度模式 -->
+        <div style="border-color: var(--usumizuiro);" class="space-y-2.5 border-t pt-4">
           <label class="block text-sm font-bold">1. 選擇練習順序與進度模式：</label>
           <label style="border-color: var(--usumizuiro);" class="flex items-center gap-3 p-3 border rounded-xl cursor-pointer hover:bg-[#f3f9fb]">
             <input type="radio" name="filterMode" value="resume" checked onchange="updateFilterMatchCount()" class="w-4 h-4 accent-[#6894c8]">
@@ -186,6 +209,7 @@
           </label>
         </div>
 
+        <!-- 指定單一欄位項目複選篩選 -->
         <div style="border-color: var(--usumizuiro);" class="space-y-2.5 border-t pt-4">
           <div class="flex items-center justify-between">
             <label class="block text-sm font-bold">2. 指定欄位分類篩選（選填，單選一欄）：</label>
@@ -214,7 +238,6 @@
 
     <!-- ==================== 3. 閃卡練習介面 ==================== -->
     <section id="view-study" class="hidden max-w-2xl mx-auto space-y-4">
-      <!-- 卡片資訊列：迴轉返回純圖示 + 進度 + 肌肉圖示練習次數/打勾答對/打叉答錯 -->
       <div style="border-color: var(--usumizuiro);" class="flex items-center justify-between text-sm bg-white px-4 py-2.5 rounded-xl border-2 shadow-sm">
         <button type="button" onclick="switchView('home')" class="btn-usumizu w-9 h-9 rounded-xl transition flex items-center justify-center" title="結束返回首頁">
           <svg viewBox="0 0 24 24" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
@@ -236,25 +259,32 @@
 
       <div id="flashcard-container" onclick="handleCardBackgroundClick(event)" style="border-color: var(--mizuiro);" class="bg-white rounded-3xl shadow-lg border-2 p-6 md:p-8 min-h-[340px] flex flex-col justify-between cursor-pointer transition relative">
         <div id="card-front" class="space-y-6">
-          <div class="flex justify-between items-center">
+          <!-- 左上角標籤列 + 「出題卡片」正下方的圓圈實心三角形播放答題鈕 -->
+          <div class="flex flex-col items-start gap-2.5">
             <div class="flex items-center gap-2">
               <span style="background-color: var(--usumizuiro); color: var(--ink-deep);" class="px-2.5 py-1 text-xs font-bold rounded-lg">出題卡片</span>
-              <span id="retry-mode-badge" style="background-color: var(--sorairo); color: #1e354d;" class="hidden px-2.5 py-1 text-xs font-bold rounded-lg">🔄 重新作答中（對 +1 / 錯 -2）</span>
+              <span id="study-mode-badge" style="background-color: var(--bg-tint); border-color: var(--mizuiro);" class="px-2.5 py-0.5 text-sm border rounded-lg" title="當前作答模式">🚗</span>
+              <span id="retry-mode-badge" style="background-color: var(--sorairo); color: #1e354d;" class="hidden px-2.5 py-0.5 text-sm font-bold rounded-lg" title="重新作答">🔄</span>
             </div>
-            <span class="text-xs text-slate-400">💡 點擊空白處可直接看答案</span>
+
+            <!-- 圓圈內實心三角形播放按鈕圖示（放在「出題卡片」名稱的正下方，無文字） -->
+            <button type="button" id="btn-submit-answer" onclick="submitClozeAnswer(event)"
+              class="btn-misora w-10 h-10 rounded-full shadow-md transition flex items-center justify-center hover:scale-105 active:scale-95"
+              title="送出回答">
+              <svg viewBox="0 0 24 24" class="w-6 h-6" fill="none" aria-hidden="true">
+                <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" />
+                <polygon points="10,8 17,12 10,16" fill="currentColor" />
+              </svg>
+            </button>
           </div>
 
+          <!-- 上方：克漏字題目區 -->
           <div class="py-4 text-center">
             <div id="card-question-area" class="japanese-text text-xl md:text-2xl font-bold leading-relaxed flex flex-wrap items-center justify-center gap-1.5"></div>
           </div>
 
+          <!-- 下方：提示欄位區 -->
           <div id="card-hints-area" style="background-color: var(--bg-tint); border-color: var(--usumizuiro);" class="rounded-xl p-4 space-y-1.5 text-sm border"></div>
-
-          <div class="pt-2 flex justify-center">
-            <button id="btn-submit-answer" onclick="submitClozeAnswer(event)" class="btn-misora px-10 py-3 font-bold rounded-xl shadow-md transition">
-              回答
-            </button>
-          </div>
         </div>
 
         <div id="card-back" class="hidden space-y-5 cursor-default" onclick="event.stopPropagation()">
@@ -281,7 +311,7 @@
           <div id="card-answers-area" style="background-color: var(--bg-tint); border-color: var(--usumizuiro);" class="rounded-xl p-4 space-y-2 text-sm border"></div>
 
           <div class="pt-2 flex flex-wrap items-center justify-between gap-3">
-            <button type="button" onclick="retryCurrentCard()" class="btn-sora px-5 py-3 font-bold rounded-xl transition flex items-center gap-1.5 text-sm" title="重新作答（答對 +1 km，答錯 -2 km）">
+            <button type="button" onclick="retryCurrentCard()" class="btn-sora px-5 py-3 font-bold rounded-xl transition flex items-center gap-1.5 text-sm" title="重新作答">
               <span>🔄</span> 重新作答
             </button>
             <button type="button" onclick="nextCard()" class="btn-misora px-8 py-3 font-bold rounded-xl shadow transition">
@@ -302,7 +332,6 @@
               <span style="background-color: var(--sorairo); color: #1e354d;" class="px-2.5 py-0.5 font-bold text-xs rounded-full">第 <span id="travel-loop">1</span> 圈環島中</span>
               <button onclick="openCharacterModal()" style="color: var(--misorairo);" class="text-xs font-bold hover:underline">切換角色</button>
             </div>
-            <!-- 目前位置改用座標圖示，移除「目前位置：」文字 -->
             <h2 class="text-xl font-bold mt-1 flex items-center gap-1.5">
               <svg viewBox="0 0 24 24" class="w-5 h-5 shrink-0" fill="#e11d48" aria-hidden="true">
                 <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5S13.38 11.5 12 11.5z"/>
@@ -323,7 +352,7 @@
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
         <div style="background-color: #eaf5f8; border-color: var(--mizuiro);" class="lg:col-span-7 rounded-2xl border-2 p-4 shadow-inner flex flex-col items-center justify-center relative overflow-hidden">
           <div class="absolute top-3 left-3 bg-white/90 backdrop-blur px-3 py-1.5 rounded-xl text-xs font-bold shadow-sm">
-            📍 逆時針環日本路線圖（首答對 +1 / 首答錯 -1）
+            📍 逆時針環日本路線圖（🚗 +1/-1 ｜ 🚴 +0.5/-1 ｜ 🏃 0）
           </div>
           <svg id="japan-map-svg" viewBox="0 0 600 620" class="w-full h-auto max-h-[560px] select-none">
             <g fill="#ffffff" stroke="#94cad6" stroke-width="1.8">
@@ -496,31 +525,33 @@
 
       <div class="space-y-4 text-sm max-h-[65vh] overflow-y-auto pr-1 leading-relaxed">
         <div style="background-color: var(--bg-tint); border-color: var(--usumizuiro);" class="p-4 rounded-xl border space-y-1.5">
-          <h4 style="color: var(--misorairo);" class="font-bold">1. 導覽列與首頁圖示說明</h4>
+          <h4 style="color: var(--misorairo);" class="font-bold">1. 練習前三大輔助模式（🚗 ／ 🏃 ／ 🚴）</h4>
+          <ul class="list-disc pl-5 space-y-1 text-xs">
+            <li><strong>🚗（盲測挑戰）：</strong>輸入框全空白無提示。答對前進 <strong>+1 km</strong>，答錯或跳過後退 <strong>-1 km</strong>（重新作答答錯扣 2 km）。</li>
+            <li><strong>🏃（暖身練習）：</strong>輸入框底層以淺灰字顯示完整答案，打字時自動隱藏、清空時重新浮現。純練手感與輸入法，<strong>不計里程（0 km）</strong>。</li>
+            <li><strong>🚴（輔助推進）：</strong>同樣提供灰底完整答案提示，答對可前進 <strong>+0.5 km</strong>，答錯後退 <strong>-1 km</strong>（重新作答答錯扣 2 km）。</li>
+          </ul>
+        </div>
+
+        <div style="background-color: var(--bg-tint); border-color: var(--usumizuiro);" class="p-4 rounded-xl border space-y-1.5">
+          <h4 style="color: var(--misorairo);" class="font-bold">2. 導覽列與首頁圖示說明</h4>
           <ul class="list-disc pl-5 space-y-1 text-xs">
             <li><strong>🏠（首頁）：</strong>返回首頁查看所有複習主題。</li>
             <li><strong>📍（目前所在地）：</strong>顯示當前環日本抵達的縣市名稱，點擊可開啟逆時針環日本地圖與明信片相簿。</li>
             <li><strong>📖（操作手冊）／ 🔗（連線設定）：</strong>檢視使用說明，或設定 Google Apps Script 試算表 API 網址。</li>
-            <li><strong>＋（添加主題）：</strong>連結工作表，設定出題欄位（需含一組 <code>[ ]</code>）、提示欄位與答案展示欄位。</li>
-            <li><strong>✏️（編輯主題）：</strong>直接點擊主題卡片右上角鉛筆圖示，無須勾選即可重新調整欄位設定。</li>
+            <li><strong>＋（添加主題）／ ✏️（編輯主題）：</strong>連結工作表，設定出題欄位（需含一組 <code>[ ]</code>）、提示欄位與答案展示欄位。</li>
             <li><strong>🧹（清除勾選紀錄）／ 🗑️（刪除勾選主題）：</strong>勾選主題方框後點擊，可清除練習紀錄或移除主題卡片。</li>
-            <li><strong>🚩（標註修訂清單）：</strong>查看答案卡右上角標記為「需要修訂」的卡片（顯示工作表名稱、列號與 B 欄內容）。</li>
+            <li><strong>🚩（標註修訂清單）：</strong>查看答案卡右上角標記為「需要修訂」的卡片。</li>
           </ul>
         </div>
 
         <div style="background-color: var(--bg-tint); border-color: var(--usumizuiro);" class="p-4 rounded-xl border space-y-1.5">
-          <h4 style="color: var(--misorairo);" class="font-bold">2. 閃卡作答與重新作答計分規則</h4>
+          <h4 style="color: var(--misorairo);" class="font-bold">3. 閃卡資訊列與操作</h4>
           <ul class="list-disc pl-5 space-y-1 text-xs">
-            <li><strong>卡片資訊列圖示：</strong>左上角迴轉箭頭為結束返回首頁；右上角 <strong>💪</strong> 為累計練習次數、<strong>✓</strong> 為答對次數、<strong>✕</strong> 為答錯次數。</li>
-            <li><strong>一般作答：</strong>輸入克漏字 <code>[ ]</code> 內的文字後按「回答」或 <code>Enter</code>。字元 100% 完全相符才算答對（<strong>前進 +1 km</strong>）；答錯或點擊空白處直接看答案皆算答錯（<strong>後退 -1 km</strong>）。</li>
-            <li><strong>🔄 重新作答：</strong>在答案卡下方點擊「重新作答」可重新輸入本題。重新作答時若<strong>答對可加 1 分（+1 km）</strong>，若<strong>再次答錯則扣 2 分（-2 km）</strong>。</li>
-            <li><strong>🚩 標記修訂：</strong>若發現題目或翻譯有誤，可點擊答案卡右上角「🚩」圖示，系統會自動記錄工作表、第幾列與 B 欄內容。</li>
+            <li><strong>卡片資訊列：</strong>左上角迴轉箭頭為結束返回首頁；右上角 <strong>💪</strong> 為累計練習次數、<strong>✓</strong> 為答對次數、<strong>✕</strong> 為答錯次數。</li>
+            <li><strong>▶（圓形播放答題鈕）：</strong>位於「出題卡片」標籤正下方，輸入答案後點擊即可送出比對；點擊卡片空白處則可直接查看答案（計為答錯）。</li>
+            <li><strong>🔄 重新作答：</strong>在答案卡下方點擊「重新作答」可重新輸入本題。</li>
           </ul>
-        </div>
-
-        <div style="background-color: var(--bg-tint); border-color: var(--usumizuiro);" class="p-4 rounded-xl border space-y-1.5">
-          <h4 style="color: var(--misorairo);" class="font-bold">3. 逆時針環日本 47 都道府縣</h4>
-          <p class="text-xs">從東京出發（0 km），逆時針環繞北海道、日本海側、九州、沖繩、四國、關西、伊豆半島回到東京（總長 3,000 km），解鎖全部 47 都道府縣明信片並可替換成自己的旅行照片。</p>
         </div>
       </div>
 
@@ -530,14 +561,11 @@
     </div>
   </div>
 
-  <!-- ==================== 彈窗 6：待修訂卡片紀錄清單 ==================== -->
+  <!-- ==================== 彈窗 6：待修訂卡片紀錄清單（極簡並排單列版） ==================== -->
   <div id="modal-revisions" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
     <div style="border-color: var(--mizuiro);" class="bg-white rounded-2xl border-2 max-w-2xl w-full p-6 space-y-4 shadow-2xl my-8">
       <div style="border-color: var(--usumizuiro);" class="flex items-center justify-between border-b pb-3">
-        <div class="flex items-center gap-2">
-          <h3 class="text-lg font-bold">🚩 標註修訂卡片清單</h3>
-          <span class="text-xs text-slate-500">（同步儲存於試算表 _App_Revisions）</span>
-        </div>
+        <h3 class="text-lg font-bold">🚩 標註修訂卡片清單</h3>
         <button onclick="closeModal('modal-revisions')" class="text-slate-400 hover:text-slate-600">✕</button>
       </div>
 
@@ -634,11 +662,13 @@
       queue: [],
       currentIndex: 0,
       isAnswered: false,
-      isRetryMode: false
+      isRetryMode: false,
+      assistMode: 'blind' // 'blind' (🚗 +1/-1), 'warmup' (🏃 0/0 灰字提示), 'assist' (🚴 +0.5/-1 灰字提示)
     };
 
     window.addEventListener('DOMContentLoaded', () => {
       initMapNodes();
+      selectAssistMode('blind');
       if (!GAS_URL) {
         openApiModal();
       } else {
@@ -648,6 +678,22 @@
 
     function setLoading(show) {
       document.getElementById('loading-bar').classList.toggle('hidden', !show);
+    }
+
+    function selectAssistMode(mode) {
+      currentStudy.assistMode = mode;
+      document.querySelectorAll('.assist-mode-btn').forEach(btn => {
+        const isSelected = btn.dataset.mode === mode;
+        if (isSelected) {
+          btn.style.backgroundColor = 'var(--misorairo)';
+          btn.style.borderColor = 'var(--misora-dark)';
+          btn.classList.add('shadow-md', 'scale-[1.02]');
+        } else {
+          btn.style.backgroundColor = 'var(--bg-tint)';
+          btn.style.borderColor = 'var(--usumizuiro)';
+          btn.classList.remove('shadow-md', 'scale-[1.02]');
+        }
+      });
     }
 
     async function callGasGet(params) {
@@ -736,7 +782,6 @@
       }
     }
 
-    // 首頁主題卡片：編輯按鈕僅保留「✏️」純圖示（移除「編輯」文字）
     function renderHomeTopics() {
       const grid = document.getElementById('topics-grid');
       if (appState.configs.length === 0) {
@@ -768,23 +813,18 @@
       `).join('');
     }
 
+    // 標註修訂清單：單列並排（勾選框 + 工作表名稱標籤 + 第 X 列標籤 + 日文內容），移除「工作表：」與「[B欄]」前綴
     function openRevisionsModal() {
       const container = document.getElementById('revisions-list-container');
       if (!appState.revisions || appState.revisions.length === 0) {
         container.innerHTML = `<div class="p-8 text-center text-sm text-slate-400">目前沒有標記需要修訂的卡片 🎉</div>`;
       } else {
         container.innerHTML = appState.revisions.map(rev => `
-          <label class="flex items-start gap-3 p-3.5 hover:bg-[#f3f9fb] cursor-pointer">
-            <input type="checkbox" class="rev-checkbox w-4 h-4 mt-1 rounded accent-[#6894c8]" value="${rev.Rev_ID}">
-            <div class="flex-1 min-w-0 space-y-1">
-              <div class="flex flex-wrap items-center gap-2 text-xs">
-                <span style="background-color: var(--usumizuiro);" class="px-2 py-0.5 font-bold rounded">工作表：${escapeHtml(rev.Sheet_Name)}</span>
-                <span style="background-color: var(--sorairo);" class="px-2 py-0.5 font-bold rounded">第 ${escapeHtml(rev.Row_Index)} 列</span>
-              </div>
-              <div class="japanese-text text-sm font-medium break-words">
-                <span class="text-xs text-slate-400 mr-1">[B欄]</span>${escapeHtml(rev.Col_B_Data || '（B欄為空白）')}
-              </div>
-            </div>
+          <label class="flex items-center gap-2.5 px-3.5 py-3 hover:bg-[#f3f9fb] cursor-pointer">
+            <input type="checkbox" class="rev-checkbox w-4 h-4 rounded accent-[#6894c8] shrink-0" value="${rev.Rev_ID}">
+            <span style="background-color: var(--usumizuiro);" class="px-2 py-0.5 text-xs font-bold rounded shrink-0">${escapeHtml(rev.Sheet_Name)}</span>
+            <span style="background-color: var(--sorairo);" class="px-2 py-0.5 text-xs font-bold rounded shrink-0">第 ${escapeHtml(rev.Row_Index)} 列</span>
+            <span class="japanese-text text-sm font-medium truncate flex-1 min-w-0" title="${escapeHtml(rev.Col_B_Data || '')}">${escapeHtml(rev.Col_B_Data || '（空白）')}</span>
           </label>
         `).join('');
       }
@@ -1180,7 +1220,6 @@
       renderCurrentFlashcard();
     }
 
-    // 更新卡片資訊列：💪 練習次數 ｜ ✓ 答對次數 ｜ ✕ 答錯次數
     function updateCardStatsDisplay(stat) {
       const badge = document.getElementById('card-stats-badge');
       badge.innerHTML = `
@@ -1201,21 +1240,38 @@
       const stat = appState.progress[card._id] || { practiceCount: 0, correctCount: 0, wrongCount: 0 };
       updateCardStatsDisplay(stat);
 
+      const modeBadge = document.getElementById('study-mode-badge');
+      if (currentStudy.assistMode === 'warmup') {
+        modeBadge.textContent = '🏃';
+        modeBadge.title = '暖身練習（灰底提示｜0 km）';
+      } else if (currentStudy.assistMode === 'assist') {
+        modeBadge.textContent = '🚴';
+        modeBadge.title = '輔助推進（灰底提示｜對 +0.5 km / 錯 -1 km）';
+      } else {
+        modeBadge.textContent = '🚗';
+        modeBadge.title = '盲測挑戰（無提示｜對 +1 km / 錯 -1 km）';
+      }
+
+      // 若為重新作答，出題卡片頂部只顯示 🔄 純圖示
       document.getElementById('retry-mode-badge').classList.toggle('hidden', !currentStudy.isRetryMode);
 
       document.getElementById('card-front').classList.remove('hidden');
       document.getElementById('card-back').classList.add('hidden');
+
+      const useGhostHint = currentStudy.assistMode === 'warmup' || currentStudy.assistMode === 'assist';
+      const placeholderText = useGhostHint ? card._answer : '請輸入...';
+      const inputBgColor = useGhostHint ? '#f1f5f9' : 'var(--bg-tint)';
 
       const qArea = document.getElementById('card-question-area');
       const inputWidth = Math.max(card._answer.length * 1.4, 5);
       qArea.innerHTML = `
         <span>${escapeHtml(card._prefix)}</span>
         <input type="text" id="cloze-input" autocomplete="off"
-          style="width: ${inputWidth}em; border-color: var(--misorairo); background-color: var(--bg-tint); color: var(--misorairo);"
+          style="width: ${inputWidth}em; border-color: var(--misorairo); background-color: ${inputBgColor}; color: var(--ink-deep);"
           onclick="event.stopPropagation()"
           onkeydown="if(event.key==='Enter'){ event.stopPropagation(); submitClozeAnswer(event); }"
-          class="border-b-4 px-2 py-1 text-center focus:outline-none rounded-t-lg"
-          placeholder="請輸入...">
+          class="border-b-4 px-2 py-1 text-center focus:outline-none rounded-t-lg font-bold"
+          placeholder="${escapeHtml(placeholderText)}">
         <span>${escapeHtml(card._suffix)}</span>
       `;
 
@@ -1263,6 +1319,7 @@
       const topic = currentStudy.topic;
       const isCorrect = !isSkipped && userInput !== '' && userInput === card._answer;
       const isRetry = currentStudy.isRetryMode;
+      const mode = currentStudy.assistMode;
 
       if (!appState.progress[card._id]) {
         appState.progress[card._id] = { practiceCount: 0, correctCount: 0, wrongCount: 0 };
@@ -1271,7 +1328,6 @@
       if (isCorrect) appState.progress[card._id].correctCount += 1;
       else appState.progress[card._id].wrongCount += 1;
 
-      // 即時刷新頂部資訊列的對錯次數
       const curStat = appState.progress[card._id];
       document.getElementById('card-stats-badge').innerHTML = `
         <span class="flex items-center gap-1" title="練習次數">💪 <span>${curStat.practiceCount}</span></span>
@@ -1281,10 +1337,18 @@
         <span class="flex items-center gap-1 text-rose-600" title="答錯次數">✕ <span>${curStat.wrongCount}</span></span>
       `;
 
-      let prevKm = appState.travel.currentKm;
-      let deltaKm = isCorrect ? 1 : (isRetry ? -2 : -1);
-      let newKm = Math.max(0, prevKm + deltaKm);
-      let actualDelta = newKm - prevKm;
+      let prevKm = Number(appState.travel.currentKm) || 0;
+      let deltaKm = 0;
+      if (mode === 'warmup') {
+        deltaKm = 0;
+      } else if (mode === 'assist') {
+        deltaKm = isCorrect ? 0.5 : (isRetry ? -2 : -1);
+      } else {
+        deltaKm = isCorrect ? 1 : (isRetry ? -2 : -1);
+      }
+
+      let newKm = Math.round(Math.max(0, prevKm + deltaKm) * 10) / 10;
+      let actualDelta = Math.round((newKm - prevKm) * 10) / 10;
       appState.travel.currentKm = newKm;
       checkTravelMilestones(newKm);
 
@@ -1303,15 +1367,22 @@
         banner.style.borderColor = 'var(--mizuiro)';
         banner.className = 'p-4 rounded-2xl flex items-center justify-between border';
         rTitle.textContent = isRetry ? '⭕ 重新作答正確！' : '⭕ 回答完全正確！';
-        rDetail.textContent = `已前進 1 公里（目前累積 ${newKm} km）`;
-        rBadge.textContent = '+1 km';
+        if (mode === 'warmup') {
+          rDetail.textContent = `🏃 暖身模式不計里程（目前累積 ${newKm} km）`;
+          rBadge.textContent = '0 km';
+        } else {
+          rDetail.textContent = `已前進 ${actualDelta} 公里（目前累積 ${newKm} km）`;
+          rBadge.textContent = `+${actualDelta} km`;
+        }
         rBadge.style.backgroundColor = 'var(--misorairo)';
         rBadge.className = 'text-xl font-black px-3 py-1 rounded-xl text-white';
       } else {
         banner.style.backgroundColor = '#ffe4e6';
         banner.style.borderColor = '#fecdd3';
         banner.className = 'p-4 rounded-2xl flex items-center justify-between text-rose-900 border';
-        if (isRetry) {
+        if (mode === 'warmup') {
+          rTitle.textContent = isSkipped ? '👀 直接查看答案（暖身不扣分）' : '❌ 回答不正確（暖身不扣分）';
+        } else if (isRetry) {
           rTitle.textContent = isSkipped ? '👀 重新作答放棄（扣 2 分）' : '❌ 重新作答錯誤（扣 2 分）';
         } else {
           rTitle.textContent = isSkipped ? '👀 直接查看答案（計為答錯）' : '❌ 回答不正確';
@@ -1487,7 +1558,8 @@
       const nextStop = JAPAN_ROUTE[Math.min(currentStopIdx + 1, JAPAN_ROUTE.length - 1)];
       document.getElementById('travel-current-location').textContent = currStop.name;
       document.getElementById('travel-next-name').textContent = nextStop.name;
-      document.getElementById('travel-next-remain').textContent = Math.max(0, nextStop.km - currentKm);
+      const remainKm = Math.round(Math.max(0, nextStop.km - currentKm) * 10) / 10;
+      document.getElementById('travel-next-remain').textContent = remainKm;
 
       let px = currStop.x;
       let py = currStop.y;
