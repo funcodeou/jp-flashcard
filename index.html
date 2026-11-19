@@ -74,7 +74,7 @@
       </div>
 
       <div class="flex items-center gap-2 text-sm">
-        <!-- 純家圖示按鈕（已移除「主題題庫」文字） -->
+        <!-- 純家圖示按鈕 -->
         <button type="button" onclick="switchView('home')" id="nav-home" class="w-9 h-9 rounded-xl bg-white/20 hover:bg-white/30 transition flex items-center justify-center text-base" title="首頁">
           🏠
         </button>
@@ -214,11 +214,23 @@
 
     <!-- ==================== 3. 閃卡練習介面 ==================== -->
     <section id="view-study" class="hidden max-w-2xl mx-auto space-y-4">
+      <!-- 卡片資訊列：迴轉返回純圖示 + 進度 + 肌肉圖示練習次數/打勾答對/打叉答錯 -->
       <div style="border-color: var(--usumizuiro);" class="flex items-center justify-between text-sm bg-white px-4 py-2.5 rounded-xl border-2 shadow-sm">
-        <button onclick="switchView('home')" style="color: var(--misorairo);" class="font-bold hover:underline">← 結束返回</button>
-        <div class="font-bold">進度：<span id="study-progress-text">1 / 10</span></div>
-        <div style="background-color: var(--bg-tint);" class="text-xs px-2.5 py-1 rounded-full font-medium" id="card-stats-badge">
-          第 0 次練習 ｜ 對 0 ｜ 錯 0
+        <button type="button" onclick="switchView('home')" class="btn-usumizu w-9 h-9 rounded-xl transition flex items-center justify-center" title="結束返回首頁">
+          <svg viewBox="0 0 24 24" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 14L4 9l5-5"/>
+            <path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5v0a5.5 5.5 0 0 1-5.5 5.5H11"/>
+          </svg>
+        </button>
+
+        <div class="font-bold tracking-wide"><span id="study-progress-text">1 / 10</span></div>
+
+        <div style="background-color: var(--bg-tint); border-color: var(--usumizuiro);" class="text-xs px-3 py-1.5 rounded-xl border font-bold flex items-center gap-2.5" id="card-stats-badge">
+          <span class="flex items-center gap-1" title="練習次數">💪 <span>1</span></span>
+          <span class="text-slate-300">|</span>
+          <span class="flex items-center gap-1 text-emerald-700" title="答對次數">✓ <span>0</span></span>
+          <span class="text-slate-300">|</span>
+          <span class="flex items-center gap-1 text-rose-600" title="答錯次數">✕ <span>0</span></span>
         </div>
       </div>
 
@@ -290,8 +302,12 @@
               <span style="background-color: var(--sorairo); color: #1e354d;" class="px-2.5 py-0.5 font-bold text-xs rounded-full">第 <span id="travel-loop">1</span> 圈環島中</span>
               <button onclick="openCharacterModal()" style="color: var(--misorairo);" class="text-xs font-bold hover:underline">切換角色</button>
             </div>
-            <h2 class="text-xl font-bold mt-1">
-              目前位置：<span id="travel-current-location" style="color: var(--misorairo);">東京都（東京車站）</span>
+            <!-- 目前位置改用座標圖示，移除「目前位置：」文字 -->
+            <h2 class="text-xl font-bold mt-1 flex items-center gap-1.5">
+              <svg viewBox="0 0 24 24" class="w-5 h-5 shrink-0" fill="#e11d48" aria-hidden="true">
+                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5S13.38 11.5 12 11.5z"/>
+              </svg>
+              <span id="travel-current-location" style="color: var(--misorairo);">東京都（東京車站）</span>
             </h2>
             <p class="text-xs text-slate-500 mt-0.5">
               累積里程：<strong id="travel-km">0</strong> / 3,000 km ｜ 距離下一站 <span id="travel-next-name">千葉縣</span> 還差 <strong id="travel-next-remain">45</strong> km
@@ -486,7 +502,7 @@
             <li><strong>📍（目前所在地）：</strong>顯示當前環日本抵達的縣市名稱，點擊可開啟逆時針環日本地圖與明信片相簿。</li>
             <li><strong>📖（操作手冊）／ 🔗（連線設定）：</strong>檢視使用說明，或設定 Google Apps Script 試算表 API 網址。</li>
             <li><strong>＋（添加主題）：</strong>連結工作表，設定出題欄位（需含一組 <code>[ ]</code>）、提示欄位與答案展示欄位。</li>
-            <li><strong>✏️（編輯主題）：</strong>直接點擊主題卡片右上角圖示，無須勾選即可重新調整欄位設定。</li>
+            <li><strong>✏️（編輯主題）：</strong>直接點擊主題卡片右上角鉛筆圖示，無須勾選即可重新調整欄位設定。</li>
             <li><strong>🧹（清除勾選紀錄）／ 🗑️（刪除勾選主題）：</strong>勾選主題方框後點擊，可清除練習紀錄或移除主題卡片。</li>
             <li><strong>🚩（標註修訂清單）：</strong>查看答案卡右上角標記為「需要修訂」的卡片（顯示工作表名稱、列號與 B 欄內容）。</li>
           </ul>
@@ -495,6 +511,7 @@
         <div style="background-color: var(--bg-tint); border-color: var(--usumizuiro);" class="p-4 rounded-xl border space-y-1.5">
           <h4 style="color: var(--misorairo);" class="font-bold">2. 閃卡作答與重新作答計分規則</h4>
           <ul class="list-disc pl-5 space-y-1 text-xs">
+            <li><strong>卡片資訊列圖示：</strong>左上角迴轉箭頭為結束返回首頁；右上角 <strong>💪</strong> 為累計練習次數、<strong>✓</strong> 為答對次數、<strong>✕</strong> 為答錯次數。</li>
             <li><strong>一般作答：</strong>輸入克漏字 <code>[ ]</code> 內的文字後按「回答」或 <code>Enter</code>。字元 100% 完全相符才算答對（<strong>前進 +1 km</strong>）；答錯或點擊空白處直接看答案皆算答錯（<strong>後退 -1 km</strong>）。</li>
             <li><strong>🔄 重新作答：</strong>在答案卡下方點擊「重新作答」可重新輸入本題。重新作答時若<strong>答對可加 1 分（+1 km）</strong>，若<strong>再次答錯則扣 2 分（-2 km）</strong>。</li>
             <li><strong>🚩 標記修訂：</strong>若發現題目或翻譯有誤，可點擊答案卡右上角「🚩」圖示，系統會自動記錄工作表、第幾列與 B 欄內容。</li>
@@ -719,6 +736,7 @@
       }
     }
 
+    // 首頁主題卡片：編輯按鈕僅保留「✏️」純圖示（移除「編輯」文字）
     function renderHomeTopics() {
       const grid = document.getElementById('topics-grid');
       if (appState.configs.length === 0) {
@@ -739,8 +757,8 @@
                 ${escapeHtml(cfg.Topic_Name)}
               </h3>
             </div>
-            <button type="button" onclick="openEditTopicModal('${cfg.Topic_ID}')" class="btn-usumizu shrink-0 text-xs px-2.5 py-1.5 rounded-lg font-bold transition flex items-center gap-1" title="編輯主題設定">
-              <span>✏️</span> 編輯
+            <button type="button" onclick="openEditTopicModal('${cfg.Topic_ID}')" class="btn-usumizu shrink-0 w-9 h-9 rounded-xl transition flex items-center justify-center text-sm" title="編輯主題設定">
+              <span>✏️</span>
             </button>
           </div>
           <button type="button" onclick="prepareTopicFilter('${cfg.Topic_ID}')" class="btn-misora w-full py-2.5 font-bold rounded-xl text-sm transition shadow-sm">
@@ -1162,6 +1180,18 @@
       renderCurrentFlashcard();
     }
 
+    // 更新卡片資訊列：💪 練習次數 ｜ ✓ 答對次數 ｜ ✕ 答錯次數
+    function updateCardStatsDisplay(stat) {
+      const badge = document.getElementById('card-stats-badge');
+      badge.innerHTML = `
+        <span class="flex items-center gap-1" title="練習次數">💪 <span>${stat.practiceCount + 1}</span></span>
+        <span class="text-slate-300">|</span>
+        <span class="flex items-center gap-1 text-emerald-700" title="答對次數">✓ <span>${stat.correctCount}</span></span>
+        <span class="text-slate-300">|</span>
+        <span class="flex items-center gap-1 text-rose-600" title="答錯次數">✕ <span>${stat.wrongCount}</span></span>
+      `;
+    }
+
     function renderCurrentFlashcard() {
       const card = currentStudy.queue[currentStudy.currentIndex];
       const topic = currentStudy.topic;
@@ -1169,8 +1199,7 @@
 
       document.getElementById('study-progress-text').textContent = `${currentStudy.currentIndex + 1} / ${currentStudy.queue.length}`;
       const stat = appState.progress[card._id] || { practiceCount: 0, correctCount: 0, wrongCount: 0 };
-      document.getElementById('card-stats-badge').textContent =
-        `第 ${stat.practiceCount + 1} 次練習 ｜ 答對 ${stat.correctCount} ｜ 答錯 ${stat.wrongCount}`;
+      updateCardStatsDisplay(stat);
 
       document.getElementById('retry-mode-badge').classList.toggle('hidden', !currentStudy.isRetryMode);
 
@@ -1241,6 +1270,16 @@
       appState.progress[card._id].practiceCount += 1;
       if (isCorrect) appState.progress[card._id].correctCount += 1;
       else appState.progress[card._id].wrongCount += 1;
+
+      // 即時刷新頂部資訊列的對錯次數
+      const curStat = appState.progress[card._id];
+      document.getElementById('card-stats-badge').innerHTML = `
+        <span class="flex items-center gap-1" title="練習次數">💪 <span>${curStat.practiceCount}</span></span>
+        <span class="text-slate-300">|</span>
+        <span class="flex items-center gap-1 text-emerald-700" title="答對次數">✓ <span>${curStat.correctCount}</span></span>
+        <span class="text-slate-300">|</span>
+        <span class="flex items-center gap-1 text-rose-600" title="答錯次數">✕ <span>${curStat.wrongCount}</span></span>
+      `;
 
       let prevKm = appState.travel.currentKm;
       let deltaKm = isCorrect ? 1 : (isRetry ? -2 : -1);
@@ -1415,7 +1454,6 @@
       `).join('');
     }
 
-    // 計算並更新頂部導覽列「座標圖示 + 目前所在地（例如：東京）」
     function getCurrentStopIndex(km) {
       let idx = 0;
       for (let i = 0; i < JAPAN_ROUTE.length; i++) {
