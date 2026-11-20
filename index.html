@@ -3,11 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>日文閃卡 × 逆時針環日本 47 都道府縣</title>
+  <title>日文閃卡・環遊日本</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Noto+Sans+TC:wght@400;500;700&display=swap');
     :root {
+      /* 全站固定和風水色系（導覽列、首頁、篩選器、地圖） */
       --usumizuiro: #bce2e8; /* 薄水色 */
       --mizuiro:    #94cad6; /* 水色 */
       --sorairo:    #89c3eb; /* 空色 */
@@ -15,6 +16,13 @@
       --misora-dark:#527db0; /* 御空深色 */
       --bg-tint:    #f3f9fb; /* 極淺薄水底色 */
       --ink-deep:   #2b4159; /* 藍調深墨字色 */
+
+      /* 閃卡專屬動態和風色系（預設為藍系：薄水色 / 水色 / 御空色，可透過調色盤切換彩虹七色×日本傳統色） */
+      --card-light:  #e4f3f7;
+      --card-pale:   #bce2e8;
+      --card-mid:    #94cad6;
+      --card-accent: #6894c8;
+      --card-ink:    #2b4159;
     }
     body {
       font-family: 'Noto Sans TC', 'Noto Sans JP', sans-serif;
@@ -61,13 +69,11 @@
     .btn-usumizu:hover {
       background-color: #a9d7df;
     }
-    /* 灰底提示文字浮水印樣式 */
     #cloze-input::placeholder {
       color: #94a3b8;
       opacity: 0.65;
       font-weight: 500;
     }
-    /* 橫向斜角緞帶標籤樣式 */
     .ribbon-tag {
       clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 50%, calc(100% - 14px) 100%, 0 100%);
     }
@@ -75,35 +81,65 @@
 </head>
 <body class="min-h-screen flex flex-col">
 
-  <!-- 頂部導覽列（手機版兩列佈局：首列包含標題與 📍 地名橫向單列顯示；次列為 🏠 📖 🔗 等尺寸方塊圖示群組；桌面版單列對齊） -->
+  <!-- 頂部導覽列：御空色底、白色標題「日文閃卡・環遊日本」、透明底白字 📍 目前所在地、簡單白色線條圖示群組 -->
   <header style="background-color: var(--misorairo);" class="text-white shadow-md sticky top-0 z-30">
     <div class="max-w-6xl mx-auto px-4 py-2.5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-      <!-- 首列：App 標題 + 📍 目前所在地（確保地名橫向單列顯示不被擠壓） -->
+      <!-- 首列：App 標題 + 📍 目前所在地（背景色與底色一致、字體白色） -->
       <div class="flex items-center justify-between gap-3 w-full sm:w-auto">
-        <div class="flex items-center gap-2 cursor-pointer min-w-0" onclick="switchView('home')">
-          <span class="text-2xl shrink-0">🗾</span>
-          <h1 class="font-bold text-base sm:text-lg tracking-wide truncate">日文閃卡・環日本 47 都道府縣</h1>
+        <div class="flex items-center gap-2.5 cursor-pointer min-w-0" onclick="switchView('home')">
+          <svg viewBox="0 0 24 24" class="w-6 h-6 shrink-0 text-white" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/>
+            <line x1="8" y1="2" x2="8" y2="18"/>
+            <line x1="16" y1="6" x2="16" y2="22"/>
+          </svg>
+          <h1 class="font-bold text-base sm:text-lg tracking-wide truncate text-white">日文閃卡・環遊日本</h1>
         </div>
 
-        <!-- 座標圖示 + 目前所在地（首列右側，whitespace-nowrap 確保橫向單列） -->
-        <button type="button" onclick="switchView('travel')" id="nav-travel" style="background-color: var(--usumizuiro); color: var(--ink-deep);" class="h-9 px-3 rounded-xl font-bold hover:opacity-90 transition flex items-center gap-1.5 shadow-sm shrink-0 whitespace-nowrap" title="查看環日本地圖與進度">
-          <svg viewBox="0 0 24 24" class="w-4 h-4 shrink-0" fill="#e11d48" aria-hidden="true">
-            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5S13.38 11.5 12 11.5z"/>
+        <!-- 目前所在地：無底框、透明底色＋白色字體＋白色座標線條圖示 -->
+        <button type="button" onclick="switchView('travel')" id="nav-travel" class="h-9 px-2.5 rounded-xl text-white font-bold hover:bg-white/15 transition flex items-center gap-1.5 shrink-0 whitespace-nowrap" title="查看環遊日本地圖與進度">
+          <svg viewBox="0 0 24 24" class="w-4 h-4 shrink-0 text-white" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+            <circle cx="12" cy="10" r="3"/>
           </svg>
-          <span id="header-location" class="tracking-wide text-sm">東京</span>
+          <span id="header-location" class="tracking-wide text-sm text-white">東京</span>
         </button>
       </div>
 
-      <!-- 工具圖示列：🏠 回首頁 + 📖 操作手冊 + 🔗 連線設定（三個完全等尺寸 w-9 h-9 方塊按鈕） -->
+      <!-- 工具圖示列：簡單白色線條圖示（🎨 調色盤、🏠 回首頁、📖 操作手冊、🔗 連線設定） -->
       <div class="flex items-center justify-end gap-2 sm:pl-3 sm:border-l sm:border-white/30">
-        <button type="button" onclick="switchView('home')" id="nav-home" class="w-9 h-9 rounded-xl bg-white/20 hover:bg-white/30 transition flex items-center justify-center text-base shrink-0" title="首頁">
-          🏠
+        <!-- 調色盤按鈕（切換出題卡與答案卡的彩虹七色×日本傳統色基調） -->
+        <button type="button" onclick="openPaletteModal()" class="w-9 h-9 rounded-xl bg-white/15 hover:bg-white/25 transition flex items-center justify-center text-white shrink-0" title="切換閃卡和風調色盤">
+          <svg viewBox="0 0 24 24" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/>
+            <circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/>
+            <circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/>
+            <circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/>
+            <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/>
+          </svg>
         </button>
-        <button type="button" onclick="openModal('modal-manual')" class="w-9 h-9 rounded-xl bg-white/20 hover:bg-white/30 transition flex items-center justify-center text-base shrink-0" title="操作手冊">
-          📖
+
+        <!-- 回首頁線條圖示 -->
+        <button type="button" onclick="switchView('home')" id="nav-home" class="w-9 h-9 rounded-xl bg-white/15 hover:bg-white/25 transition flex items-center justify-center text-white shrink-0" title="回首頁">
+          <svg viewBox="0 0 24 24" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+            <polyline points="9 22 9 12 15 12 15 22"/>
+          </svg>
         </button>
-        <button type="button" onclick="openApiModal()" class="w-9 h-9 rounded-xl bg-white/20 hover:bg-white/30 transition flex items-center justify-center text-base shrink-0" title="連結 Google 試算表 (GAS API)">
-          🔗
+
+        <!-- 操作手冊線條圖示 -->
+        <button type="button" onclick="openModal('modal-manual')" class="w-9 h-9 rounded-xl bg-white/15 hover:bg-white/25 transition flex items-center justify-center text-white shrink-0" title="操作手冊">
+          <svg viewBox="0 0 24 24" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+          </svg>
+        </button>
+
+        <!-- 連線設定線條圖示 -->
+        <button type="button" onclick="openApiModal()" class="w-9 h-9 rounded-xl bg-white/15 hover:bg-white/25 transition flex items-center justify-center text-white shrink-0" title="連結 Google 試算表 (GAS API)">
+          <svg viewBox="0 0 24 24" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+          </svg>
         </button>
       </div>
     </div>
@@ -244,48 +280,58 @@
 
     <!-- ==================== 3. 閃卡練習介面 ==================== -->
     <section id="view-study" class="hidden max-w-2xl mx-auto space-y-4">
-      <!-- 卡片資訊列：迴轉返回 + 進度 + 作答模式圖示 & 目前里程數 + 💪✓✕ 統計 -->
-      <div style="border-color: var(--usumizuiro);" class="flex flex-wrap items-center justify-between gap-2 text-sm bg-white px-4 py-2.5 rounded-xl border-2 shadow-sm">
-        <button type="button" onclick="switchView('home')" class="btn-usumizu w-9 h-9 rounded-xl transition flex items-center justify-center shrink-0" title="結束返回首頁">
-          <svg viewBox="0 0 24 24" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M9 14L4 9l5-5"/>
-            <path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5v0a5.5 5.5 0 0 1-5.5 5.5H11"/>
+      <!-- 卡片資訊列：單一外框內以垂直線分隔（📇 進度 | 🚗 累積里程 | 💪 練習次數 | ✓ 答對 | ✕ 答錯），已移除返回鍵與內部小框 -->
+      <div style="border-color: var(--usumizuiro);" class="flex flex-wrap items-center justify-around gap-2 text-xs sm:text-sm bg-white px-4 py-3 rounded-2xl border-2 shadow-sm font-bold">
+        <!-- 卡片疊線條圖示 + 題數進度 -->
+        <div class="flex items-center gap-2" title="卡片進度">
+          <svg viewBox="0 0 24 24" class="w-4 h-4 shrink-0" style="color: var(--misorairo);" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="6" y="4" width="14" height="16" rx="2"/>
+            <path d="M4 8v12a2 2 0 0 0 2 2h10"/>
+            <line x1="10" y1="9" x2="16" y2="9"/>
+            <line x1="10" y1="13" x2="16" y2="13"/>
           </svg>
-        </button>
+          <span id="study-progress-text">1 / 10</span>
+        </div>
 
-        <div class="font-bold tracking-wide"><span id="study-progress-text">1 / 10</span></div>
+        <span class="text-slate-200 font-normal">|</span>
 
-        <!-- 作答模式圖示 + 目前累積里程數（例如 🚗 1 km） -->
-        <div style="background-color: var(--bg-tint); border-color: var(--mizuiro); color: var(--ink-deep);" class="px-3 py-1 rounded-xl border text-xs font-bold flex items-center gap-1.5" title="當前作答模式與累積里程">
-          <span id="study-mode-badge" class="text-sm">🚗</span>
+        <!-- 作答模式圖示 + 目前累積里程數 -->
+        <div class="flex items-center gap-1.5" title="當前作答模式與累積里程">
+          <span id="study-mode-badge" class="text-base">🚗</span>
           <span id="study-current-km">0 km</span>
         </div>
 
-        <div style="background-color: var(--bg-tint); border-color: var(--usumizuiro);" class="text-xs px-3 py-1.5 rounded-xl border font-bold flex items-center gap-2.5" id="card-stats-badge">
+        <span class="text-slate-200 font-normal">|</span>
+
+        <!-- 💪 練習次數 | ✓ 答對 | ✕ 答錯 -->
+        <div class="flex items-center gap-2.5 sm:gap-3" id="card-stats-badge">
           <span class="flex items-center gap-1" title="練習次數">💪 <span>1</span></span>
-          <span class="text-slate-300">|</span>
+          <span class="text-slate-200 font-normal">|</span>
           <span class="flex items-center gap-1" style="color: var(--misorairo);" title="答對次數">✓ <span>0</span></span>
-          <span class="text-slate-300">|</span>
+          <span class="text-slate-200 font-normal">|</span>
           <span class="flex items-center gap-1 text-slate-500" title="答錯次數">✕ <span>0</span></span>
         </div>
       </div>
 
-      <!-- 閃卡主容器：按兩下空白處才翻至答案卡片 -->
-      <div id="flashcard-container" ondblclick="handleCardBackgroundDblClick(event)" style="border-color: var(--mizuiro);" class="bg-white rounded-3xl shadow-lg border-2 p-5 md:p-7 min-h-[340px] flex flex-col justify-between transition relative select-none">
+      <!-- 閃卡主容器（套用可自訂的彩虹七色×日本傳統色調色盤變數 --card-accent / --card-mid / --card-pale / --card-light） -->
+      <div id="flashcard-container" ondblclick="handleCardBackgroundDblClick(event)"
+        style="border-color: var(--card-mid);"
+        class="bg-white rounded-3xl shadow-lg border-2 p-5 md:p-7 min-h-[340px] flex flex-col justify-between transition relative select-none">
+
         <!-- ==================== 出題面 ==================== -->
         <div id="card-front" class="space-y-5">
-          <!-- 橫向醒目緞帶標題列：「✏️ 出題中」 -->
-          <div style="background-color: #e4f3f7;" class="w-full rounded-2xl overflow-hidden flex items-center justify-between pr-3">
-            <div style="background-color: var(--usumizuiro); color: var(--ink-deep);" class="ribbon-tag pl-4 pr-7 py-2.5 flex items-center gap-2.5 font-extrabold text-base sm:text-lg tracking-wide">
-              <svg viewBox="0 0 24 24" class="w-5 h-5 shrink-0" fill="none" stroke="var(--misorairo)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+          <!-- 橫向醒目緞帶標題列：「✏️ 出題中」 + 右側與橫幅背景一致的 🔄 重答圖示 -->
+          <div style="background-color: var(--card-light);" class="w-full rounded-2xl overflow-hidden flex items-center justify-between pr-2.5 transition-colors">
+            <div style="background-color: var(--card-pale); color: var(--card-ink);" class="ribbon-tag pl-4 pr-7 py-2.5 flex items-center gap-2.5 font-extrabold text-base sm:text-lg tracking-wide transition-colors">
+              <svg viewBox="0 0 24 24" class="w-5 h-5 shrink-0" style="color: var(--card-accent);" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/>
               </svg>
               <span>出題中</span>
             </div>
 
-            <!-- 重新作答時顯示向量重答小徽章 -->
-            <span id="retry-mode-badge" style="background-color: var(--sorairo); color: var(--ink-deep);" class="hidden px-2.5 py-1 rounded-xl flex items-center justify-center" title="重新作答">
-              <svg viewBox="0 0 24 24" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+            <!-- 重答狀態圖示：背景色與橫幅一致，無突兀深底框 -->
+            <span id="retry-mode-badge" style="color: var(--card-accent);" class="hidden w-9 h-9 rounded-xl flex items-center justify-center" title="重新作答">
+              <svg viewBox="0 0 24 24" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
                 <path d="M3 3v5h5"/>
                 <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/>
@@ -294,10 +340,11 @@
             </span>
           </div>
 
-          <!-- 左下方播放答題按鈕（▶ 圓圈實心三角形） -->
+          <!-- 左下方播放答題按鈕（▶ 圓圈實心三角形，套用當前卡片主色） -->
           <div class="flex items-center">
             <button type="button" id="btn-submit-answer" onclick="submitClozeAnswer(event)" ondblclick="event.stopPropagation()"
-              class="btn-misora w-10 h-10 rounded-full shadow-md transition flex items-center justify-center hover:scale-105 active:scale-95"
+              style="background-color: var(--card-accent); color: #ffffff;"
+              class="w-10 h-10 rounded-full shadow-md transition flex items-center justify-center hover:scale-105 active:scale-95"
               title="送出回答">
               <svg viewBox="0 0 24 24" class="w-6 h-6" fill="none" aria-hidden="true">
                 <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" />
@@ -312,15 +359,15 @@
           </div>
 
           <!-- 提示欄位區 -->
-          <div id="card-hints-area" style="background-color: var(--bg-tint); border-color: var(--usumizuiro);" class="rounded-xl p-4 space-y-1.5 text-sm border select-text"></div>
+          <div id="card-hints-area" style="background-color: var(--card-light); border-color: var(--card-pale);" class="rounded-xl p-4 space-y-1.5 text-sm border select-text transition-colors"></div>
         </div>
 
         <!-- ==================== 答案面 ==================== -->
         <div id="card-back" class="hidden space-y-5 cursor-default select-text" onclick="event.stopPropagation()" ondblclick="event.stopPropagation()">
-          <!-- 橫向醒目緞帶標題列：「✓ 答案揭曉」 + 右側 🚩 標註修訂鈕 -->
-          <div style="background-color: #e4f3f7;" class="w-full rounded-2xl overflow-hidden flex items-center justify-between pr-2.5">
-            <div style="background-color: var(--mizuiro); color: var(--ink-deep);" class="ribbon-tag pl-4 pr-7 py-2.5 flex items-center gap-2.5 font-extrabold text-base sm:text-lg tracking-wide">
-              <span style="background-color: var(--misorairo);" class="w-6 h-6 rounded-full flex items-center justify-center text-white shrink-0">
+          <!-- 橫向醒目緞帶標題列：「✓ 答案揭曉」 + 右側與橫幅背景一致的 🚩 旗幟修訂鈕 -->
+          <div style="background-color: var(--card-light);" class="w-full rounded-2xl overflow-hidden flex items-center justify-between pr-2.5 transition-colors">
+            <div style="background-color: var(--card-mid); color: var(--card-ink);" class="ribbon-tag pl-4 pr-7 py-2.5 flex items-center gap-2.5 font-extrabold text-base sm:text-lg tracking-wide transition-colors">
+              <span style="background-color: var(--card-accent);" class="w-6 h-6 rounded-full flex items-center justify-center text-white shrink-0">
                 <svg viewBox="0 0 24 24" class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
                   <polyline points="20 6 9 17 4 12"/>
                 </svg>
@@ -328,7 +375,10 @@
               <span>答案揭曉</span>
             </div>
 
-            <button type="button" id="btn-flag-revision" onclick="flagCurrentCardForRevision()" class="btn-usumizu w-9 h-9 rounded-xl transition flex items-center justify-center text-base shadow-sm shrink-0" title="標註此卡片需要修訂">
+            <!-- 旗幟底色與橫幅背景色一致（透明融入橫幅，已標記時顯示實心強調色） -->
+            <button type="button" id="btn-flag-revision" onclick="flagCurrentCardForRevision()"
+              class="w-9 h-9 rounded-xl transition flex items-center justify-center text-base shrink-0 hover:bg-black/5"
+              title="標註此卡片需要修訂">
               <span>🚩</span>
             </button>
           </div>
@@ -336,7 +386,9 @@
           <!-- 第二列控制區：左側並排「🔄 重答」與「→ 下一張」純圖示鈕；右側為高對比醒目圓形答對(綠)/答錯(紅)圖示 -->
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-2">
-              <button type="button" onclick="retryCurrentCard()" class="btn-sora w-10 h-10 rounded-xl transition flex items-center justify-center shadow-sm hover:scale-105 active:scale-95" title="重新作答">
+              <button type="button" onclick="retryCurrentCard()"
+                style="background-color: var(--card-pale); color: var(--card-ink);"
+                class="w-10 h-10 rounded-xl transition flex items-center justify-center shadow-sm hover:scale-105 active:scale-95" title="重新作答">
                 <svg viewBox="0 0 24 24" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
                   <path d="M3 3v5h5"/>
@@ -344,7 +396,9 @@
                   <path d="M16 16h5v5"/>
                 </svg>
               </button>
-              <button type="button" onclick="nextCard()" class="btn-misora w-10 h-10 rounded-xl transition flex items-center justify-center shadow-sm hover:scale-105 active:scale-95" title="下一張卡片">
+              <button type="button" onclick="nextCard()"
+                style="background-color: var(--card-accent); color: #ffffff;"
+                class="w-10 h-10 rounded-xl transition flex items-center justify-center shadow-sm hover:scale-105 active:scale-95" title="下一張卡片">
                 <svg viewBox="0 0 24 24" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
                   <line x1="5" y1="12" x2="19" y2="12"/>
                   <polyline points="12 5 19 12 12 19"/>
@@ -352,7 +406,7 @@
               </button>
             </div>
 
-            <!-- 右側（🚩 正下方）：高對比醒目圓形答對（實心綠圓白勾）／答錯（實心紅圓白叉）圖示按鈕，點擊可展開詳細反饋 -->
+            <!-- 右側：高對比醒目圓形答對（實心綠圓白勾）／答錯（實心紅圓白叉）圖示按鈕，點擊可展開詳細反饋 -->
             <button type="button" id="btn-result-toggle" onclick="toggleResultDetail()"
               class="w-11 h-11 rounded-full shadow-md transition flex items-center justify-center hover:scale-105 active:scale-95"
               title="點擊查看作答詳情與里程變化">
@@ -369,28 +423,29 @@
           </div>
 
           <!-- 完整日文句子框 -->
-          <div style="background-color: var(--bg-tint); border-color: var(--usumizuiro);" class="border rounded-2xl p-5 text-center">
+          <div style="background-color: var(--card-light); border-color: var(--card-pale);" class="border rounded-2xl p-5 text-center transition-colors">
             <div id="back-full-sentence" class="japanese-text text-xl font-bold leading-relaxed"></div>
           </div>
 
           <!-- 答案卡片展示欄位 -->
-          <div id="card-answers-area" style="background-color: var(--bg-tint); border-color: var(--usumizuiro);" class="rounded-xl p-4 space-y-2 text-sm border"></div>
+          <div id="card-answers-area" style="background-color: var(--card-light); border-color: var(--card-pale);" class="rounded-xl p-4 space-y-2 text-sm border transition-colors"></div>
         </div>
       </div>
     </section>
 
-    <!-- ==================== 4. 成果展示（極簡版逆時針環日本地圖與里程碑總覽） ==================== -->
+    <!-- ==================== 4. 成果展示（極簡版逆時針環日本地圖與姆明家族角色） ==================== -->
     <section id="view-travel" class="hidden space-y-5">
       <!-- 頂部簡潔狀態卡片 -->
       <div style="border-color: var(--usumizuiro);" class="bg-white rounded-2xl shadow-sm border-2 p-4 sm:p-5 flex flex-wrap items-center justify-between gap-4">
         <div class="flex items-center gap-4">
-          <button type="button" onclick="openCharacterModal()" style="background-color: var(--usumizuiro); border-color: var(--mizuiro);" class="w-14 h-14 rounded-2xl flex items-center justify-center text-3xl border-2 shadow-inner hover:scale-105 transition shrink-0" title="點擊切換角色">
-            <span id="travel-avatar-display">🧑</span>
+          <button type="button" onclick="openCharacterModal()" style="background-color: var(--usumizuiro); border-color: var(--mizuiro);" class="w-16 h-16 rounded-2xl flex items-center justify-center border-2 shadow-inner hover:scale-105 transition shrink-0 overflow-hidden p-1" title="點擊切換姆明家族角色">
+            <div id="travel-avatar-display" class="w-full h-full flex items-center justify-center"></div>
           </button>
           <div class="sm:border-l sm:pl-4" style="border-color: var(--usumizuiro);">
             <div class="flex items-center gap-2 flex-wrap">
               <h2 id="travel-current-location" class="text-lg sm:text-xl font-bold" style="color: var(--ink-deep);">東京都（東京車站）</h2>
               <span style="background-color: var(--bg-tint); border-color: var(--mizuiro); color: var(--misorairo);" class="px-2 py-0.5 text-xs font-bold rounded-lg border">第 <span id="travel-loop">1</span> 圈</span>
+              <span id="travel-character-name" class="text-xs text-slate-400 font-medium"></span>
             </div>
             <div class="flex flex-wrap items-center gap-3 text-xs sm:text-sm text-slate-600 mt-1.5">
               <span class="flex items-center gap-1">
@@ -432,9 +487,9 @@
             <polyline id="map-progress-line" fill="none" stroke="#6894c8" stroke-width="3.5" stroke-linecap="round" />
             <g id="map-nodes-group"></g>
             <g id="map-player-marker" transform="translate(395, 345)">
-              <circle r="15" fill="#89c3eb" class="avatar-pulse" />
-              <circle r="13" fill="#ffffff" stroke="#6894c8" stroke-width="2.5" />
-              <text id="map-player-emoji" y="5" text-anchor="middle" font-size="14">🧑</text>
+              <circle r="18" fill="#89c3eb" class="avatar-pulse" />
+              <circle r="16" fill="#ffffff" stroke="#6894c8" stroke-width="2.5" />
+              <g id="map-player-avatar" transform="translate(-12, -12) scale(0.375)"></g>
             </g>
           </svg>
         </div>
@@ -572,20 +627,37 @@
     </div>
   </div>
 
-  <!-- ==================== 彈窗 3：選擇角色 ==================== -->
-  <div id="modal-character" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-    <div style="border-color: var(--mizuiro);" class="bg-white rounded-2xl border-2 max-w-md w-full p-6 text-center space-y-5 shadow-2xl">
-      <h3 class="text-xl font-bold">🎒 選擇你的環日本旅行主角</h3>
-      <p class="text-sm text-slate-500">從東京出發，答題累積里程制霸 47 都道府縣！</p>
-      <div class="grid grid-cols-2 gap-4">
-        <button onclick="selectCharacter('male')" style="border-color: var(--mizuiro);" class="p-5 border-2 rounded-2xl hover:bg-[#f3f9fb] transition flex flex-col items-center gap-2">
-          <span class="text-5xl">👦</span>
-          <span class="font-bold">男主角</span>
-        </button>
-        <button onclick="selectCharacter('female')" style="border-color: var(--sorairo);" class="p-5 border-2 rounded-2xl hover:bg-[#f3f9fb] transition flex flex-col items-center gap-2">
-          <span class="text-5xl">👧</span>
-          <span class="font-bold">女主角</span>
-        </button>
+  <!-- ==================== 彈窗 3：選擇姆明家族（Moomin）旅行主角 ==================== -->
+  <div id="modal-character" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
+    <div style="border-color: var(--mizuiro);" class="bg-white rounded-2xl border-2 max-w-2xl w-full p-6 text-center space-y-4 shadow-2xl my-8">
+      <div style="border-color: var(--usumizuiro);" class="flex items-center justify-between border-b pb-3">
+        <h3 class="text-lg font-bold">🌲 選擇你的姆明家族（Moomin）旅行主角</h3>
+        <button onclick="closeModal('modal-character')" class="text-slate-400 hover:text-slate-600">✕</button>
+      </div>
+      <p class="text-xs text-slate-500">隨時可於地圖左上角點擊頭像切換同行夥伴！</p>
+      <div id="moomin-character-grid" class="grid grid-cols-3 sm:grid-cols-4 gap-3 max-h-[60vh] overflow-y-auto p-1"></div>
+    </div>
+  </div>
+
+  <!-- ==================== 彈窗 3-B：彩虹七色 × 日本傳統色調色盤 ==================== -->
+  <div id="modal-palette" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
+    <div style="border-color: var(--mizuiro);" class="bg-white rounded-2xl border-2 max-w-xl w-full p-6 space-y-4 shadow-2xl my-8">
+      <div style="border-color: var(--usumizuiro);" class="flex items-center justify-between border-b pb-3">
+        <div>
+          <h3 class="text-lg font-bold">🎨 閃卡和風調色盤（彩虹七色 × 日本傳統色）</h3>
+          <p class="text-xs text-slate-500 mt-0.5">選擇顏色後將即時套用至「出題卡片」與「答案卡片」</p>
+        </div>
+        <button onclick="closeModal('modal-palette')" class="text-slate-400 hover:text-slate-600">✕</button>
+      </div>
+
+      <!-- 彩虹七色圓形色相切換列 -->
+      <div class="flex items-center justify-between gap-2 px-2 py-2 rounded-2xl" style="background-color: var(--bg-tint);" id="rainbow-hue-bar"></div>
+
+      <!-- 該色系精選的三組日本傳統色搭配 -->
+      <div id="japanese-palette-options" class="grid grid-cols-1 sm:grid-cols-3 gap-3"></div>
+
+      <div style="border-color: var(--usumizuiro);" class="flex justify-end border-t pt-3">
+        <button type="button" onclick="closeModal('modal-palette')" class="btn-misora px-6 py-2 font-bold rounded-xl text-sm">完成</button>
       </div>
     </div>
   </div>
@@ -658,11 +730,9 @@
         <div style="background-color: var(--bg-tint); border-color: var(--usumizuiro);" class="p-4 rounded-xl border space-y-1.5">
           <h4 style="color: var(--misorairo);" class="font-bold">2. 導覽列與首頁圖示說明</h4>
           <ul class="list-disc pl-5 space-y-1 text-xs">
-            <li><strong>📍（目前所在地）：</strong>顯示當前環日本抵達的縣市名稱，點擊可開啟環日本地圖與里程碑相簿。</li>
+            <li><strong>📍（目前所在地）：</strong>顯示當前環遊日本抵達的縣市名稱，點擊可開啟環日本地圖與姆明家族旅行進度。</li>
+            <li><strong>🎨（調色盤）：</strong>提供彩虹七色（紅、橙、黃、綠、藍、靛、紫）各三種日本傳統色搭配，可自由切換出題卡與答案卡的配色。</li>
             <li><strong>🏠（首頁）／ 📖（操作手冊）／ 🔗（連線設定）：</strong>返回首頁、檢視使用說明，或設定 Google Apps Script 試算表 API 網址。</li>
-            <li><strong>＋（添加主題）／ ✏️（編輯主題）：</strong>連結工作表，設定出題欄位（需含一組 <code>[ ]</code>）、提示欄位與答案展示欄位。</li>
-            <li><strong>🧹（清除勾選紀錄）／ 🗑️（刪除勾選主題）：</strong>勾選主題方框後點擊，可清除練習紀錄或移除主題卡片。</li>
-            <li><strong>🚩（標註修訂清單）：</strong>查看答案卡右上角標記為「需要修訂」的卡片。</li>
           </ul>
         </div>
 
@@ -722,6 +792,266 @@
   </div>
 
   <script>
+    // ==================== 彩虹七色 × 日本傳統色調色盤（參考 JapaneseColor 和色色譜） ====================
+    const JAPANESE_RAINBOW_PALETTES = [
+      {
+        hueId: 'red', hueName: '紅', dot: '#e83929',
+        themes: [
+          { id: 'red_sakura', name: '桜色・退紅', light: '#fef4f6', pale: '#fdede4', mid: '#f4b3c2', accent: '#d96b86', ink: '#4a1d28' },
+          { id: 'red_sango',  name: '珊瑚・紅梅', light: '#fdf2f2', pale: '#f5b1aa', mid: '#e8837b', accent: '#c94a42', ink: '#471816' },
+          { id: 'red_akane',  name: '茜色・甚三紅', light: '#fcf1f1', pale: '#ee827c', mid: '#d95b56', accent: '#b7282e', ink: '#421214' }
+        ]
+      },
+      {
+        hueId: 'orange', hueName: '橙', dot: '#ee7800',
+        themes: [
+          { id: 'org_anzu',   name: '杏色・肌色', light: '#fef6ee', pale: '#f7b977', mid: '#eba052', accent: '#d67824', ink: '#4a280a' },
+          { id: 'org_mikan',  name: '蜜柑・柑子', light: '#fef5eb', pale: '#f6ad49', mid: '#eb9128', accent: '#c96a0e', ink: '#472405' },
+          { id: 'org_kaki',   name: '柿色・洗朱', light: '#fdf2ec', pale: '#f08300', mid: '#d96b14', accent: '#b84c0a', ink: '#421b04' }
+        ]
+      },
+      {
+        hueId: 'yellow', hueName: '黃', dot: '#f8b500',
+        themes: [
+          { id: 'yel_tamago', name: '卵色・鳥の子', light: '#fefbec', pale: '#fcd575', mid: '#f0be48', accent: '#c99316', ink: '#453105' },
+          { id: 'yel_yamabuki', name: '山吹・菜の花', light: '#fef9e7', pale: '#f8b500', mid: '#e09f00', accent: '#b57c00', ink: '#422d00' },
+          { id: 'yel_ukon',   name: '鬱金・刈安', light: '#fcf9eb', pale: '#fabf14', mid: '#d9a114', accent: '#a8790a', ink: '#3d2b03' }
+        ]
+      },
+      {
+        hueId: 'green', hueName: '綠', dot: '#3eb370',
+        themes: [
+          { id: 'grn_wakaba', name: '若葉・若竹', light: '#f2faf5', pale: '#b9d08b', mid: '#88b872', accent: '#4d8c46', ink: '#1b3818' },
+          { id: 'grn_moegi',  name: '萌黄・浅緑', light: '#f1f9f4', pale: '#a8c97f', mid: '#68be8d', accent: '#2e8b57', ink: '#143824' },
+          { id: 'grn_tokiwa', name: '常盤・青竹', light: '#eff8f5', pale: '#7ebeab', mid: '#47885e', accent: '#007b43', ink: '#0d3320' }
+        ]
+      },
+      {
+        hueId: 'blue', hueName: '藍', dot: '#6894c8',
+        themes: [
+          { id: 'blu_mizu',   name: '薄水・御空', light: '#e4f3f7', pale: '#bce2e8', mid: '#94cad6', accent: '#6894c8', ink: '#2b4159' },
+          { id: 'blu_sora',   name: '空色・勿忘草', light: '#edf6fc', pale: '#a0d8ef', mid: '#89c3eb', accent: '#4c8dcb', ink: '#1e354d' },
+          { id: 'blu_asagi',  name: '浅葱・新橋', light: '#ebf7f9', pale: '#83ccd2', mid: '#48929b', accent: '#007bbb', ink: '#123647' }
+        ]
+      },
+      {
+        hueId: 'indigo', hueName: '靛', dot: '#1e50a2',
+        themes: [
+          { id: 'ind_ruri',   name: '瑠璃・群青', light: '#eff3fa', pale: '#8491c3', mid: '#5a70b5', accent: '#1e50a2', ink: '#162647' },
+          { id: 'ind_hanada', name: '縹色・紺青', light: '#eef2f8', pale: '#7a99cf', mid: '#4d73b8', accent: '#274a78', ink: '#132238' },
+          { id: 'ind_kachi',  name: '勝色・鉄紺', light: '#edf1f7', pale: '#6c84b5', mid: '#465d8f', accent: '#192f60', ink: '#0f1b38' }
+        ]
+      },
+      {
+        hueId: 'purple', hueName: '紫', dot: '#884898',
+        themes: [
+          { id: 'pur_fuji',   name: '藤色・薄紫', light: '#f6f2fa', pale: '#bbbcde', mid: '#9b95c9', accent: '#7065a8', ink: '#2c254a' },
+          { id: 'pur_ayame',  name: '菖蒲・桔梗', light: '#f6f1f9', pale: '#cc7eb1', mid: '#a6689c', accent: '#7e3b7a', ink: '#3b1839' },
+          { id: 'pur_edomura',name: '江戸紫・京紫', light: '#f5f0f8', pale: '#b481bb', mid: '#8e5499', accent: '#674196', ink: '#2e1a47' }
+        ]
+      }
+    ];
+
+    let activePaletteHue = 'blue';
+    let activeCardThemeId = localStorage.getItem('jp_flashcard_theme_id') || 'blu_mizu';
+
+    function applyCardTheme(themeId) {
+      let foundTheme = null;
+      let foundHue = 'blue';
+      for (const group of JAPANESE_RAINBOW_PALETTES) {
+        const t = group.themes.find(item => item.id === themeId);
+        if (t) {
+          foundTheme = t;
+          foundHue = group.hueId;
+          break;
+        }
+      }
+      if (!foundTheme) foundTheme = JAPANESE_RAINBOW_PALETTES[4].themes[0];
+      activeCardThemeId = foundTheme.id;
+      activePaletteHue = foundHue;
+      localStorage.setItem('jp_flashcard_theme_id', activeCardThemeId);
+
+      const root = document.documentElement;
+      root.style.setProperty('--card-light', foundTheme.light);
+      root.style.setProperty('--card-pale', foundTheme.pale);
+      root.style.setProperty('--card-mid', foundTheme.mid);
+      root.style.setProperty('--card-accent', foundTheme.accent);
+      root.style.setProperty('--card-ink', foundTheme.ink);
+    }
+
+    function openPaletteModal() {
+      renderPaletteModal();
+      openModal('modal-palette');
+    }
+
+    function selectPaletteHue(hueId) {
+      activePaletteHue = hueId;
+      renderPaletteModal();
+    }
+
+    function renderPaletteModal() {
+      const hueBar = document.getElementById('rainbow-hue-bar');
+      hueBar.innerHTML = JAPANESE_RAINBOW_PALETTES.map(group => {
+        const isSel = group.hueId === activePaletteHue;
+        return `
+          <button type="button" onclick="selectPaletteHue('${group.hueId}')"
+            class="flex-1 py-2 rounded-xl flex flex-col items-center gap-1 transition ${isSel ? 'bg-white shadow-sm ring-2 ring-[#6894c8]' : 'hover:bg-white/60'}">
+            <span class="w-6 h-6 rounded-full border border-black/10 shadow-inner" style="background-color: ${group.dot};"></span>
+            <span class="text-xs font-bold">${group.hueName}</span>
+          </button>
+        `;
+      }).join('');
+
+      const group = JAPANESE_RAINBOW_PALETTES.find(g => g.hueId === activePaletteHue) || JAPANESE_RAINBOW_PALETTES[4];
+      const optionsEl = document.getElementById('japanese-palette-options');
+      optionsEl.innerHTML = group.themes.map(t => {
+        const isCurrent = t.id === activeCardThemeId;
+        return `
+          <button type="button" onclick="applyCardTheme('${t.id}'); renderPaletteModal();"
+            style="border-color: ${isCurrent ? t.accent : '#e2e8f0'}; background-color: ${t.light};"
+            class="p-3.5 rounded-2xl border-2 text-left space-y-2.5 transition hover:scale-[1.02] shadow-sm">
+            <div class="flex items-center gap-1.5">
+              <span class="w-6 h-6 rounded-lg border border-black/10" style="background-color: ${t.pale};"></span>
+              <span class="w-6 h-6 rounded-lg border border-black/10" style="background-color: ${t.mid};"></span>
+              <span class="w-6 h-6 rounded-lg border border-black/10" style="background-color: ${t.accent};"></span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-xs" style="color: ${t.ink};">${t.name}</span>
+              ${isCurrent ? `<span class="text-xs font-black" style="color: ${t.accent};">✓</span>` : ''}
+            </div>
+          </button>
+        `;
+      }).join('');
+    }
+
+    // ==================== 姆明家族（Moomin）全角色向量頭像 ====================
+    const MOOMIN_CHARACTERS = [
+      { id: 'moomin', name: '姆明 (Moomin)' },
+      { id: 'snorkmaiden', name: '歌妮 (Snorkmaiden)' },
+      { id: 'moominpappa', name: '姆明爸爸 (Moominpappa)' },
+      { id: 'moominmamma', name: '姆明媽媽 (Moominmamma)' },
+      { id: 'snufkin', name: '阿金 (Snufkin)' },
+      { id: 'little_my', name: '小不點 (Little My)' },
+      { id: 'sniff', name: '史力奇 (Sniff)' },
+      { id: 'tooticky', name: '杜娣 (Too-ticky)' },
+      { id: 'hattifattener', name: '溜溜 (Hattifatteners)' },
+      { id: 'mymble', name: '美寶 (Mymble)' },
+      { id: 'groke', name: '莫蘭 (The Groke)' },
+      { id: 'stinky', name: '史丁奇 (Stinky)' }
+    ];
+
+    function getMoominSVG(charId) {
+      switch (charId) {
+        case 'snorkmaiden': // 歌妮（金色瀏海）
+          return `<svg viewBox="0 0 64 64" class="w-full h-full">
+            <path d="M22,18 L20,9 L28,15 M42,18 L44,9 L36,15" fill="#ffffff" stroke="#334155" stroke-width="2.2" stroke-linejoin="round"/>
+            <ellipse cx="32" cy="36" rx="18" ry="17" fill="#ffffff" stroke="#334155" stroke-width="2.2"/>
+            <ellipse cx="32" cy="41" rx="15" ry="12" fill="#ffffff" stroke="#334155" stroke-width="2"/>
+            <path d="M24,16 Q29,8 33,15 Q37,8 41,16 Q32,19 24,16 Z" fill="#facc15" stroke="#ca8a04" stroke-width="1.4"/>
+            <circle cx="26" cy="27" r="2.2" fill="#1e293b"/><circle cx="38" cy="27" r="2.2" fill="#1e293b"/>
+            <path d="M22,25 L24,26 M42,25 L40,26" stroke="#334155" stroke-width="1.5"/>
+            <circle cx="28" cy="39" r="1" fill="#334155"/><circle cx="36" cy="39" r="1" fill="#334155"/>
+          </svg>`;
+        case 'moominpappa': // 姆明爸爸（黑色高禮帽）
+          return `<svg viewBox="0 0 64 64" class="w-full h-full">
+            <path d="M21,23 L19,14 L27,20 M43,23 L45,14 L37,20" fill="#ffffff" stroke="#334155" stroke-width="2.2" stroke-linejoin="round"/>
+            <ellipse cx="32" cy="39" rx="17" ry="16" fill="#ffffff" stroke="#334155" stroke-width="2.2"/>
+            <ellipse cx="32" cy="44" rx="14" ry="11" fill="#ffffff" stroke="#334155" stroke-width="2"/>
+            <rect x="23" y="4" width="18" height="14" rx="1.5" fill="#1e293b"/>
+            <ellipse cx="32" cy="18" rx="15" ry="3" fill="#1e293b"/>
+            <rect x="23" y="14" width="18" height="2.5" fill="#6894c8"/>
+            <circle cx="26" cy="31" r="2" fill="#1e293b"/><circle cx="38" cy="31" r="2" fill="#1e293b"/>
+          </svg>`;
+        case 'moominmamma': // 姆明媽媽（紅白條紋圍裙領＋手提包）
+          return `<svg viewBox="0 0 64 64" class="w-full h-full">
+            <path d="M22,18 L20,9 L28,15 M42,18 L44,9 L36,15" fill="#ffffff" stroke="#334155" stroke-width="2.2" stroke-linejoin="round"/>
+            <ellipse cx="32" cy="35" rx="17" ry="16" fill="#ffffff" stroke="#334155" stroke-width="2.2"/>
+            <ellipse cx="32" cy="40" rx="14" ry="11" fill="#ffffff" stroke="#334155" stroke-width="2"/>
+            <circle cx="26" cy="27" r="2" fill="#1e293b"/><circle cx="38" cy="27" r="2" fill="#1e293b"/>
+            <path d="M18,52 L46,52 L48,60 L16,60 Z" fill="#dc2626"/>
+            <path d="M22,52 L22,60 M28,52 L28,60 M36,52 L36,60 M42,52 L42,60" stroke="#ffffff" stroke-width="2.5"/>
+          </svg>`;
+        case 'snufkin': // 阿金（綠色尖頂寬簷帽＋黃領巾）
+          return `<svg viewBox="0 0 64 64" class="w-full h-full">
+            <circle cx="32" cy="37" r="13" fill="#fde68a" stroke="#334155" stroke-width="2"/>
+            <polygon points="32,4 16,28 48,28" fill="#4d7c0f" stroke="#365314" stroke-width="2" stroke-linejoin="round"/>
+            <ellipse cx="32" cy="28" rx="24" ry="5" fill="#4d7c0f" stroke="#365314" stroke-width="2"/>
+            <path d="M17,26 Q32,29 47,26" stroke="#b91c1c" stroke-width="2.5" fill="none"/>
+            <circle cx="27" cy="36" r="1.8" fill="#1e293b"/><circle cx="37" cy="36" r="1.8" fill="#1e293b"/>
+            <path d="M29,43 Q32,45 35,43" stroke="#334155" stroke-width="1.8" fill="none"/>
+            <path d="M22,49 L42,49 L45,58 L19,58 Z" fill="#facc15" stroke="#ca8a04" stroke-width="1.5"/>
+          </svg>`;
+        case 'little_my': // 小不點（橘紅洋蔥頭＋紅洋裝）
+          return `<svg viewBox="0 0 64 64" class="w-full h-full">
+            <circle cx="32" cy="11" r="7" fill="#c2410c" stroke="#7c2d12" stroke-width="1.8"/>
+            <path d="M26,16 L38,16" stroke="#facc15" stroke-width="2.5"/>
+            <path d="M18,32 Q18,17 32,17 Q46,17 46,32 Z" fill="#c2410c" stroke="#7c2d12" stroke-width="1.8"/>
+            <circle cx="32" cy="35" r="13" fill="#fef3c7" stroke="#334155" stroke-width="2"/>
+            <circle cx="27" cy="33" r="2" fill="#1e293b"/><circle cx="37" cy="33" r="2" fill="#1e293b"/>
+            <path d="M25,29 L29,31 M39,29 L35,31" stroke="#334155" stroke-width="1.8"/>
+            <path d="M27,41 Q32,44 37,41" stroke="#334155" stroke-width="1.8" fill="none"/>
+            <path d="M21,48 L43,48 L47,60 L17,60 Z" fill="#dc2626"/>
+          </svg>`;
+        case 'sniff': // 史力奇/大耳（棕色長耳）
+          return `<svg viewBox="0 0 64 64" class="w-full h-full">
+            <path d="M23,23 L14,7 L28,18 M41,23 L50,7 L36,18" fill="#a16207" stroke="#451a03" stroke-width="2" stroke-linejoin="round"/>
+            <ellipse cx="32" cy="37" rx="15" ry="16" fill="#b45309" stroke="#451a03" stroke-width="2"/>
+            <ellipse cx="32" cy="43" rx="11" ry="10" fill="#d97706" stroke="#451a03" stroke-width="1.8"/>
+            <circle cx="27" cy="30" r="2.2" fill="#1e293b"/><circle cx="37" cy="30" r="2.2" fill="#1e293b"/>
+            <ellipse cx="32" cy="41" rx="3" ry="2" fill="#451a03"/>
+          </svg>`;
+        case 'tooticky': // 杜娣（紅白條紋毛衣＋藍帽）
+          return `<svg viewBox="0 0 64 64" class="w-full h-full">
+            <circle cx="32" cy="35" r="13" fill="#fef3c7" stroke="#334155" stroke-width="2"/>
+            <path d="M19,28 Q20,12 32,12 Q44,12 45,28 Z" fill="#2563eb" stroke="#1e3a8a" stroke-width="2"/>
+            <circle cx="32" cy="9" r="3.5" fill="#dc2626"/>
+            <circle cx="27" cy="33" r="1.8" fill="#1e293b"/><circle cx="37" cy="33" r="1.8" fill="#1e293b"/>
+            <path d="M20,48 L44,48 L47,60 L17,60 Z" fill="#ffffff" stroke="#334155" stroke-width="1.8"/>
+            <path d="M19,52 L45,52 M18,56 L46,56" stroke="#dc2626" stroke-width="2.5"/>
+          </svg>`;
+        case 'hattifattener': // 溜溜（白色長條精靈群）
+          return `<svg viewBox="0 0 64 64" class="w-full h-full">
+            <path d="M18,56 L18,26 Q18,18 24,18 Q30,18 30,26 L30,56 Z" fill="#ffffff" stroke="#334155" stroke-width="2"/>
+            <circle cx="22" cy="25" r="1.5" fill="#1e293b"/><circle cx="26" cy="25" r="1.5" fill="#1e293b"/>
+            <path d="M34,56 L34,20 Q34,12 40,12 Q46,12 46,20 L46,56 Z" fill="#ffffff" stroke="#334155" stroke-width="2"/>
+            <circle cx="38" cy="19" r="1.5" fill="#1e293b"/><circle cx="42" cy="19" r="1.5" fill="#1e293b"/>
+          </svg>`;
+        case 'mymble': // 美寶（大丸子頭＋粉紫洋裝）
+          return `<svg viewBox="0 0 64 64" class="w-full h-full">
+            <circle cx="32" cy="11" r="8" fill="#ea580c" stroke="#7c2d12" stroke-width="1.8"/>
+            <path d="M18,32 Q18,18 32,18 Q46,18 46,32 Z" fill="#ea580c" stroke="#7c2d12" stroke-width="1.8"/>
+            <circle cx="32" cy="35" r="13" fill="#fef3c7" stroke="#334155" stroke-width="2"/>
+            <circle cx="27" cy="33" r="1.8" fill="#1e293b"/><circle cx="37" cy="33" r="1.8" fill="#1e293b"/>
+            <path d="M28,40 Q32,43 36,40" stroke="#334155" stroke-width="1.8" fill="none"/>
+            <path d="M21,48 L43,48 L47,60 L17,60 Z" fill="#f472b6"/>
+          </svg>`;
+        case 'groke': // 莫蘭（灰紫色巨大身影＋黃眼睛）
+          return `<svg viewBox="0 0 64 64" class="w-full h-full">
+            <path d="M14,58 Q16,14 32,12 Q48,14 50,58 Z" fill="#64748b" stroke="#334155" stroke-width="2.2"/>
+            <circle cx="26" cy="26" r="3" fill="#fef08a"/><circle cx="38" cy="26" r="3" fill="#fef08a"/>
+            <circle cx="26" cy="26" r="1.2" fill="#1e293b"/><circle cx="38" cy="26" r="1.2" fill="#1e293b"/>
+            <path d="M21,36 L43,36" stroke="#cbd5e1" stroke-width="2.5" stroke-dasharray="3 2"/>
+          </svg>`;
+        case 'stinky': // 史丁奇（毛茸茸黑棕色小怪）
+          return `<svg viewBox="0 0 64 64" class="w-full h-full">
+            <circle cx="32" cy="35" r="17" fill="#292524" stroke="#1c1917" stroke-width="2" stroke-dasharray="4 2"/>
+            <circle cx="32" cy="35" r="14" fill="#292524"/>
+            <circle cx="27" cy="32" r="3.2" fill="#ffffff"/><circle cx="37" cy="32" r="3.2" fill="#ffffff"/>
+            <circle cx="27" cy="32" r="1.5" fill="#1c1917"/><circle cx="37" cy="32" r="1.5" fill="#1c1917"/>
+            <path d="M24,25 L20,17 M40,25 L44,17" stroke="#292524" stroke-width="2.5"/>
+          </svg>`;
+        case 'moomin':
+        default: // 姆明（經典白色河馬精靈）
+          return `<svg viewBox="0 0 64 64" class="w-full h-full">
+            <path d="M22,18 L20,9 L28,15 M42,18 L44,9 L36,15" fill="#ffffff" stroke="#334155" stroke-width="2.2" stroke-linejoin="round"/>
+            <ellipse cx="32" cy="36" rx="18" ry="17" fill="#ffffff" stroke="#334155" stroke-width="2.2"/>
+            <ellipse cx="32" cy="41" rx="15" ry="12" fill="#ffffff" stroke="#334155" stroke-width="2"/>
+            <circle cx="26" cy="27" r="2.2" fill="#1e293b"/><circle cx="38" cy="27" r="2.2" fill="#1e293b"/>
+            <circle cx="28" cy="39" r="1" fill="#334155"/><circle cx="36" cy="39" r="1" fill="#334155"/>
+          </svg>`;
+      }
+    }
+
     const JAPAN_ROUTE = [
       { id: 'tokyo_start', shortName: '東京', name: '東京都（東京車站）', km: 0, x: 395, y: 345, desc: '紅磚東京車站與東京鐵塔，環日本冒險起點！', scene: 'tokyo_tower', colors: ['#6894c8', '#bce2e8'] },
       { id: 'chiba', shortName: '千葉', name: '千葉縣（犬吠埼）', km: 45, x: 418, y: 348, desc: '關東最東端，太平洋海岸與白色犬吠埼燈塔。', scene: 'lighthouse', colors: ['#527db0', '#94cad6'] },
@@ -781,7 +1111,7 @@
       progress: {},
       revisions: [],
       travel: {
-        character: null,
+        character: 'moomin',
         loop: 1,
         currentKm: 0,
         unlockedMilestones: {},
@@ -807,7 +1137,9 @@
     };
 
     window.addEventListener('DOMContentLoaded', () => {
+      applyCardTheme(activeCardThemeId);
       initMapNodes();
+      renderMoominCharacterGrid();
       selectAssistMode('blind');
       if (!GAS_URL) {
         openApiModal();
@@ -869,7 +1201,7 @@
         updateRevisionBadge();
         updateTravelUI();
         if (!appState.travel.character) {
-          document.getElementById('modal-character').classList.remove('hidden');
+          openCharacterModal();
         }
       } catch (err) {
         alert('讀取試算表失敗，請確認 GAS 部署網址與權限：\n' + err.message);
@@ -1365,9 +1697,9 @@
       const practiceNum = isInitial ? (stat.practiceCount + 1) : stat.practiceCount;
       badge.innerHTML = `
         <span class="flex items-center gap-1" title="練習次數">💪 <span>${practiceNum}</span></span>
-        <span class="text-slate-300">|</span>
+        <span class="text-slate-200 font-normal">|</span>
         <span class="flex items-center gap-1" style="color: var(--misorairo);" title="答對次數">✓ <span>${stat.correctCount}</span></span>
-        <span class="text-slate-300">|</span>
+        <span class="text-slate-200 font-normal">|</span>
         <span class="flex items-center gap-1 text-slate-500" title="答錯次數">✕ <span>${stat.wrongCount}</span></span>
       `;
     }
@@ -1402,14 +1734,14 @@
 
       const useGhostHint = currentStudy.assistMode === 'warmup' || currentStudy.assistMode === 'assist';
       const placeholderText = useGhostHint ? card._answer : '請輸入...';
-      const inputBgColor = useGhostHint ? '#f1f5f9' : 'var(--bg-tint)';
+      const inputBgColor = useGhostHint ? '#f1f5f9' : 'var(--card-light)';
 
       const qArea = document.getElementById('card-question-area');
       const inputWidth = Math.max(card._answer.length * 1.4, 5);
       qArea.innerHTML = `
         <span>${escapeHtml(card._prefix)}</span>
         <input type="text" id="cloze-input" autocomplete="off"
-          style="width: ${inputWidth}em; border-color: var(--misorairo); background-color: ${inputBgColor}; color: var(--ink-deep);"
+          style="width: ${inputWidth}em; border-color: var(--card-accent); background-color: ${inputBgColor}; color: var(--ink-deep);"
           onclick="event.stopPropagation()"
           ondblclick="event.stopPropagation()"
           onkeydown="if(event.key==='Enter'){ event.stopPropagation(); submitClozeAnswer(event); }"
@@ -1521,7 +1853,6 @@
 
       updateFlagButtonState(topic.Sheet_Name, card._rowIndex);
 
-      // 設定右側高對比醒目圓形狀態圖示（答對：實心綠圓白勾 ／ 答錯：實心紅圓白叉），並預設收合詳細橫幅
       const toggleBtn = document.getElementById('btn-result-toggle');
       const banner = document.getElementById('result-banner');
       const rTitle = document.getElementById('result-title');
@@ -1536,8 +1867,8 @@
         toggleBtn.style.color = '#ffffff';
         toggleBtn.innerHTML = `<svg viewBox="0 0 24 24" class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
 
-        banner.style.backgroundColor = 'var(--usumizuiro)';
-        banner.style.borderColor = 'var(--mizuiro)';
+        banner.style.backgroundColor = 'var(--card-light)';
+        banner.style.borderColor = 'var(--card-pale)';
         banner.style.color = 'var(--ink-deep)';
         rTitle.textContent = retryCount > 0 ? '重新作答正確！' : '回答完全正確！';
         if (actualDelta > 0) {
@@ -1547,7 +1878,7 @@
           rDetail.textContent = `本次不額外加分（累積 ${newKm} km）`;
           rBadge.textContent = '0 km';
         }
-        rBadge.style.backgroundColor = 'var(--misorairo)';
+        rBadge.style.backgroundColor = 'var(--card-accent)';
         rBadge.style.color = '#ffffff';
       } else {
         toggleBtn.style.backgroundColor = '#dc2626';
@@ -1563,14 +1894,14 @@
         } else {
           rTitle.textContent = isSkipped ? '直接查看答案' : '回答不正確';
         }
-        rDetail.innerHTML = `你的輸入：<span class="underline font-bold">${escapeHtml(userInput || '（空白）')}</span> ｜ 正確答案：<span style="color: var(--misorairo);" class="font-bold">${escapeHtml(card._answer)}</span>`;
+        rDetail.innerHTML = `你的輸入：<span class="underline font-bold">${escapeHtml(userInput || '（空白）')}</span> ｜ 正確答案：<span style="color: var(--card-accent);" class="font-bold">${escapeHtml(card._answer)}</span>`;
         rBadge.textContent = actualDelta < 0 ? `${actualDelta} km` : '0 km';
         rBadge.style.backgroundColor = actualDelta < 0 ? '#dc2626' : '#94a3b8';
         rBadge.style.color = '#ffffff';
       }
 
       document.getElementById('back-full-sentence').innerHTML =
-        `${escapeHtml(card._prefix)}<span style="color: var(--misorairo);" class="underline decoration-2 mx-0.5">${escapeHtml(card._answer)}</span>${escapeHtml(card._suffix)}`;
+        `${escapeHtml(card._prefix)}<span style="color: var(--card-accent);" class="underline decoration-2 mx-0.5">${escapeHtml(card._answer)}</span>${escapeHtml(card._suffix)}`;
 
       const ansCols = topic.Answer_Cols_JSON || [];
       const ansArea = document.getElementById('card-answers-area');
@@ -1589,16 +1920,19 @@
       ]).catch(err => console.error('背景同步失敗:', err));
     }
 
+    // 旗幟按鈕底色與「答案揭曉」橫幅背景色一致（已標記時僅顯示淡外框高亮）
     function updateFlagButtonState(sheetName, rowIndex) {
       const btn = document.getElementById('btn-flag-revision');
       const alreadyFlagged = appState.revisions.some(
         r => String(r.Sheet_Name) === String(sheetName) && String(r.Row_Index) === String(rowIndex)
       );
       if (alreadyFlagged) {
-        btn.className = 'btn-misora w-9 h-9 rounded-xl transition flex items-center justify-center text-base shadow shrink-0';
+        btn.style.backgroundColor = 'var(--card-pale)';
+        btn.className = 'w-9 h-9 rounded-xl transition flex items-center justify-center text-base shrink-0 ring-1 ring-black/10';
         btn.title = '已標註需要修訂';
       } else {
-        btn.className = 'btn-usumizu w-9 h-9 rounded-xl transition flex items-center justify-center text-base shadow-sm shrink-0';
+        btn.style.backgroundColor = 'transparent';
+        btn.className = 'w-9 h-9 rounded-xl transition flex items-center justify-center text-base shrink-0 hover:bg-black/5';
         btn.title = '標註此卡片需要修訂';
       }
     }
@@ -1645,8 +1979,25 @@
       }
     }
 
-    function selectCharacter(gender) {
-      appState.travel.character = gender;
+    // ==================== 姆明家族角色選擇與渲染 ====================
+    function renderMoominCharacterGrid() {
+      const grid = document.getElementById('moomin-character-grid');
+      const currentCharId = appState.travel.character || 'moomin';
+      grid.innerHTML = MOOMIN_CHARACTERS.map(ch => {
+        const isSelected = ch.id === currentCharId;
+        return `
+          <button type="button" onclick="selectCharacter('${ch.id}')"
+            style="border-color: ${isSelected ? 'var(--misorairo)' : 'var(--usumizuiro)'}; background-color: ${isSelected ? 'var(--bg-tint)' : '#ffffff'};"
+            class="p-3 border-2 rounded-2xl hover:bg-[#f3f9fb] transition flex flex-col items-center gap-1.5 shadow-sm">
+            <div class="w-14 h-14 flex items-center justify-center">${getMoominSVG(ch.id)}</div>
+            <span class="font-bold text-xs leading-tight">${ch.name}</span>
+          </button>
+        `;
+      }).join('');
+    }
+
+    function selectCharacter(charId) {
+      appState.travel.character = charId;
       const startKey = `loop${appState.travel.loop}_tokyo_start`;
       if (!appState.travel.unlockedMilestones[startKey]) {
         appState.travel.unlockedMilestones[startKey] = {
@@ -1654,12 +2005,16 @@
           customPhoto: ''
         };
       }
+      renderMoominCharacterGrid();
       closeModal('modal-character');
       updateTravelUI();
       callGasPost({ action: 'saveTravel', travel: appState.travel });
     }
 
-    function openCharacterModal() { openModal('modal-character'); }
+    function openCharacterModal() {
+      renderMoominCharacterGrid();
+      openModal('modal-character');
+    }
 
     function openAlbumModal() {
       renderMilestonesAlbum();
@@ -1727,9 +2082,17 @@
       const { character, loop, currentKm, unlockedMilestones } = appState.travel;
       updateHeaderLocation();
 
-      const emoji = character === 'female' ? '👧' : '👦';
-      document.getElementById('travel-avatar-display').textContent = emoji;
-      document.getElementById('map-player-emoji').textContent = emoji;
+      // 若舊資料為 male/female 或空值，預設對應至 moomin / snorkmaiden
+      let resolvedCharId = character || 'moomin';
+      if (resolvedCharId === 'male') resolvedCharId = 'moomin';
+      if (resolvedCharId === 'female') resolvedCharId = 'snorkmaiden';
+
+      const charObj = MOOMIN_CHARACTERS.find(c => c.id === resolvedCharId) || MOOMIN_CHARACTERS[0];
+      const svgMarkup = getMoominSVG(charObj.id);
+      document.getElementById('travel-avatar-display').innerHTML = svgMarkup;
+      document.getElementById('map-player-avatar').innerHTML = svgMarkup;
+      document.getElementById('travel-character-name').textContent = charObj.name;
+
       document.getElementById('travel-loop').textContent = loop;
       document.getElementById('travel-km').textContent = currentKm;
 
