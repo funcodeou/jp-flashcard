@@ -67,6 +67,10 @@
       opacity: 0.65;
       font-weight: 500;
     }
+    /* 橫向斜角緞帶標籤樣式 */
+    .ribbon-tag {
+      clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 50%, calc(100% - 14px) 100%, 0 100%);
+    }
   </style>
 </head>
 <body class="min-h-screen flex flex-col">
@@ -266,26 +270,32 @@
         </div>
       </div>
 
-      <!-- 出題卡片容器：改為 ondblclick（按兩下空白處）才直接跳到答案卡片 -->
-      <div id="flashcard-container" ondblclick="handleCardBackgroundDblClick(event)" style="border-color: var(--mizuiro);" class="bg-white rounded-3xl shadow-lg border-2 p-6 md:p-8 min-h-[340px] flex flex-col justify-between transition relative select-none">
-        <!-- 出題面 -->
-        <div id="card-front" class="space-y-6">
-          <!-- 左上角標籤列 + 「出題卡片」正下方的圓圈實心三角形播放答題鈕 -->
-          <div class="flex flex-col items-start gap-2.5">
-            <div class="flex items-center gap-2">
-              <span style="background-color: var(--usumizuiro); color: var(--ink-deep);" class="px-2.5 py-1 text-xs font-bold rounded-lg">出題卡片</span>
-              <!-- 重新作答時顯示和風水色向量重答圖示 -->
-              <span id="retry-mode-badge" style="background-color: var(--sorairo); color: var(--ink-deep);" class="hidden px-2 py-1 rounded-lg flex items-center justify-center" title="重新作答">
-                <svg viewBox="0 0 24 24" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
-                  <path d="M3 3v5h5"/>
-                  <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/>
-                  <path d="M16 16h5v5"/>
-                </svg>
-              </span>
+      <!-- 閃卡主容器：按兩下空白處才翻至答案卡片 -->
+      <div id="flashcard-container" ondblclick="handleCardBackgroundDblClick(event)" style="border-color: var(--mizuiro);" class="bg-white rounded-3xl shadow-lg border-2 p-5 md:p-7 min-h-[340px] flex flex-col justify-between transition relative select-none">
+        <!-- ==================== 出題面 ==================== -->
+        <div id="card-front" class="space-y-5">
+          <!-- 橫向醒目緞帶標題列：「✏️ 出題中」 -->
+          <div style="background-color: #e4f3f7;" class="w-full rounded-2xl overflow-hidden flex items-center justify-between pr-3">
+            <div style="background-color: var(--usumizuiro); color: var(--ink-deep);" class="ribbon-tag pl-4 pr-7 py-2.5 flex items-center gap-2.5 font-extrabold text-base sm:text-lg tracking-wide">
+              <svg viewBox="0 0 24 24" class="w-5 h-5 shrink-0" fill="none" stroke="var(--misorairo)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/>
+              </svg>
+              <span>出題中</span>
             </div>
 
-            <!-- 圓圈內實心三角形播放按鈕圖示 -->
+            <!-- 重新作答時顯示向量重答小徽章 -->
+            <span id="retry-mode-badge" style="background-color: var(--sorairo); color: var(--ink-deep);" class="hidden px-2.5 py-1 rounded-xl flex items-center justify-center" title="重新作答">
+              <svg viewBox="0 0 24 24" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+                <path d="M3 3v5h5"/>
+                <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/>
+                <path d="M16 16h5v5"/>
+              </svg>
+            </span>
+          </div>
+
+          <!-- 左下方播放答題按鈕（▶ 圓圈實心三角形） -->
+          <div class="flex items-center">
             <button type="button" id="btn-submit-answer" onclick="submitClozeAnswer(event)" ondblclick="event.stopPropagation()"
               class="btn-misora w-10 h-10 rounded-full shadow-md transition flex items-center justify-center hover:scale-105 active:scale-95"
               title="送出回答">
@@ -296,55 +306,60 @@
             </button>
           </div>
 
-          <!-- 上方：克漏字題目區 -->
-          <div class="py-4 text-center">
+          <!-- 克漏字題目區 -->
+          <div class="py-3 text-center">
             <div id="card-question-area" class="japanese-text text-xl md:text-2xl font-bold leading-relaxed flex flex-wrap items-center justify-center gap-1.5 select-text"></div>
           </div>
 
-          <!-- 下方：提示欄位區 -->
+          <!-- 提示欄位區 -->
           <div id="card-hints-area" style="background-color: var(--bg-tint); border-color: var(--usumizuiro);" class="rounded-xl p-4 space-y-1.5 text-sm border select-text"></div>
         </div>
 
-        <!-- 答案面：左上角「答案卡片」下方並排「🔄 重答」與「→ 下一張」純圖示按鈕；中央為單一答對/答錯狀態圖示（點擊可展開詳細反饋） -->
+        <!-- ==================== 答案面 ==================== -->
         <div id="card-back" class="hidden space-y-5 cursor-default select-text" onclick="event.stopPropagation()" ondblclick="event.stopPropagation()">
-          <!-- 答案卡頂部控制區 -->
-          <div class="relative flex items-start justify-between">
-            <!-- 左上角：「答案卡片」標籤 + 正下方並排純圖示按鈕（重新作答 / 下一張卡片） -->
-            <div class="flex flex-col items-start gap-2.5">
-              <span style="background-color: var(--mizuiro); color: var(--ink-deep);" class="px-2.5 py-1 text-xs font-bold rounded-lg">答案卡片</span>
-              <div class="flex items-center gap-2">
-                <button type="button" onclick="retryCurrentCard()" class="btn-sora w-9 h-9 rounded-xl transition flex items-center justify-center shadow-sm hover:scale-105 active:scale-95" title="重新作答">
-                  <svg viewBox="0 0 24 24" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
-                    <path d="M3 3v5h5"/>
-                    <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/>
-                    <path d="M16 16h5v5"/>
-                  </svg>
-                </button>
-                <button type="button" onclick="nextCard()" class="btn-misora w-9 h-9 rounded-xl transition flex items-center justify-center shadow-sm hover:scale-105 active:scale-95" title="下一張卡片">
-                  <svg viewBox="0 0 24 24" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="5" y1="12" x2="19" y2="12"/>
-                    <polyline points="12 5 19 12 12 19"/>
-                  </svg>
-                </button>
-              </div>
+          <!-- 橫向醒目緞帶標題列：「✓ 答案揭曉」 + 右側 🚩 標註修訂鈕 -->
+          <div style="background-color: #e4f3f7;" class="w-full rounded-2xl overflow-hidden flex items-center justify-between pr-2.5">
+            <div style="background-color: var(--mizuiro); color: var(--ink-deep);" class="ribbon-tag pl-4 pr-7 py-2.5 flex items-center gap-2.5 font-extrabold text-base sm:text-lg tracking-wide">
+              <span style="background-color: var(--misorairo);" class="w-6 h-6 rounded-full flex items-center justify-center text-white shrink-0">
+                <svg viewBox="0 0 24 24" class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+              </span>
+              <span>答案揭曉</span>
             </div>
 
-            <!-- 中央：單一答對／答錯狀態圓形圖示按鈕（點擊才展開下方詳細反饋資訊） -->
-            <div class="pt-3">
-              <button type="button" id="btn-result-toggle" onclick="toggleResultDetail()"
-                class="w-11 h-11 rounded-full border-2 shadow-sm transition flex items-center justify-center hover:scale-105 active:scale-95"
-                title="點擊查看作答詳情與里程變化">
-              </button>
-            </div>
-
-            <!-- 右上角：標註修訂純圖示按鈕 -->
-            <button type="button" id="btn-flag-revision" onclick="flagCurrentCardForRevision()" class="btn-usumizu w-9 h-9 rounded-xl transition flex items-center justify-center text-base shadow-sm" title="標註此卡片需要修訂">
+            <button type="button" id="btn-flag-revision" onclick="flagCurrentCardForRevision()" class="btn-usumizu w-9 h-9 rounded-xl transition flex items-center justify-center text-base shadow-sm shrink-0" title="標註此卡片需要修訂">
               <span>🚩</span>
             </button>
           </div>
 
-          <!-- 可折疊的詳細反饋資訊列（預設隱藏，使用者點擊中央狀態圖示後展開） -->
+          <!-- 第二列控制區：左側並排「🔄 重答」與「→ 下一張」純圖示鈕；右側為高對比醒目圓形答對(綠)/答錯(紅)圖示 -->
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <button type="button" onclick="retryCurrentCard()" class="btn-sora w-10 h-10 rounded-xl transition flex items-center justify-center shadow-sm hover:scale-105 active:scale-95" title="重新作答">
+                <svg viewBox="0 0 24 24" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+                  <path d="M3 3v5h5"/>
+                  <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/>
+                  <path d="M16 16h5v5"/>
+                </svg>
+              </button>
+              <button type="button" onclick="nextCard()" class="btn-misora w-10 h-10 rounded-xl transition flex items-center justify-center shadow-sm hover:scale-105 active:scale-95" title="下一張卡片">
+                <svg viewBox="0 0 24 24" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="5" y1="12" x2="19" y2="12"/>
+                  <polyline points="12 5 19 12 12 19"/>
+                </svg>
+              </button>
+            </div>
+
+            <!-- 右側（🚩 正下方）：高對比醒目圓形答對（實心綠圓白勾）／答錯（實心紅圓白叉）圖示按鈕，點擊可展開詳細反饋 -->
+            <button type="button" id="btn-result-toggle" onclick="toggleResultDetail()"
+              class="w-11 h-11 rounded-full shadow-md transition flex items-center justify-center hover:scale-105 active:scale-95"
+              title="點擊查看作答詳情與里程變化">
+            </button>
+          </div>
+
+          <!-- 可折疊的詳細反饋資訊列（預設隱藏，點擊右側紅/綠圓形狀態圖示後展開） -->
           <div id="result-banner" class="hidden p-3.5 rounded-2xl flex items-center justify-between border transition-all">
             <div>
               <div id="result-title" class="font-bold text-base"></div>
@@ -353,7 +368,7 @@
             <div id="result-km-badge" class="text-lg font-black px-3 py-1 rounded-xl shrink-0"></div>
           </div>
 
-          <!-- 完整日文句子框（已移除「完整句子」四字標題） -->
+          <!-- 完整日文句子框 -->
           <div style="background-color: var(--bg-tint); border-color: var(--usumizuiro);" class="border rounded-2xl p-5 text-center">
             <div id="back-full-sentence" class="japanese-text text-xl font-bold leading-relaxed"></div>
           </div>
@@ -654,8 +669,8 @@
         <div style="background-color: var(--bg-tint); border-color: var(--usumizuiro);" class="p-4 rounded-xl border space-y-1.5">
           <h4 style="color: var(--misorairo);" class="font-bold">3. 出題卡與答案卡操作說明</h4>
           <ul class="list-disc pl-5 space-y-1 text-xs">
-            <li><strong>出題卡片：</strong>點擊左上角「▶」播放按鈕或按 <code>Enter</code> 送出答案；<strong>在卡片空白處按兩下（雙擊）</strong>可直接翻至答案卡片（計為答錯）。</li>
-            <li><strong>答案卡片：</strong>左上角「答案卡片」下方並排<strong>重答（🔄）</strong>與<strong>下一張（→）</strong>純圖示按鈕；上方中央的<strong>狀態圓形圖示</strong>可點擊展開／收合本次作答對比與里程變化詳情。</li>
+            <li><strong>出題中卡片：</strong>點擊播放按鈕（▶）或按 <code>Enter</code> 送出答案；<strong>在卡片空白處按兩下（雙擊）</strong>可直接翻至答案揭曉卡片（計為答錯）。</li>
+            <li><strong>答案揭曉卡片：</strong>左側並排<strong>重答（🔄）</strong>與<strong>下一張（→）</strong>純圖示按鈕；右側為<strong>醒目綠色（答對）／紅色（答錯）圓形狀態圖示</strong>，點擊可展開／收合本次作答對比與里程變化詳情。</li>
           </ul>
         </div>
       </div>
@@ -1428,7 +1443,6 @@
       renderCurrentFlashcard();
     }
 
-    // 出題卡片按兩下（Double-click）空白處才跳到答案卡片
     function handleCardBackgroundDblClick(event) {
       if (currentStudy.isAnswered) return;
       if (event.target.tagName === 'INPUT' || event.target.tagName === 'BUTTON') return;
@@ -1442,7 +1456,6 @@
       evaluateAnswer(userInput, false);
     }
 
-    // 切換展開／收合答案卡上方的詳細反饋資訊
     function toggleResultDetail() {
       const banner = document.getElementById('result-banner');
       banner.classList.toggle('hidden');
@@ -1508,20 +1521,20 @@
 
       updateFlagButtonState(topic.Sheet_Name, card._rowIndex);
 
-      // 設定答案卡中央的單一狀態圓形圖示，並預設收合詳細橫幅（按下去才看）
+      // 設定右側高對比醒目圓形狀態圖示（答對：實心綠圓白勾 ／ 答錯：實心紅圓白叉），並預設收合詳細橫幅
       const toggleBtn = document.getElementById('btn-result-toggle');
       const banner = document.getElementById('result-banner');
       const rTitle = document.getElementById('result-title');
       const rDetail = document.getElementById('result-detail');
       const rBadge = document.getElementById('result-km-badge');
 
-      banner.classList.add('hidden'); // 預設收合，點擊中央狀態圖示後展開
+      banner.classList.add('hidden');
 
       if (isCorrect) {
-        toggleBtn.style.backgroundColor = 'var(--misorairo)';
-        toggleBtn.style.borderColor = 'var(--misora-dark)';
+        toggleBtn.style.backgroundColor = '#16a34a';
+        toggleBtn.style.borderColor = '#15803d';
         toggleBtn.style.color = '#ffffff';
-        toggleBtn.innerHTML = `<svg viewBox="0 0 24 24" class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
+        toggleBtn.innerHTML = `<svg viewBox="0 0 24 24" class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
 
         banner.style.backgroundColor = 'var(--usumizuiro)';
         banner.style.borderColor = 'var(--mizuiro)';
@@ -1537,14 +1550,14 @@
         rBadge.style.backgroundColor = 'var(--misorairo)';
         rBadge.style.color = '#ffffff';
       } else {
-        toggleBtn.style.backgroundColor = '#f1f5f9';
-        toggleBtn.style.borderColor = '#94a3b8';
-        toggleBtn.style.color = '#475569';
-        toggleBtn.innerHTML = `<svg viewBox="0 0 24 24" class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`;
+        toggleBtn.style.backgroundColor = '#dc2626';
+        toggleBtn.style.borderColor = '#b91c1c';
+        toggleBtn.style.color = '#ffffff';
+        toggleBtn.innerHTML = `<svg viewBox="0 0 24 24" class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`;
 
-        banner.style.backgroundColor = '#f1f5f9';
-        banner.style.borderColor = '#cbd5e1';
-        banner.style.color = 'var(--ink-deep)';
+        banner.style.backgroundColor = '#ffe4e6';
+        banner.style.borderColor = '#fecdd3';
+        banner.style.color = '#881337';
         if (retryCount > 0) {
           rTitle.textContent = isSkipped ? '重答放棄（重答不扣分）' : '重答不正確（重答不扣分）';
         } else {
@@ -1552,7 +1565,7 @@
         }
         rDetail.innerHTML = `你的輸入：<span class="underline font-bold">${escapeHtml(userInput || '（空白）')}</span> ｜ 正確答案：<span style="color: var(--misorairo);" class="font-bold">${escapeHtml(card._answer)}</span>`;
         rBadge.textContent = actualDelta < 0 ? `${actualDelta} km` : '0 km';
-        rBadge.style.backgroundColor = actualDelta < 0 ? '#64748b' : '#94a3b8';
+        rBadge.style.backgroundColor = actualDelta < 0 ? '#dc2626' : '#94a3b8';
         rBadge.style.color = '#ffffff';
       }
 
@@ -1582,10 +1595,10 @@
         r => String(r.Sheet_Name) === String(sheetName) && String(r.Row_Index) === String(rowIndex)
       );
       if (alreadyFlagged) {
-        btn.className = 'btn-misora w-9 h-9 rounded-xl transition flex items-center justify-center text-base shadow';
+        btn.className = 'btn-misora w-9 h-9 rounded-xl transition flex items-center justify-center text-base shadow shrink-0';
         btn.title = '已標註需要修訂';
       } else {
-        btn.className = 'btn-usumizu w-9 h-9 rounded-xl transition flex items-center justify-center text-base shadow-sm';
+        btn.className = 'btn-usumizu w-9 h-9 rounded-xl transition flex items-center justify-center text-base shadow-sm shrink-0';
         btn.title = '標註此卡片需要修訂';
       }
     }
