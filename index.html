@@ -200,7 +200,7 @@
       <div id="topics-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
     </section>
 
-    <!-- ==================== 2. 練習前篩選器 ==================== -->
+    <!-- ==================== 2. 練習前篩選器（三步驟圖示列＋點擊展開設定＋後方顯示已選摘要） ==================== -->
     <section id="view-filter" class="hidden max-w-xl mx-auto">
       <div style="border-color: var(--usumizuiro);" class="bg-white rounded-2xl shadow-md border-2 p-6 space-y-5">
         <div style="border-color: var(--usumizuiro);" class="flex items-center justify-between border-b pb-3">
@@ -213,83 +213,146 @@
 
         <div id="format-warning-box" class="hidden bg-rose-50 border border-rose-200 text-rose-700 text-xs p-3 rounded-xl"></div>
 
-        <!-- 最上方：純線條圖示三段模式切換器（跑步暖身 ／ 單車輔助 ／ 開車盲測） -->
-        <div class="grid grid-cols-3 gap-3" id="assist-mode-selector">
-          <button type="button" data-mode="warmup" onclick="selectAssistMode('warmup')"
-            class="assist-mode-btn h-14 rounded-2xl border-2 transition flex items-center justify-center"
-            title="暖身練習（灰底答案提示｜首對 +0.2 / 首錯 0 / 首次重答 +0.2）">
-            <svg viewBox="0 0 24 24" class="w-6 h-6 shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="4.5" r="1.5"/><path d="M18 11l-3.5-2-2.5 3.5L9 10l-3 3"/><path d="M12 12.5L9.5 17 6 20.5"/><path d="M12 12.5l3 3.5 1.5 4.5"/></svg>
-          </button>
-          <button type="button" data-mode="assist" onclick="selectAssistMode('assist')"
-            class="assist-mode-btn h-14 rounded-2xl border-2 transition flex items-center justify-center"
-            title="輔助推進（灰底答案提示｜首對 +0.5 / 首錯 -0.25 / 首次重答 +0.25）">
-            <svg viewBox="0 0 24 24" class="w-6 h-6 shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="5.5" cy="17.5" r="3.5"/><circle cx="18.5" cy="17.5" r="3.5"/><path d="M15 6h-5l-2 5.5 4.5 2 2.5-4.5"/><path d="M12 13.5V17.5"/><circle cx="16" cy="5.5" r="1"/></svg>
-          </button>
-          <button type="button" data-mode="blind" onclick="selectAssistMode('blind')"
-            class="assist-mode-btn h-14 rounded-2xl border-2 transition flex items-center justify-center shadow-sm"
-            title="盲測挑戰（無提示｜首對 +1 / 首錯 -0.5 / 首次重答 +0.5）">
-            <svg viewBox="0 0 24 24" class="w-6 h-6 shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 11l1.5-4.5A2 2 0 0 1 8.4 5h7.2a2 2 0 0 1 1.9 1.5L19 11"/><rect x="3" y="11" width="18" height="7" rx="2"/><circle cx="7.5" cy="15" r="1.2"/><circle cx="16.5" cy="15" r="1.2"/><line x1="5" y1="18" x2="5" y2="20"/><line x1="19" y1="18" x2="19" y2="20"/></svg>
-          </button>
-        </div>
-
-        <!-- 練習順序與進度模式 -->
-        <div style="border-color: var(--usumizuiro);" class="space-y-2.5 border-t pt-4">
-          <label class="block text-sm font-bold">1. 選擇練習順序與進度模式：</label>
-          <label style="border-color: var(--usumizuiro);" class="flex items-center gap-3 p-3 border rounded-xl cursor-pointer hover:bg-[#f3f9fb]">
-            <input type="radio" name="filterMode" value="resume" checked onchange="updateFilterMatchCount()" class="w-4 h-4 accent-[#6894c8]">
-            <div>
-              <div class="font-medium text-sm">接續上次進度</div>
-              <div class="text-xs text-slate-500">從上次最後停留的卡片繼續往後練習</div>
-            </div>
-          </label>
-          <label style="border-color: var(--usumizuiro);" class="flex items-center gap-3 p-3 border rounded-xl cursor-pointer hover:bg-[#f3f9fb]">
-            <input type="radio" name="filterMode" value="restart" onchange="updateFilterMatchCount()" class="w-4 h-4 accent-[#6894c8]">
-            <div>
-              <div class="font-medium text-sm">從頭開始（第 1 張）</div>
-              <div class="text-xs text-slate-500">依工作表原始順序從第一題開始</div>
-            </div>
-          </label>
-          <label style="border-color: var(--usumizuiro);" class="flex items-center gap-3 p-3 border rounded-xl cursor-pointer hover:bg-[#f3f9fb]">
-            <input type="radio" name="filterMode" value="wrong" onchange="updateFilterMatchCount()" class="w-4 h-4 accent-[#6894c8]">
-            <div class="flex-1 flex items-center justify-between">
-              <div>
-                <div class="font-medium text-sm">錯題集中加強</div>
-                <div class="text-xs text-slate-500">只篩選答錯次數達門檻的卡片</div>
+        <div class="space-y-3">
+          <!-- 步驟 1：考題單元（不限欄位 / 指定欄位分類） -->
+          <div style="border-color: var(--usumizuiro);" class="border-2 rounded-2xl overflow-hidden transition">
+            <button type="button" onclick="toggleFilterStepPanel('unit')"
+              style="background-color: var(--bg-tint);"
+              class="w-full px-4 py-3.5 flex items-center justify-between gap-3 text-left hover:bg-[#bce2e8]/30 transition">
+              <div class="flex items-center gap-3 min-w-0">
+                <span style="background-color: var(--usumizuiro); color: var(--ink-deep);" class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0">
+                  <svg viewBox="0 0 24 24" class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+                </span>
+                <div class="min-w-0">
+                  <div class="font-bold text-sm" style="color: var(--ink-deep);">考題單元</div>
+                  <div id="summary-filter-unit" style="color: var(--misorairo);" class="text-xs font-bold truncate mt-0.5">不限欄位</div>
+                </div>
               </div>
-              <div class="flex items-center gap-1 text-xs">
-                <span>錯 ≥</span>
-                <input type="number" id="wrong-threshold" value="1" min="1" onchange="updateFilterMatchCount()" onkeyup="updateFilterMatchCount()" class="w-12 border rounded px-1.5 py-1 text-center font-bold">
-                <span>次</span>
+              <span id="chevron-filter-unit" class="text-slate-400 text-xs font-bold shrink-0">▾</span>
+            </button>
+
+            <div id="panel-filter-unit" class="hidden p-4 bg-white border-t space-y-3" style="border-color: var(--usumizuiro);">
+              <select id="filter-custom-col" onchange="handleFilterCustomColChange()" style="border-color: var(--mizuiro);" class="w-full border rounded-xl px-3 py-2 text-sm bg-white">
+                <option value="">不限欄位</option>
+              </select>
+
+              <div id="filter-custom-values-wrapper" style="background-color: var(--bg-tint); border-color: var(--usumizuiro);" class="hidden border rounded-xl p-3 space-y-2">
+                <div class="flex items-center justify-between text-xs text-slate-500 border-b pb-1.5">
+                  <span>指定欄位分類（可複選）：</span>
+                  <div class="space-x-2">
+                    <button type="button" onclick="toggleAllFilterValues(true)" style="color: var(--misorairo);" class="hover:underline font-bold">全選</button>
+                    <button type="button" onclick="toggleAllFilterValues(false)" class="text-slate-500 hover:underline">全不選</button>
+                  </div>
+                </div>
+                <div id="filter-custom-values-list" class="max-h-40 overflow-y-auto grid grid-cols-2 gap-1.5 text-sm pt-1"></div>
               </div>
             </div>
-          </label>
-          <label style="border-color: var(--usumizuiro);" class="flex items-center gap-3 p-3 border rounded-xl cursor-pointer hover:bg-[#f3f9fb]">
-            <input type="radio" name="filterMode" value="shuffle" onchange="updateFilterMatchCount()" class="w-4 h-4 accent-[#6894c8]">
-            <div>
-              <div class="font-medium text-sm">全部隨機打亂</div>
-              <div class="text-xs text-slate-500">將篩選後的卡片隨機洗牌</div>
-            </div>
-          </label>
-        </div>
-
-        <!-- 指定單一欄位項目複選篩選 -->
-        <div style="border-color: var(--usumizuiro);" class="space-y-2.5 border-t pt-4">
-          <div class="flex items-center justify-between">
-            <label class="block text-sm font-bold">2. 指定欄位分類篩選（選填，單選一欄）：</label>
           </div>
-          <select id="filter-custom-col" onchange="handleFilterCustomColChange()" style="border-color: var(--mizuiro);" class="w-full border rounded-xl px-3 py-2 text-sm bg-white">
-            <option value="">-- 不限欄位（練習全部資料） --</option>
-          </select>
 
-          <div id="filter-custom-values-wrapper" style="background-color: var(--bg-tint); border-color: var(--usumizuiro);" class="hidden border rounded-xl p-3 space-y-2">
-            <div class="flex items-center justify-between text-xs text-slate-500 border-b pb-1.5">
-              <span>勾選要納入練習的項目（可複選）：</span>
-              <div class="space-x-2">
-                <button type="button" onclick="toggleAllFilterValues(true)" style="color: var(--misorairo);" class="hover:underline font-bold">全選</button>
-                <button type="button" onclick="toggleAllFilterValues(false)" class="text-slate-500 hover:underline">全不選</button>
+          <!-- 步驟 2：學習狀態（原始狀態 / 未練習優先 / 答錯 N 次優先） -->
+          <div style="border-color: var(--usumizuiro);" class="border-2 rounded-2xl overflow-hidden transition">
+            <button type="button" onclick="toggleFilterStepPanel('status')"
+              style="background-color: var(--bg-tint);"
+              class="w-full px-4 py-3.5 flex items-center justify-between gap-3 text-left hover:bg-[#bce2e8]/30 transition">
+              <div class="flex items-center gap-3 min-w-0">
+                <span style="background-color: var(--usumizuiro); color: var(--ink-deep);" class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0">
+                  <svg viewBox="0 0 24 24" class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                </span>
+                <div class="min-w-0">
+                  <div class="font-bold text-sm" style="color: var(--ink-deep);">學習狀態</div>
+                  <div id="summary-filter-status" style="color: var(--misorairo);" class="text-xs font-bold truncate mt-0.5">原始</div>
+                </div>
+              </div>
+              <span id="chevron-filter-status" class="text-slate-400 text-xs font-bold shrink-0">▾</span>
+            </button>
+
+            <div id="panel-filter-status" class="hidden p-4 bg-white border-t space-y-2" style="border-color: var(--usumizuiro);">
+              <label style="border-color: var(--usumizuiro);" class="flex items-center gap-3 p-2.5 border rounded-xl cursor-pointer hover:bg-[#f3f9fb]">
+                <input type="radio" name="learningStatus" value="default" checked onchange="handleLearningStatusChange()" class="w-4 h-4 accent-[#6894c8]">
+                <span class="font-medium text-sm">原始</span>
+              </label>
+              <label style="border-color: var(--usumizuiro);" class="flex items-center gap-3 p-2.5 border rounded-xl cursor-pointer hover:bg-[#f3f9fb]">
+                <input type="radio" name="learningStatus" value="unpracticed_first" onchange="handleLearningStatusChange()" class="w-4 h-4 accent-[#6894c8]">
+                <span class="font-medium text-sm">未練習優先</span>
+              </label>
+              <label style="border-color: var(--usumizuiro);" class="flex items-center gap-3 p-2.5 border rounded-xl cursor-pointer hover:bg-[#f3f9fb]">
+                <input type="radio" name="learningStatus" value="wrong_first" onchange="handleLearningStatusChange()" class="w-4 h-4 accent-[#6894c8]">
+                <div class="flex-1 flex items-center justify-between gap-2">
+                  <span class="font-medium text-sm">答錯</span>
+                  <div class="flex items-center gap-1.5 text-sm">
+                    <input type="number" id="wrong-threshold" value="1" min="1" onchange="handleLearningStatusChange()" onkeyup="handleLearningStatusChange()" class="w-12 border rounded px-1.5 py-0.5 text-center font-bold">
+                    <span class="font-medium">次優先</span>
+                  </div>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <!-- 步驟 3：出題順序（按照工作表順序 / 隨機） -->
+          <div style="border-color: var(--usumizuiro);" class="border-2 rounded-2xl overflow-hidden transition">
+            <button type="button" onclick="toggleFilterStepPanel('order')"
+              style="background-color: var(--bg-tint);"
+              class="w-full px-4 py-3.5 flex items-center justify-between gap-3 text-left hover:bg-[#bce2e8]/30 transition">
+              <div class="flex items-center gap-3 min-w-0">
+                <span style="background-color: var(--usumizuiro); color: var(--ink-deep);" class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0">
+                  <svg viewBox="0 0 24 24" class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+                </span>
+                <div class="min-w-0">
+                  <div class="font-bold text-sm" style="color: var(--ink-deep);">出題順序</div>
+                  <div id="summary-filter-order" style="color: var(--misorairo);" class="text-xs font-bold truncate mt-0.5">原始</div>
+                </div>
+              </div>
+              <span id="chevron-filter-order" class="text-slate-400 text-xs font-bold shrink-0">▾</span>
+            </button>
+
+            <div id="panel-filter-order" class="hidden p-4 bg-white border-t space-y-2" style="border-color: var(--usumizuiro);">
+              <label style="border-color: var(--usumizuiro);" class="flex items-center gap-3 p-2.5 border rounded-xl cursor-pointer hover:bg-[#f3f9fb]">
+                <input type="radio" name="filterMode" value="sheet_order" checked onchange="handleOrderModeChange()" class="w-4 h-4 accent-[#6894c8]">
+                <span class="font-medium text-sm">原始</span>
+              </label>
+              <label style="border-color: var(--usumizuiro);" class="flex items-center gap-3 p-2.5 border rounded-xl cursor-pointer hover:bg-[#f3f9fb]">
+                <input type="radio" name="filterMode" value="shuffle" onchange="handleOrderModeChange()" class="w-4 h-4 accent-[#6894c8]">
+                <span class="font-medium text-sm">隨機</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- 步驟 4：作答方式（暖身 ／ 輔助 ／ 盲測） -->
+          <div style="border-color: var(--usumizuiro);" class="border-2 rounded-2xl overflow-hidden transition">
+            <button type="button" onclick="toggleFilterStepPanel('mode')"
+              style="background-color: var(--bg-tint);"
+              class="w-full px-4 py-3.5 flex items-center justify-between gap-3 text-left hover:bg-[#bce2e8]/30 transition">
+              <div class="flex items-center gap-3 min-w-0">
+                <span style="background-color: var(--usumizuiro); color: var(--ink-deep);" class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0">
+                  <svg viewBox="0 0 24 24" class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="4.5" r="1.5"/><path d="M18 11l-3.5-2-2.5 3.5L9 10l-3 3"/><path d="M12 12.5L9.5 17 6 20.5"/><path d="M12 12.5l3 3.5 1.5 4.5"/></svg>
+                </span>
+                <div class="min-w-0">
+                  <div class="font-bold text-sm" style="color: var(--ink-deep);">作答方式</div>
+                  <div id="summary-filter-mode" style="color: var(--misorairo);" class="text-xs font-bold truncate mt-0.5">盲測挑戰</div>
+                </div>
+              </div>
+              <span id="chevron-filter-mode" class="text-slate-400 text-xs font-bold shrink-0">▾</span>
+            </button>
+
+            <div id="panel-filter-mode" class="hidden p-4 bg-white border-t" style="border-color: var(--usumizuiro);">
+              <div class="grid grid-cols-3 gap-3" id="assist-mode-selector">
+                <button type="button" data-mode="warmup" onclick="selectAssistMode('warmup')"
+                  class="assist-mode-btn h-14 rounded-2xl border-2 transition flex items-center justify-center"
+                  title="暖身練習（灰底答案提示｜首對 +0.2 / 首錯 0 / 首次重答 +0.2）">
+                  <svg viewBox="0 0 24 24" class="w-6 h-6 shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="4.5" r="1.5"/><path d="M18 11l-3.5-2-2.5 3.5L9 10l-3 3"/><path d="M12 12.5L9.5 17 6 20.5"/><path d="M12 12.5l3 3.5 1.5 4.5"/></svg>
+                </button>
+                <button type="button" data-mode="assist" onclick="selectAssistMode('assist')"
+                  class="assist-mode-btn h-14 rounded-2xl border-2 transition flex items-center justify-center"
+                  title="輔助推進（灰底答案提示｜首對 +0.5 / 首錯 -0.25 / 首次重答 +0.25）">
+                  <svg viewBox="0 0 24 24" class="w-6 h-6 shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="5.5" cy="17.5" r="3.5"/><circle cx="18.5" cy="17.5" r="3.5"/><path d="M15 6h-5l-2 5.5 4.5 2 2.5-4.5"/><path d="M12 13.5V17.5"/><circle cx="16" cy="5.5" r="1"/></svg>
+                </button>
+                <button type="button" data-mode="blind" onclick="selectAssistMode('blind')"
+                  class="assist-mode-btn h-14 rounded-2xl border-2 transition flex items-center justify-center shadow-sm"
+                  title="盲測挑戰（無提示｜首對 +1 / 首錯 -0.5 / 首次重答 +0.5）">
+                  <svg viewBox="0 0 24 24" class="w-6 h-6 shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 11l1.5-4.5A2 2 0 0 1 8.4 5h7.2a2 2 0 0 1 1.9 1.5L19 11"/><rect x="3" y="11" width="18" height="7" rx="2"/><circle cx="7.5" cy="15" r="1.2"/><circle cx="16.5" cy="15" r="1.2"/><line x1="5" y1="18" x2="5" y2="20"/><line x1="19" y1="18" x2="19" y2="20"/></svg>
+                </button>
               </div>
             </div>
-            <div id="filter-custom-values-list" class="max-h-40 overflow-y-auto grid grid-cols-2 gap-1.5 text-sm pt-1"></div>
           </div>
         </div>
 
@@ -379,8 +442,16 @@
             <div id="card-question-area" class="japanese-text text-xl md:text-2xl font-bold leading-relaxed flex flex-wrap items-center justify-center gap-1.5 select-text"></div>
           </div>
 
-          <!-- 提示欄位區 -->
-          <div id="card-hints-area" style="background-color: var(--front-light); border-color: var(--front-pale);" class="rounded-xl p-4 space-y-1.5 text-sm border select-text transition-colors"></div>
+          <!-- 左下角：提示欄位展開線條圖示鈕 + 可折疊提示欄位區 -->
+          <div class="space-y-2.5 pt-1">
+            <button type="button" id="btn-toggle-hints" onclick="toggleCardFields('front', event)" ondblclick="event.stopPropagation()"
+              style="background-color: var(--front-light); border-color: var(--front-pale); color: var(--front-ink);"
+              class="w-9 h-9 rounded-xl border transition flex items-center justify-center shadow-xs hover:opacity-90"
+              title="顯示／隱藏提示欄位">
+              <svg viewBox="0 0 24 24" class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+            </button>
+            <div id="card-hints-area" style="background-color: var(--front-light); border-color: var(--front-pale);" class="hidden rounded-xl p-4 space-y-1.5 text-sm border select-text transition-colors"></div>
+          </div>
         </div>
 
         <!-- ==================== 答案面（套用 --back-* 色系） ==================== -->
@@ -448,8 +519,16 @@
             <div id="back-full-sentence" class="japanese-text text-xl font-bold leading-relaxed"></div>
           </div>
 
-          <!-- 答案卡片展示欄位 -->
-          <div id="card-answers-area" style="background-color: var(--back-light); border-color: var(--back-pale);" class="rounded-xl p-4 space-y-2 text-sm border transition-colors"></div>
+          <!-- 左下角：答案展示欄位展開線條圖示鈕 + 可折疊答案展示區 -->
+          <div class="space-y-2.5 pt-1">
+            <button type="button" id="btn-toggle-answers" onclick="toggleCardFields('back', event)" ondblclick="event.stopPropagation()"
+              style="background-color: var(--back-light); border-color: var(--back-pale); color: var(--back-ink);"
+              class="w-9 h-9 rounded-xl border transition flex items-center justify-center shadow-xs hover:opacity-90"
+              title="顯示／隱藏答案欄位">
+              <svg viewBox="0 0 24 24" class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+            </button>
+            <div id="card-answers-area" style="background-color: var(--back-light); border-color: var(--back-pale);" class="hidden rounded-xl p-4 space-y-2 text-sm border transition-colors"></div>
+          </div>
         </div>
       </div>
     </section>
@@ -603,7 +682,7 @@
         </div>
 
         <div>
-          <label class="block font-bold mb-1">2. 選擇工作表 (Sheet)</label>
+          <label class="block font-bold mb-1">2. 選擇工作表</label>
           <select id="topic-sheet-select" onchange="handleSheetSelectChange()" style="border-color: var(--mizuiro);" class="w-full border rounded-xl px-3 py-2 bg-white">
             <option value="">-- 請先選擇工作表 --</option>
           </select>
@@ -611,7 +690,7 @@
 
         <div id="column-config-fields" class="hidden space-y-4">
           <div>
-            <label class="block font-bold mb-1">3. 出題卡片－出題欄位（單選，含 [ ]）</label>
+            <label class="block font-bold mb-1">3. 出題卡片－出題欄位（單選）</label>
             <select id="topic-question-col" style="border-color: var(--mizuiro);" class="w-full border rounded-xl px-3 py-2 bg-white"></select>
           </div>
 
@@ -629,7 +708,7 @@
 
       <div style="border-color: var(--usumizuiro);" class="flex flex-wrap items-center justify-between gap-2 border-t pt-4">
         <button type="button" onclick="openRandomPreviewModal()" class="btn-sora px-4 py-2 font-bold rounded-xl text-sm transition flex items-center gap-1.5">
-          <span>👁️</span> 預覽卡片
+          <svg viewBox="0 0 24 24" class="w-4 h-4 shrink-0 inline-block" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> <span>預覽卡片</span>
         </button>
         <div class="flex gap-2">
           <button onclick="closeModal('modal-add-topic')" class="px-4 py-2 text-slate-500 hover:bg-slate-100 rounded-xl text-sm">取消</button>
@@ -793,7 +872,14 @@
         </div>
 
         <div style="background-color: var(--bg-tint); border-color: var(--usumizuiro);" class="p-4 rounded-xl border space-y-1.5">
-          <h4 style="color: var(--misorairo);" class="font-bold">3. 出題卡與答案卡操作說明</h4>
+          <h4 style="color: var(--misorairo);" class="font-bold">3. 主題欄位與出題資料規則</h4>
+          <ul class="list-disc pl-5 space-y-1 text-xs">
+            <li><strong>出題欄位格式：</strong>出題欄位需在作答目標詞彙前後加上一組方括號 <code>[ ]</code>（例如 <code>栄養が[偏って]いる</code>），系統會自動將 <code>[ ]</code> 內文字作為正確答案與輸入比對標準，缺少 <code>[ ]</code> 的資料列會自動略過。</li>
+          </ul>
+        </div>
+
+        <div style="background-color: var(--bg-tint); border-color: var(--usumizuiro);" class="p-4 rounded-xl border space-y-1.5">
+          <h4 style="color: var(--misorairo);" class="font-bold">4. 出題卡與答案卡操作說明</h4>
           <ul class="list-disc pl-5 space-y-1 text-xs">
             <li><strong>出題中卡片：</strong>點擊播放按鈕（▶）或按 <code>Enter</code> 送出答案；<strong>在卡片空白處按兩下（雙擊）</strong>可直接翻至答案揭曉卡片（計為答錯）。</li>
             <li><strong>答案揭曉卡片：</strong>左側並排<strong>重答（🔄）</strong>與<strong>下一張（→）</strong>純圖示按鈕；右側為<strong>醒目綠色（答對）／紅色（答錯）圓形狀態圖示</strong>，點擊可展開／收合本次作答對比與里程變化詳情。</li>
@@ -1279,6 +1365,15 @@
 
     function selectAssistMode(mode) {
       currentStudy.assistMode = mode;
+      const modeLabelMap = {
+        warmup: '暖身練習',
+        assist: '輔助推進',
+        blind: '盲測挑戰'
+      };
+      const summaryModeEl = document.getElementById('summary-filter-mode');
+      if (summaryModeEl) {
+        summaryModeEl.textContent = modeLabelMap[mode] || '盲測挑戰';
+      }
       document.querySelectorAll('.assist-mode-btn').forEach(btn => {
         const isSelected = btn.dataset.mode === mode;
         if (isSelected) {
@@ -1401,11 +1496,16 @@
                 ${escapeHtml(cfg.Topic_Name)}
               </h3>
             </div>
-            <button type="button" onclick="openEditTopicModal('${cfg.Topic_ID}')" class="btn-usumizu shrink-0 w-9 h-9 rounded-xl transition flex items-center justify-center" title="編輯主題設定">
-              <svg viewBox="0 0 24 24" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/>
-              </svg>
-            </button>
+            <div class="flex items-center gap-1.5 shrink-0">
+              <button type="button" onclick="quickResumeTopic('${cfg.Topic_ID}')" class="btn-sora w-9 h-9 rounded-xl transition flex items-center justify-center" title="接續上次進度">
+                <svg viewBox="0 0 24 24" class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              </button>
+              <button type="button" onclick="openEditTopicModal('${cfg.Topic_ID}')" class="btn-usumizu w-9 h-9 rounded-xl transition flex items-center justify-center" title="編輯主題設定">
+                <svg viewBox="0 0 24 24" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/>
+                </svg>
+              </button>
+            </div>
           </div>
           <button type="button" onclick="prepareTopicFilter('${cfg.Topic_ID}')" class="btn-misora w-full py-2.5 font-bold rounded-xl text-sm transition shadow-sm">
             進入複習 →
@@ -1703,9 +1803,14 @@
 
         document.getElementById('filter-topic-title').textContent = topic.Topic_Name;
 
+        // 僅提供「不限欄位」與工作表 C 欄（res.headers[2]，索引 0=A、1=B、2=C；若無標題則顯示「預設分類」）
+        const colCHeader = res.headers && res.headers[2] ? String(res.headers[2]).trim() : '';
         const customColSelect = document.getElementById('filter-custom-col');
-        customColSelect.innerHTML = '<option value="">-- 不限欄位（練習全部資料） --</option>' +
-          currentStudy.headers.map(h => `<option value="${escapeHtml(h)}">${escapeHtml(h)}</option>`).join('');
+        if (colCHeader) {
+          customColSelect.innerHTML = `<option value="">不限欄位</option><option value="${escapeHtml(colCHeader)}">${escapeHtml(colCHeader)}</option>`;
+        } else {
+          customColSelect.innerHTML = `<option value="">不限欄位</option><option value="__COL_C__">預設分類</option>`;
+        }
         document.getElementById('filter-custom-values-wrapper').classList.add('hidden');
 
         const warnBox = document.getElementById('format-warning-box');
@@ -1716,6 +1821,18 @@
           warnBox.classList.add('hidden');
         }
 
+        document.getElementById('summary-filter-unit').textContent = '不限欄位';
+        const defaultStatusRadio = document.querySelector('input[name="learningStatus"][value="default"]');
+        if (defaultStatusRadio) defaultStatusRadio.checked = true;
+        document.getElementById('summary-filter-status').textContent = '原始';
+        const firstOrderRadio = document.querySelector('input[name="filterMode"][value="sheet_order"]');
+        if (firstOrderRadio) firstOrderRadio.checked = true;
+        document.getElementById('summary-filter-order').textContent = '原始';
+        ['unit', 'status', 'order', 'mode'].forEach(k => {
+          document.getElementById(`panel-filter-${k}`)?.classList.add('hidden');
+          const chev = document.getElementById(`chevron-filter-${k}`);
+          if (chev) chev.textContent = '▾';
+        });
         updateFilterMatchCount();
         switchView('filter');
       } catch (err) {
@@ -1725,6 +1842,25 @@
       }
     }
 
+    function getCardColumnValue(card, colName) {
+      if (colName === '__COL_C__') {
+        if (card._colC !== undefined) return card._colC;
+        const keys = Object.keys(card).filter(k => !k.startsWith('_'));
+        return keys.length >= 2 ? card[keys[1]] : '';
+      }
+      return card[colName];
+    }
+
+    function extractUniqueCommaTokens(card, colName) {
+      const rawVal = String(getCardColumnValue(card, colName) || '').trim();
+      if (!rawVal) return ['__EMPTY__'];
+      const parts = rawVal
+        .split(/[,，]/)
+        .map(s => s.trim())
+        .filter(s => s.length > 0);
+      return parts.length > 0 ? parts : ['__EMPTY__'];
+    }
+
     function handleFilterCustomColChange() {
       const colName = document.getElementById('filter-custom-col').value;
       const wrapper = document.getElementById('filter-custom-values-wrapper');
@@ -1732,14 +1868,14 @@
 
       if (!colName) {
         wrapper.classList.add('hidden');
+        updateUnitSummaryText();
         updateFilterMatchCount();
         return;
       }
 
       const uniqueValsSet = new Set();
       currentStudy.allValidCards.forEach(card => {
-        const val = String(card[colName] || '').trim();
-        uniqueValsSet.add(val === '' ? '__EMPTY__' : val);
+        extractUniqueCommaTokens(card, colName).forEach(token => uniqueValsSet.add(token));
       });
 
       const uniqueVals = Array.from(uniqueValsSet);
@@ -1747,23 +1883,49 @@
         const labelText = val === '__EMPTY__' ? '（空白）' : val;
         return `
           <label style="border-color: var(--usumizuiro);" class="flex items-center gap-2 cursor-pointer bg-white px-2.5 py-1.5 rounded-lg border hover:bg-[#f3f9fb]">
-            <input type="checkbox" value="${escapeHtml(val)}" checked onchange="updateFilterMatchCount()" class="filter-val-cb rounded accent-[#6894c8]">
+            <input type="checkbox" value="${escapeHtml(val)}" checked onchange="handleFilterValueCheckboxChange()" class="filter-val-cb rounded accent-[#6894c8]">
             <span class="truncate text-xs font-medium" title="${escapeHtml(labelText)}">${escapeHtml(labelText)}</span>
           </label>
         `;
       }).join('');
 
       wrapper.classList.remove('hidden');
+      updateUnitSummaryText();
       updateFilterMatchCount();
+    }
+
+    function handleFilterValueCheckboxChange() {
+      updateUnitSummaryText();
+      updateFilterMatchCount();
+    }
+
+    function updateUnitSummaryText() {
+      const summaryEl = document.getElementById('summary-filter-unit');
+      if (!summaryEl) return;
+      const selectEl = document.getElementById('filter-custom-col');
+      const colName = selectEl.value;
+      if (!colName) {
+        summaryEl.textContent = '不限欄位';
+        return;
+      }
+      const displayColTitle = colName === '__COL_C__' ? '預設分類' : colName;
+      const checkedLabels = Array.from(document.querySelectorAll('.filter-val-cb:checked')).map(cb => {
+        return cb.value === '__EMPTY__' ? '（空白）' : cb.value;
+      });
+      if (checkedLabels.length === 0) {
+        summaryEl.textContent = `${displayColTitle}：未勾選任何項目`;
+      } else {
+        summaryEl.textContent = `${displayColTitle}：${checkedLabels.join('、')}`;
+      }
     }
 
     function toggleAllFilterValues(checked) {
       document.querySelectorAll('.filter-val-cb').forEach(cb => cb.checked = checked);
+      updateUnitSummaryText();
       updateFilterMatchCount();
     }
 
     function getFilteredCardList() {
-      const mode = document.querySelector('input[name="filterMode"]:checked').value;
       const customCol = document.getElementById('filter-custom-col').value;
       let list = [...currentStudy.allValidCards];
 
@@ -1772,15 +1934,9 @@
           Array.from(document.querySelectorAll('.filter-val-cb:checked')).map(cb => cb.value)
         );
         list = list.filter(card => {
-          const rawVal = String(card[customCol] || '').trim();
-          const key = rawVal === '' ? '__EMPTY__' : rawVal;
-          return selectedVals.has(key);
+          const tokens = extractUniqueCommaTokens(card, customCol);
+          return tokens.some(tok => selectedVals.has(tok));
         });
-      }
-
-      if (mode === 'wrong') {
-        const minWrong = parseInt(document.getElementById('wrong-threshold').value) || 1;
-        list = list.filter(c => (appState.progress[c._id]?.wrongCount || 0) >= minWrong);
       }
 
       return list;
@@ -1791,8 +1947,114 @@
       document.getElementById('filter-total-count').textContent = matched.length;
     }
 
+    function toggleFilterStepPanel(stepKey) {
+      const panel = document.getElementById(`panel-filter-${stepKey}`);
+      const chev = document.getElementById(`chevron-filter-${stepKey}`);
+      if (!panel) return;
+      const isHidden = panel.classList.contains('hidden');
+      panel.classList.toggle('hidden', !isHidden);
+      if (chev) chev.textContent = isHidden ? '▴' : '▾';
+    }
+
+    function handleLearningStatusChange() {
+      const checkedStatus = document.querySelector('input[name="learningStatus"]:checked');
+      const status = checkedStatus ? checkedStatus.value : 'default';
+      const summaryStatusEl = document.getElementById('summary-filter-status');
+      if (summaryStatusEl) {
+        if (status === 'unpracticed_first') {
+          summaryStatusEl.textContent = '未練習優先';
+        } else if (status === 'wrong_first') {
+          const minWrong = parseInt(document.getElementById('wrong-threshold').value) || 1;
+          summaryStatusEl.textContent = `答錯 ${minWrong} 次優先`;
+        } else {
+          summaryStatusEl.textContent = '原始';
+        }
+      }
+    }
+
+    function handleOrderModeChange() {
+      const checkedRadio = document.querySelector('input[name="filterMode"]:checked');
+      const mode = checkedRadio ? checkedRadio.value : 'sheet_order';
+      const summaryOrderEl = document.getElementById('summary-filter-order');
+      if (summaryOrderEl) {
+        summaryOrderEl.textContent = mode === 'shuffle' ? '隨機' : '原始';
+      }
+    }
+
+    function shuffleArrayInPlace(arr) {
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    async function quickResumeTopic(topicId) {
+      const topic = appState.configs.find(c => String(c.Topic_ID) === String(topicId));
+      if (!topic) return;
+
+      setLoading(true);
+      try {
+        const res = await callGasGet({ action: 'getCards', sheetName: topic.Sheet_Name });
+        const validCards = [];
+        const clozeRegex = /^(.*?)\[(.+?)\](.*)$/;
+
+        res.cards.forEach(card => {
+          const rawQ = String(card[topic.Question_Col] || '').trim();
+          const match = rawQ.match(clozeRegex);
+          if (match) {
+            validCards.push({
+              ...card,
+              _prefix: match[1],
+              _answer: match[2],
+              _suffix: match[3]
+            });
+          }
+        });
+
+        if (validCards.length === 0) {
+          alert('此主題目前沒有可練習的卡片！');
+          return;
+        }
+
+        currentStudy.topic = topic;
+        currentStudy.headers = res.headers.filter((h, idx) => idx > 0 && h);
+        currentStudy.allValidCards = validCards;
+        currentStudy.queue = validCards;
+
+        let startIndex = 0;
+        if (appState.travel.lastTopicId === topic.Topic_ID && appState.travel.lastCardId) {
+          const foundIdx = validCards.findIndex(c => c._id === appState.travel.lastCardId);
+          if (foundIdx !== -1) startIndex = foundIdx;
+        }
+
+        currentStudy.currentIndex = startIndex;
+        currentStudy.retryCount = 0;
+        currentStudy.hasFirstFailed = false;
+        switchView('study');
+        renderCurrentFlashcard();
+      } catch (err) {
+        alert('接續上次進度失敗：' + err.message);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    function toggleCardFields(side, event) {
+      if (event) event.stopPropagation();
+      if (side === 'front') {
+        document.getElementById('card-hints-area')?.classList.toggle('hidden');
+      } else {
+        document.getElementById('card-answers-area')?.classList.toggle('hidden');
+      }
+    }
+
     function startStudySession() {
-      const mode = document.querySelector('input[name="filterMode"]:checked').value;
+      const checkedOrder = document.querySelector('input[name="filterMode"]:checked');
+      const orderMode = checkedOrder ? checkedOrder.value : 'sheet_order';
+      const checkedStatus = document.querySelector('input[name="learningStatus"]:checked');
+      const statusMode = checkedStatus ? checkedStatus.value : 'default';
+
       let list = getFilteredCardList();
 
       if (list.length === 0) {
@@ -1800,21 +2062,31 @@
         return;
       }
 
-      if (mode === 'shuffle') {
-        for (let i = list.length - 1; i > 0; i--) {
-          const j = Math.floor(Math.random() * (i + 1));
-          [list[i], list[j]] = [list[j], list[i]];
+      if (statusMode === 'unpracticed_first') {
+        let unpracticed = list.filter(c => (appState.progress[c._id]?.practiceCount || 0) === 0);
+        let practiced   = list.filter(c => (appState.progress[c._id]?.practiceCount || 0) > 0);
+        if (orderMode === 'shuffle') {
+          shuffleArrayInPlace(unpracticed);
+          shuffleArrayInPlace(practiced);
+        }
+        list = [...unpracticed, ...practiced];
+      } else if (statusMode === 'wrong_first') {
+        const minWrong = parseInt(document.getElementById('wrong-threshold').value) || 1;
+        let priorityWrong = list.filter(c => (appState.progress[c._id]?.wrongCount || 0) >= minWrong);
+        let others        = list.filter(c => (appState.progress[c._id]?.wrongCount || 0) < minWrong);
+        if (orderMode === 'shuffle') {
+          shuffleArrayInPlace(priorityWrong);
+          shuffleArrayInPlace(others);
+        }
+        list = [...priorityWrong, ...others];
+      } else {
+        if (orderMode === 'shuffle') {
+          shuffleArrayInPlace(list);
         }
       }
 
-      let startIndex = 0;
-      if (mode === 'resume' && appState.travel.lastTopicId === currentStudy.topic.Topic_ID && appState.travel.lastCardId) {
-        const foundIdx = list.findIndex(c => c._id === appState.travel.lastCardId);
-        if (foundIdx !== -1) startIndex = foundIdx;
-      }
-
       currentStudy.queue = list;
-      currentStudy.currentIndex = startIndex;
+      currentStudy.currentIndex = 0;
       currentStudy.retryCount = 0;
       currentStudy.hasFirstFailed = false;
       switchView('study');
@@ -1882,13 +2154,16 @@
 
       const hintCols = topic.Hint_Cols_JSON || [];
       const hintsArea = document.getElementById('card-hints-area');
+      const hintBtn = document.getElementById('btn-toggle-hints');
+      hintsArea.classList.add('hidden');
       if (hintCols.length > 0) {
-        hintsArea.classList.remove('hidden');
+        if (hintBtn) hintBtn.classList.remove('hidden');
         hintsArea.innerHTML = hintCols.map(col =>
           `<div><span class="font-bold text-slate-600">${col}：</span><span>${card[col] || '—'}</span></div>`
         ).join('');
       } else {
-        hintsArea.classList.add('hidden');
+        if (hintBtn) hintBtn.classList.add('hidden');
+        hintsArea.innerHTML = '';
       }
 
       setTimeout(() => {
@@ -2036,13 +2311,16 @@
 
       const ansCols = topic.Answer_Cols_JSON || [];
       const ansArea = document.getElementById('card-answers-area');
+      const ansBtn = document.getElementById('btn-toggle-answers');
+      ansArea.classList.add('hidden');
       if (ansCols.length > 0) {
-        ansArea.classList.remove('hidden');
+        if (ansBtn) ansBtn.classList.remove('hidden');
         ansArea.innerHTML = ansCols.map(col =>
           `<div><span class="font-bold text-slate-600">${col}：</span><span>${card[col] || '—'}</span></div>`
         ).join('');
       } else {
-        ansArea.classList.add('hidden');
+        if (ansBtn) ansBtn.classList.add('hidden');
+        ansArea.innerHTML = '';
       }
 
       Promise.all([
