@@ -238,7 +238,7 @@
 
               <div id="filter-custom-values-wrapper" style="background-color: var(--bg-tint); border-color: var(--usumizuiro);" class="hidden border rounded-xl p-3 space-y-2">
                 <div class="flex items-center justify-between text-xs text-slate-500 border-b pb-1.5">
-                  <span>指定欄位分類（可複選）：</span>
+                  <span>勾選篩選標籤（須同時符合所有勾選）：</span>
                   <div class="space-x-2">
                     <button type="button" onclick="toggleAllFilterValues(true)" style="color: var(--misorairo);" class="hover:underline font-bold">全選</button>
                     <button type="button" onclick="toggleAllFilterValues(false)" class="text-slate-500 hover:underline">全不選</button>
@@ -1799,15 +1799,32 @@
 
         currentStudy.topic = topic;
         currentStudy.headers = res.headers.filter((h, idx) => idx > 0 && h);
-        currentStudy.allValidCards = validCards;
+
+        // 取得工作表 C 欄（標題列索引 2：0=A欄、1=B欄、2=C欄），並依實際標題或 C 欄鍵名精準擷取每張卡片的 C 欄資料
+        const colCHeader = res.headers && res.headers[2] !== undefined ? String(res.headers[2]).trim() : '';
+        const enrichedValidCards = validCards.map(card => {
+          let rawC = '';
+          if (colCHeader && card[colCHeader] !== undefined) {
+            rawC = card[colCHeader];
+          } else if (card['C'] !== undefined) {
+            rawC = card['C'];
+          } else if (card['c'] !== undefined) {
+            rawC = card['c'];
+          } else {
+            const keys = Object.keys(card).filter(k => !k.startsWith('_'));
+            if (keys.length >= 3) rawC = card[keys[2]];
+            else if (keys.length >= 2) rawC = card[keys[1]];
+          }
+          return { ...card, _colC: rawC };
+        });
+        currentStudy.allValidCards = enrichedValidCards;
 
         document.getElementById('filter-topic-title').textContent = topic.Topic_Name;
 
-        // 僅提供「不限欄位」與工作表 C 欄（res.headers[2]，索引 0=A、1=B、2=C；若無標題則顯示「預設分類」）
-        const colCHeader = res.headers && res.headers[2] ? String(res.headers[2]).trim() : '';
+        // 僅提供「不限欄位」與工作表 C 欄（若無標題則顯示「預設分類」）
         const customColSelect = document.getElementById('filter-custom-col');
         if (colCHeader) {
-          customColSelect.innerHTML = `<option value="">不限欄位</option><option value="${escapeHtml(colCHeader)}">${escapeHtml(colCHeader)}</option>`;
+          customColSelect.innerHTML = `<option value="">不限欄位</option><option value="__COL_C__">${escapeHtml(colCHeader)}</option>`;
         } else {
           customColSelect.innerHTML = `<option value="">不限欄位</option><option value="__COL_C__">預設分類</option>`;
         }
@@ -1844,11 +1861,16 @@
 
     function getCardColumnValue(card, colName) {
       if (colName === '__COL_C__') {
-        if (card._colC !== undefined) return card._colC;
+        if (card._colC !== undefined && card._colC !== null && String(card._colC).trim() !== '') {
+          return card._colC;
+        }
         const keys = Object.keys(card).filter(k => !k.startsWith('_'));
-        return keys.length >= 2 ? card[keys[1]] : '';
+        return keys.length >= 3 ? card[keys[2]] : (keys.length >= 2 ? card[keys[1]] : '');
       }
-      return card[colName];
+      if (card[colName] !== undefined && card[colName] !== null && String(card[colName]).trim() !== '') {
+        return card[colName];
+      }
+      return card._colC !== undefined ? card._colC : '';
     }
 
     function extractUniqueCommaTokens(card, colName) {
@@ -1883,7 +1905,7 @@
         const labelText = val === '__EMPTY__' ? '（空白）' : val;
         return `
           <label style="border-color: var(--usumizuiro);" class="flex items-center gap-2 cursor-pointer bg-white px-2.5 py-1.5 rounded-lg border hover:bg-[#f3f9fb]">
-            <input type="checkbox" value="${escapeHtml(val)}" checked onchange="handleFilterValueCheckboxChange()" class="filter-val-cb rounded accent-[#6894c8]">
+            <input type="checkbox" value="${escapeHtml(val)}" onchange="handleFilterValueCheckboxChange()" class="filter-val-cb rounded accent-[#6894c8]">
             <span class="truncate text-xs font-medium" title="${escapeHtml(labelText)}">${escapeHtml(labelText)}</span>
           </label>
         `;
@@ -1908,14 +1930,14 @@
         summaryEl.textContent = '不限欄位';
         return;
       }
-      const displayColTitle = colName === '__COL_C__' ? '預設分類' : colName;
+      const selectedOptText = selectEl.options[selectEl.selectedIndex]?.textContent || '預設分類';
       const checkedLabels = Array.from(document.querySelectorAll('.filter-val-cb:checked')).map(cb => {
         return cb.value === '__EMPTY__' ? '（空白）' : cb.value;
       });
       if (checkedLabels.length === 0) {
-        summaryEl.textContent = `${displayColTitle}：未勾選任何項目`;
+        summaryEl.textContent = `${selectedOptText}：全部（未限定標籤）`;
       } else {
-        summaryEl.textContent = `${displayColTitle}：${checkedLabels.join('、')}`;
+        summaryEl.textContent = `${selectedOptText}：${checkedLabels.join(' + ')}`;
       }
     }
 
@@ -1930,13 +1952,13 @@
       let list = [...currentStudy.allValidCards];
 
       if (customCol) {
-        const selectedVals = new Set(
-          Array.from(document.querySelectorAll('.filter-val-cb:checked')).map(cb => cb.value)
-        );
-        list = list.filter(card => {
-          const tokens = extractUniqueCommaTokens(card, customCol);
-          return tokens.some(tok => selectedVals.has(tok));
-        });
+        const selectedVals = Array.from(document.querySelectorAll('.filter-val-cb:checked')).map(cb => cb.value);
+        if (selectedVals.length > 0) {
+          list = list.filter(card => {
+            const tokenSet = new Set(extractUniqueCommaTokens(card, customCol));
+            return selectedVals.every(reqTag => tokenSet.has(reqTag));
+          });
+        }
       }
 
       return list;
