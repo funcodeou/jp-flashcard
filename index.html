@@ -593,15 +593,18 @@
             </g>
             <!-- 尚未走過路線（淺水色虛線） -->
             <polyline id="map-route-line" fill="none" stroke="#bce2e8" stroke-width="3" stroke-dasharray="4 4" />
-            <!-- 已走過路線（深色實線，進入新的一圈時隨里程歸零重置） -->
-            <polyline id="map-progress-line" fill="none" stroke="#2b4159" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+            <!-- 已走過路線（深色實線，從起點到目前途中落點，進入新的一圈時隨里程歸零重置） -->
+            <polyline id="map-progress-line" fill="none" stroke="#2b4159" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.92" />
             <g id="map-nodes-group"></g>
             <!-- 已走過里程碑插旗層（暖珊瑚橘對比色，通關一圈重置時移除所有旗幟） -->
             <g id="map-flags-group"></g>
+            <!-- 水滴形目前位置標示：尖端 (0,0) 精準指向路線落點，上方容納角色頭像 -->
             <g id="map-player-marker" transform="translate(395, 345)">
-              <circle r="21" fill="#89c3eb" class="avatar-pulse" />
-              <circle r="19" fill="#ffffff" stroke="#6894c8" stroke-width="2.5" />
-              <g id="map-player-avatar" transform="translate(-14, -14) scale(0.4375)"></g>
+              <circle cx="0" cy="0" r="14" fill="#89c3eb" class="avatar-pulse" />
+              <path d="M0,0 C-5,-8 -19,-15 -19,-27 C-19,-37.5 -10.5,-46 0,-46 C10.5,-46 19,-37.5 19,-27 C19,-15 5,-8 0,0 Z"
+                    fill="#ffffff" stroke="#527db0" stroke-width="2.4" stroke-linejoin="round"/>
+              <circle cx="0" cy="-27" r="13.5" fill="#f3f9fb" stroke="#bce2e8" stroke-width="1.2"/>
+              <g id="map-player-avatar" transform="translate(-12.5, -39.5) scale(0.39)"></g>
             </g>
           </svg>
         </div>
@@ -2577,18 +2580,19 @@
       JAPAN_ROUTE.forEach((stop, idx) => {
         const isUnlocked = Boolean(unlockedMilestones[`loop${loop}_${stop.id}`]);
         if (isUnlocked) unlockedCount++;
-        // 本圈已走過的里程碑（起點或里程 <= currentKm 且已解鎖，排除終點未達標時）
-        const isPassedThisLoop = isUnlocked && currentKm >= stop.km && !(stop.id === 'tokyo_goal' && currentKm < 3000);
+        // 0 km 起點東京站及本圈已走過的里程碑（排除終點未達標時）
+        const isPassedThisLoop = (stop.id === 'tokyo_start' || (isUnlocked && currentKm >= stop.km)) && !(stop.id === 'tokyo_goal' && currentKm < 3000);
         const circle = document.getElementById(`node-${stop.id}`);
         if (circle) {
           circle.setAttribute('fill', isPassedThisLoop ? '#e06d53' : '#bce2e8');
           circle.setAttribute('r', isPassedThisLoop ? '4.5' : '4');
         }
         if (isPassedThisLoop) {
+          const offsetX = stop.id === 'tokyo_start' ? 5 : 0;
           flagsHtml += `
-            <g transform="translate(${stop.x}, ${stop.y})" pointer-events="none">
-              <line x1="0" y1="0" x2="0" y2="-15" stroke="#2b4159" stroke-width="1.8" stroke-linecap="round"/>
-              <path d="M0,-15 L11,-11.5 L0,-8 Z" fill="#e06d53" stroke="#2b4159" stroke-width="1.2" stroke-linejoin="round"/>
+            <g transform="translate(${stop.x + offsetX}, ${stop.y})" pointer-events="none">
+              <line x1="0" y1="0" x2="0" y2="-16" stroke="#2b4159" stroke-width="1.8" stroke-linecap="round"/>
+              <path d="M0,-16 L12,-12.5 L0,-9 Z" fill="#e06d53" stroke="#2b4159" stroke-width="1.2" stroke-linejoin="round"/>
             </g>
           `;
         }
