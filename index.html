@@ -236,7 +236,7 @@
                     <button type="button" onclick="toggleAllFilterValues(false)" class="text-slate-500 hover:underline">全不選</button>
                   </div>
                 </div>
-                <div id="filter-custom-values-list" class="max-h-40 overflow-y-auto grid grid-cols-2 gap-1.5 text-sm pt-1"></div>
+                <div id="filter-custom-values-list" class="max-h-48 overflow-x-auto overflow-y-auto flex items-start gap-2.5 text-sm pt-1 pb-2"></div>
               </div>
             </div>
           </div>
@@ -1911,20 +1911,29 @@
         return;
       }
 
-      const uniqueValsSet = new Set();
+      // 依逗號位置（第 0 欄、第 1 欄...）分組收集去重標籤，保留資料出現順序
+      const columnSets = [];
       currentStudy.allValidCards.forEach(card => {
-        extractUniqueCommaTokens(card, colName).forEach(token => uniqueValsSet.add(token));
+        const tokens = extractUniqueCommaTokens(card, colName);
+        tokens.forEach((token, posIdx) => {
+          if (!columnSets[posIdx]) {
+            columnSets[posIdx] = new Set();
+          }
+          columnSets[posIdx].add(token);
+        });
       });
 
-      const uniqueVals = Array.from(uniqueValsSet);
-      listContainer.innerHTML = uniqueVals.map(val => {
-        const labelText = val === '__EMPTY__' ? '（空白）' : val;
-        return `
-          <label style="border-color: var(--usumizuiro);" class="flex items-center gap-2 cursor-pointer bg-white px-2.5 py-1.5 rounded-lg border hover:bg-[#f3f9fb]">
-            <input type="checkbox" value="${escapeHtml(val)}" onchange="handleFilterValueCheckboxChange()" class="filter-val-cb rounded accent-[#6894c8]">
-            <span class="truncate text-xs font-medium" title="${escapeHtml(labelText)}">${escapeHtml(labelText)}</span>
-          </label>
-        `;
+      listContainer.innerHTML = columnSets.map((valSet, colIdx) => {
+        const itemsHtml = Array.from(valSet).map(val => {
+          const labelText = val === '__EMPTY__' ? '（空白）' : val;
+          return `
+            <label style="border-color: var(--usumizuiro);" class="flex items-center gap-2 cursor-pointer bg-white px-2.5 py-1.5 rounded-lg border hover:bg-[#f3f9fb] whitespace-nowrap">
+              <input type="checkbox" value="${escapeHtml(val)}" onchange="handleFilterValueCheckboxChange()" class="filter-val-cb rounded accent-[#6894c8] shrink-0">
+              <span class="text-xs font-medium" title="${escapeHtml(labelText)}">${escapeHtml(labelText)}</span>
+            </label>
+          `;
+        }).join('');
+        return `<div class="flex flex-col gap-1.5 shrink-0 min-w-[120px]">${itemsHtml}</div>`;
       }).join('');
 
       wrapper.classList.remove('hidden');
